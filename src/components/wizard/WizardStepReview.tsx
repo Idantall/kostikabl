@@ -64,11 +64,13 @@ export function WizardStepReview() {
             [`פרויקט: ${name}${isMultiBuilding ? ` - ${building.label}` : ''}`],
             [`קומה: ${floor.label}  דירה: ${apt.label}`],
             [],
-            ['מס\' פתח', 'מיקום בדירה', 'מס\' פרט', 'גובה', 'רוחב', 'הערות', 'גליף', 'גובה יואים', 'צד מנוע', 'זווית עליונה', 'זווית תחתונה'],
+            ['מס\' פתח', 'מיקום בדירה', 'פרט חוזה', 'מס\' פרט', 'גובה', 'רוחב', 'הערות', 'כיוון ציר', 'ממד', 'עומק', 'גליף', 'גובה יואים', 'מנואלה', 'צד מנוע', 'זווית עליונה', 'זווית תחתונה'],
             ...apt.rows.map(row => [
-              row.opening_no, row.location_in_apartment || '', row.item_code || '',
-              row.height || '', row.width || '', row.notes || '', row.glyph || '',
-              row.jamb_height || '', row.engine_side || '', row.angle1 || '', row.angle2 || '',
+              row.opening_no, row.location_in_apartment || '', row.contract_item || '',
+              row.item_code || '', row.height || '', row.width || '', row.notes || '',
+              row.hinge_direction || '', row.mamad || '', row.depth || '',
+              row.glyph || '', row.jamb_height || '', row.is_manual ? 'מנואלה' : '',
+              row.engine_side || '', row.angle1 || '', row.angle2 || '',
             ]),
           ];
           const ws = XLSX.utils.aoa_to_sheet(data);
@@ -356,12 +358,17 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           sheet_name: `${floor.label}_${apt.label}`,
           location_in_apartment: row.location_in_apartment,
           opening_no: String(row.opening_no),
+          contract_item: row.contract_item,
           item_code: row.item_code,
           height: row.height,
           width: row.width,
           notes: notesWithAngles.trim() || null,
+          hinge_direction: row.hinge_direction,
+          mamad: row.mamad,
           glyph: row.glyph,
           jamb_height: row.jamb_height,
+          depth: row.depth,
+          is_manual: row.is_manual || false,
           engine_side: row.engine_side === 'ימין' ? 'R' : row.engine_side === 'שמאל' ? 'L' : null,
         });
       });
