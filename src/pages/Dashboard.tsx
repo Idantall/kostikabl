@@ -16,7 +16,7 @@ import { AIChatAssistant } from "@/components/AIChatAssistant";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { useIsOwner } from "@/hooks/useRBAC";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import kostikaLogo from "@/assets/kostika-logo-new.jpg";
+import kostikaLogo from "@/assets/kostika-logo-new.png";
 
 export default function Dashboard() {
   const dashboardData = useDashboardData();

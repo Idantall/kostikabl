@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import kostikaLogo from "@/assets/kostika-logo-new.jpg";
+import kostikaLogo from "@/assets/kostika-logo-new.png";
 
 // A4: 210×297mm. 4cm diameter circles.
 // 5 columns (210/42 ≈ 5), 7 rows (297/42 ≈ 7) = 35 stickers

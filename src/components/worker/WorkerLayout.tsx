@@ -9,7 +9,7 @@ import {
   Menu, 
   X,
 } from 'lucide-react';
-import kostikaLogo from '@/assets/kostika-logo-new.jpg';
+import kostikaLogo from '@/assets/kostika-logo-new.png';
 import { WorkerIdentityProvider, useWorkerIdentity } from './WorkerIdentityContext';
 import { WorkerIdentityBadge } from './WorkerIdentityBadge';
 import { WorkerIdentityModal } from './WorkerIdentityModal';
