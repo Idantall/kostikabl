@@ -1,0 +1,1 @@
+ALTER TABLE public.father_project_buildings DROP CONSTRAINT IF EXISTS father_project_buildings_father_project_id_building_number_key;

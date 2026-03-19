@@ -1,0 +1,3 @@
+// Placeholder for Hebrew font - will be embedded via Google Fonts API
+// For now, using standard fonts with Hebrew Unicode support
+export const hebrewFontBase64 = "";

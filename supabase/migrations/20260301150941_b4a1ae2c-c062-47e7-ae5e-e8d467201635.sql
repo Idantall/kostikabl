@@ -1,0 +1,1 @@
+ALTER TABLE public.father_project_buildings ALTER COLUMN building_number TYPE text USING building_number::text;

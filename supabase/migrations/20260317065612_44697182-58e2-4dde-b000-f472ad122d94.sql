@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS prevent_locked_floor_modification ON public.measurement_rows;

@@ -1,0 +1,1 @@
+ALTER TABLE public.items ADD COLUMN purchasing_status text DEFAULT 'not_ordered';

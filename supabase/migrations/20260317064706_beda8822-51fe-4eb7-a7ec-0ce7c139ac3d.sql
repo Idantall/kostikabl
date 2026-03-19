@@ -1,0 +1,2 @@
+ALTER TABLE public.projects DROP CONSTRAINT projects_status_check;
+ALTER TABLE public.projects ADD CONSTRAINT projects_status_check CHECK (status = ANY (ARRAY['active'::text, 'measurement'::text, 'blind_jambs'::text, 'pre_contract'::text, 'archived'::text, 'completed'::text, 'purchasing'::text]));
