@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import kostikaLogo from "@/assets/kostika-logo-new.jpg";
+import kostikaLogo from "@/assets/kostika-logo-new.png";
 
 const Login = () => {
   const navigate = useNavigate();

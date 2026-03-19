@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, LogOut, FolderOpen, Trash2, Pencil, LayoutDashboard, Search, Ruler, Building2, FolderInput, FileText, ChevronDown, ChevronUp, Layers, Unlink, AlertTriangle, FilePenLine } from "lucide-react";
-import kostikaLogo from "@/assets/kostika-logo.jpg";
+import kostikaLogo from "@/assets/kostika-logo-new.png";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
