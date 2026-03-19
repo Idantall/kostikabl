@@ -356,12 +356,17 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           sheet_name: `${floor.label}_${apt.label}`,
           location_in_apartment: row.location_in_apartment,
           opening_no: String(row.opening_no),
+          contract_item: row.contract_item,
           item_code: row.item_code,
           height: row.height,
           width: row.width,
           notes: notesWithAngles.trim() || null,
+          hinge_direction: row.hinge_direction,
+          mamad: row.mamad,
           glyph: row.glyph,
           jamb_height: row.jamb_height,
+          depth: row.depth,
+          is_manual: row.is_manual || false,
           engine_side: row.engine_side === 'ימין' ? 'R' : row.engine_side === 'שמאל' ? 'L' : null,
         });
       });
