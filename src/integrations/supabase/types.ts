@@ -1047,6 +1047,7 @@ export type Database = {
       measurement_rows: {
         Row: {
           apartment_label: string | null
+          blind_jamb_item: string | null
           contract_item: string | null
           created_at: string
           depth: string | null
@@ -1075,6 +1076,7 @@ export type Database = {
         }
         Insert: {
           apartment_label?: string | null
+          blind_jamb_item?: string | null
           contract_item?: string | null
           created_at?: string
           depth?: string | null
@@ -1103,6 +1105,7 @@ export type Database = {
         }
         Update: {
           apartment_label?: string | null
+          blind_jamb_item?: string | null
           contract_item?: string | null
           created_at?: string
           depth?: string | null
