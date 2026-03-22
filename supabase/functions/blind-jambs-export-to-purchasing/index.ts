@@ -343,7 +343,7 @@ Deno.serve(async (req) => {
       const aptId = apartmentMap.get(aptKey);
       if (!floorId || !aptId) continue;
 
-      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.notes);
+      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.field_notes);
       const motorSide = normalizeEngineSide(row.engine_side);
 
       itemInserts.push({
