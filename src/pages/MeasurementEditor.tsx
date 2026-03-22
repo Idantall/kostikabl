@@ -36,7 +36,7 @@ interface MeasurementRow {
   internal_wing: string | null;
 }
 
-// Helper to extract user notes (excluding angle patterns)
+// Helper to extract user notes (excluding angle patterns from legacy data)
 const getUserNotes = (notes: string | null): string => {
   if (!notes) return '';
   return notes
@@ -45,7 +45,7 @@ const getUserNotes = (notes: string | null): string => {
     .trim();
 };
 
-// Helper to preserve angle patterns when user edits notes
+// Helper to preserve angle patterns when user edits notes (legacy compatibility)
 const mergeUserNotes = (newUserNotes: string, existingNotes: string | null): string | null => {
   const angle1Match = existingNotes?.match(/זווית1:[^;]*/)?.[0] || '';
   const angle2Match = existingNotes?.match(/זווית2:[^;]*/)?.[0] || '';
