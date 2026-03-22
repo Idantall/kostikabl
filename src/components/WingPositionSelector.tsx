@@ -1,30 +1,63 @@
 import { cn } from '@/lib/utils';
 
-// Inline SVG wing icons — a door frame with a filled triangle marking the hinge corner
+// Door swing diagrams matching architectural standards
 function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'; className?: string }) {
-  // Triangle points for each corner position
-  const triangles: Record<string, string> = {
-    TL: '4,4 4,20 20,4',
-    TR: '44,4 44,20 28,4',
-    BL: '4,44 4,28 20,44',
-    BR: '44,44 44,28 28,44',
+  // Each position renders a distinct door swing diagram
+  const renderDiagram = () => {
+    switch (position) {
+      case 'TL':
+        // Double door, right leaf active: rect + center divider + two triangles in right half
+        return (
+          <>
+            <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
+            <line x1="24" y1="3" x2="24" y2="61" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="24" y1="3" x2="45" y2="32" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="24" y1="61" x2="45" y2="32" stroke="currentColor" strokeWidth="1.5" />
+          </>
+        );
+      case 'TR':
+        // Single door, left-hinged opening right: two triangles forming ">" arrow
+        return (
+          <>
+            <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
+            <line x1="3" y1="3" x2="45" y2="32" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="3" y1="61" x2="45" y2="32" stroke="currentColor" strokeWidth="1.5" />
+          </>
+        );
+      case 'BL':
+        // Double door, left leaf active: rect + center divider + two triangles in left half
+        return (
+          <>
+            <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
+            <line x1="24" y1="3" x2="24" y2="61" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="24" y1="3" x2="3" y2="32" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="24" y1="61" x2="3" y2="32" stroke="currentColor" strokeWidth="1.5" />
+          </>
+        );
+      case 'BR':
+        // Single door, right-hinged opening left: two triangles forming "<" arrow
+        return (
+          <>
+            <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
+            <line x1="45" y1="3" x2="3" y2="32" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="45" y1="61" x2="3" y2="32" stroke="currentColor" strokeWidth="1.5" />
+          </>
+        );
+    }
   };
 
   return (
-    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Door frame */}
-      <rect x="3" y="3" width="42" height="42" rx="1" stroke="currentColor" strokeWidth="2.5" fill="none" />
-      {/* Hinge triangle */}
-      <polygon points={triangles[position]} fill="currentColor" />
+    <svg viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      {renderDiagram()}
     </svg>
   );
 }
 
 const WING_OPTIONS = [
-  { value: 'TL' as const, label: 'שמאל עליון', position: 'TL' as const },
-  { value: 'TR' as const, label: 'ימין עליון', position: 'TR' as const },
-  { value: 'BL' as const, label: 'שמאל תחתון', position: 'BL' as const },
-  { value: 'BR' as const, label: 'ימין תחתון', position: 'BR' as const },
+  { value: 'TL' as const, label: 'דלת כפולה ימין', position: 'TL' as const },
+  { value: 'TR' as const, label: 'דלת בודדת ימין', position: 'TR' as const },
+  { value: 'BL' as const, label: 'דלת כפולה שמאל', position: 'BL' as const },
+  { value: 'BR' as const, label: 'דלת בודדת שמאל', position: 'BR' as const },
 ];
 
 export type WingPositionValue = 'TL' | 'TR' | 'BL' | 'BR' | null;
@@ -36,7 +69,7 @@ interface WingPositionSelectorProps {
 }
 
 export function WingPositionSelector({ value, onChange, size = 'sm' }: WingPositionSelectorProps) {
-  const iconSize = size === 'sm' ? 'h-8 w-8' : 'h-10 w-10';
+  const iconSize = size === 'sm' ? 'h-10 w-7' : 'h-12 w-9';
 
   return (
     <div className="grid grid-cols-2 gap-1">
@@ -67,48 +100,54 @@ export function wingPositionLabel(value: string | null): string {
   return opt?.label || value;
 }
 
-// Generate a small PNG data URL from canvas for Excel embedding
+// Generate a PNG data URL from canvas for Excel embedding
 export function wingPositionToPngBase64(position: string): string | null {
   if (!['TL', 'TR', 'BL', 'BR'].includes(position)) return null;
 
-  const size = 64;
+  const w = 48;
+  const h = 64;
   const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = w * 2; // 2x for clarity
+  canvas.height = h * 2;
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
+  ctx.scale(2, 2);
+
   // White background
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, size, size);
+  ctx.fillRect(0, 0, w, h);
 
-  // Door frame
   ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(4, 4, size - 8, size - 8);
+  ctx.lineWidth = 1.5;
 
-  // Hinge triangle
-  ctx.fillStyle = '#000000';
-  ctx.beginPath();
-  const s = 18; // triangle size
+  // Outer rect
+  ctx.strokeRect(3, 3, 42, 58);
+
   switch (position) {
-    case 'TL':
-      ctx.moveTo(4, 4); ctx.lineTo(4, 4 + s); ctx.lineTo(4 + s, 4);
+    case 'TL': // Double door, right leaf
+      // Center divider
+      ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(24, 61); ctx.stroke();
+      // Top diagonal
+      ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(45, 32); ctx.stroke();
+      // Bottom diagonal
+      ctx.beginPath(); ctx.moveTo(24, 61); ctx.lineTo(45, 32); ctx.stroke();
       break;
-    case 'TR':
-      ctx.moveTo(size - 4, 4); ctx.lineTo(size - 4, 4 + s); ctx.lineTo(size - 4 - s, 4);
+    case 'TR': // Single door, opens right
+      ctx.beginPath(); ctx.moveTo(3, 3); ctx.lineTo(45, 32); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(3, 61); ctx.lineTo(45, 32); ctx.stroke();
       break;
-    case 'BL':
-      ctx.moveTo(4, size - 4); ctx.lineTo(4, size - 4 - s); ctx.lineTo(4 + s, size - 4);
+    case 'BL': // Double door, left leaf
+      ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(24, 61); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(3, 32); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(24, 61); ctx.lineTo(3, 32); ctx.stroke();
       break;
-    case 'BR':
-      ctx.moveTo(size - 4, size - 4); ctx.lineTo(size - 4, size - 4 - s); ctx.lineTo(size - 4 - s, size - 4);
+    case 'BR': // Single door, opens left
+      ctx.beginPath(); ctx.moveTo(45, 3); ctx.lineTo(3, 32); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(45, 61); ctx.lineTo(3, 32); ctx.stroke();
       break;
   }
-  ctx.closePath();
-  ctx.fill();
 
-  // Return base64 without prefix
   const dataUrl = canvas.toDataURL('image/png');
   return dataUrl.split(',')[1];
 }
