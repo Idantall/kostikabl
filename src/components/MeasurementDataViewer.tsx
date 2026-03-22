@@ -699,7 +699,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
   }
 
   const exportToCsv = () => {
-    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט', 'גובה', 'רוחב', 'הערות', 'גליף', 'גובה יואים', 'מנוע'];
+    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים'];
     const csvRows = [headers.join(',')];
     
     rows.forEach(row => {
@@ -711,13 +711,20 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         aptLabel || '',
         getRowField(row, 'location') || '',
         getRowField(row, 'opening_no') || '',
+        getRowField(row, 'contract_item') || '',
         getRowField(row, 'item_code') || '',
         getRowField(row, 'height') || '',
         getRowField(row, 'width') || '',
         (getRowField(row, 'notes') || '').replace(/,/g, ';'),
+        getRowField(row, 'hinge_direction') || '',
+        getRowField(row, 'mamad') || '',
         getRowField(row, 'glyph') || '',
+        getRowField(row, 'depth') || '',
         getRowField(row, 'jamb_height') || '',
-        getRowField(row, 'engine_side') || ''
+        getRowField(row, 'is_manual') || '',
+        getRowField(row, 'engine_side') || '',
+        (getRowField(row, 'field_notes') || '').replace(/,/g, ';'),
+        getRowField(row, 'internal_wing') || '',
       ];
       csvRows.push(values.join(','));
     });
