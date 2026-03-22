@@ -62,6 +62,16 @@ const normalizeEngineSide = (value: string | null | undefined): string | null =>
   return null;
 };
 
+// Normalize internal wing side value
+const normalizeInternalWing = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  const trimmed = value.trim().toUpperCase();
+  if (trimmed === '') return null;
+  if (trimmed === 'L' || trimmed === 'LEFT' || trimmed.includes('שמאל')) return 'L';
+  if (trimmed === 'R' || trimmed === 'RIGHT' || trimmed.includes('ימין')) return 'R';
+  return null;
+};
+
 // Normalize hinge direction to L/R
 const normalizeHingeDirection = (value: string | null | undefined): string | null => {
   if (!value) return null;
