@@ -266,6 +266,7 @@ function createWorksheet(
       { col: 'N', value: getField(row, 'engine_side') || '' },
       { col: 'O', value: fieldNotesValue },
       { col: 'P', value: getField(row, 'internal_wing') || '' },
+      { col: 'Q', value: getField(row, 'wing_position') || '' },
     ];
 
     // Write values to cells
