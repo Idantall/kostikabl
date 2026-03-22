@@ -135,6 +135,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'is_manual': return (ir as any).is_manual ? 'מנואלה' : null;
       case 'engine_side': return ir.motor_side;
       case 'internal_wing': return null;
+      case 'wing_position': return null;
       default: return null;
     }
   }
