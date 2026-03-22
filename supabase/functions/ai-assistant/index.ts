@@ -1020,9 +1020,10 @@ async function executeTool(name: string, args: any): Promise<string> {
         details += `• פרויקט: ${(item as any).projects?.name || '-'}\n`;
         details += `• קומה: ${(item as any).floors?.floor_code || '-'}\n`;
         details += `• דירה: ${(item as any).apartments?.apt_number || '-'}\n`;
-        details += `• מיקום: ${item.location || '-'}\n`;
-        details += `• מידות: ${item.width || '-'} x ${item.height || '-'}\n`;
-        details += `• הערות: ${item.notes || '-'}\n\n`;
+         details += `• מיקום: ${item.location || '-'}\n`;
+         details += `• מידות: ${item.width || '-'} x ${item.height || '-'}\n`;
+         details += `• הערות: ${item.field_notes || '-'}\n`;
+         details += `• גובה מהריצוף: ${item.notes || '-'}\n\n`;
         details += `**סטטוס:**\n`;
         details += `• טעינה: ${item.loading_status_cached || 'NOT_LOADED'}\n`;
         details += `• התקנה: ${item.install_status_cached || 'NOT_INSTALLED'}\n`;

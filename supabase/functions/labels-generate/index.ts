@@ -48,12 +48,12 @@ const SUBPART_KEYWORDS: Record<string, string[]> = {
 };
 
 function itemRequiresSubpart(item: any, sp: string): boolean {
-  const hay = [item.item_code, item.location, item.notes]
+  // Use item_type for type detection (notes is now height-from-floor, not descriptive)
+  const hay = [item.item_code, item.location, item.item_type]
     .filter(Boolean)
     .join(' ')
     .toLowerCase();
   const kw = SUBPART_KEYWORDS[sp] || [];
-  // default: if nothing matches, include nothing (or flip to "include all" if you prefer)
   return kw.some(k => hay.includes(k.toLowerCase()));
 }
 

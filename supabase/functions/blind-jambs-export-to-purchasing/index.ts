@@ -34,11 +34,19 @@ function classifySubpartsByKeywords(text: string): string[] {
   return codes.length > 0 ? codes : ["00"];
 }
 
-function deriveItemTypeAndCodes(itemCode: string | null, notes: string | null): { itemType: string; requiredCodes: string[] } {
-  const searchText = (notes || itemCode || "").trim();
-  if (searchText && NAME_TO_CODES[searchText]) {
-    return { itemType: searchText, requiredCodes: NAME_TO_CODES[searchText] };
+// Derive item_type and required_codes from item_code and field_notes (actual descriptive notes).
+// IMPORTANT: Do NOT pass measurement_rows.notes here — that field now stores numeric
+// "height from floor" data, not item type descriptions.
+function deriveItemTypeAndCodes(itemCode: string | null, fieldNotes: string | null): { itemType: string; requiredCodes: string[] } {
+  const codeText = (itemCode || "").trim();
+  if (codeText && NAME_TO_CODES[codeText]) {
+    return { itemType: codeText, requiredCodes: NAME_TO_CODES[codeText] };
   }
+  const notesText = (fieldNotes || "").trim();
+  if (notesText && NAME_TO_CODES[notesText]) {
+    return { itemType: notesText, requiredCodes: NAME_TO_CODES[notesText] };
+  }
+  const searchText = `${codeText} ${notesText}`;
   for (const [name, codes] of Object.entries(NAME_TO_CODES)) {
     if (searchText.includes(name)) {
       return { itemType: name, requiredCodes: codes };
@@ -335,7 +343,7 @@ Deno.serve(async (req) => {
       const aptId = apartmentMap.get(aptKey);
       if (!floorId || !aptId) continue;
 
-      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.notes);
+      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.field_notes);
       const motorSide = normalizeEngineSide(row.engine_side);
 
       itemInserts.push({
@@ -348,8 +356,8 @@ Deno.serve(async (req) => {
         opening_no: row.opening_no || null,
         width: row.width || null,
         height: row.height || null,
-        notes: row.notes || null,
-        field_notes: row.field_notes || null,
+        notes: row.field_notes || null,
+        field_notes: row.notes || null,
         side_rl: motorSide,
         motor_side: motorSide,
         required_codes: requiredCodes,

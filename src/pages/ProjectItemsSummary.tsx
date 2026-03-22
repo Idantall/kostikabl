@@ -86,10 +86,11 @@ const normalizeSide = (raw: string | null | undefined): string | null => {
   return null;
 };
 
-// Extract pocket type from notes (for side column)
-const extractPocketType = (notes: string | null): string | null => {
-  if (!notes) return null;
-  const n = notes.trim();
+// Extract pocket type from mamad field (which contains ☒☐ patterns)
+// Note: Previously checked 'notes' but that field now stores "height from floor" (numeric)
+const extractPocketType = (mamad: string | null): string | null => {
+  if (!mamad) return null;
+  const n = mamad.trim();
   
   // Order matters: check for triple first
   if (n.includes("☒☐☒")) return "כיס כפול";
@@ -99,35 +100,30 @@ const extractPocketType = (notes: string | null): string | null => {
   return null;
 };
 
-// Extract special designation from notes/item_type for separate grouping
-// This captures any meaningful text that should be displayed with the item code
-// Excludes "אחר" since it's the most common type and not meaningful
-const extractSpecialDesignation = (notes: string | null, itemType: string | null): string | null => {
+// Extract special designation from field_notes/item_type for separate grouping
+// Note: Previously used 'notes' but that field now stores "height from floor" (numeric).
+// Use field_notes for text-based detection and item_type for type-based detection.
+const extractSpecialDesignation = (fieldNotes: string | null, itemType: string | null): string | null => {
   // First check item_type - if it has meaningful content, use it
   if (itemType && itemType.trim()) {
     const trimmedType = itemType.trim();
-    // Skip "אחר" as it's the default/most common type - check both exact match and includes
     if (trimmedType === 'אחר' || trimmedType.includes('אחר')) {
       return null;
     }
-    // Return item_type if it's not just whitespace
     if (trimmedType.length > 0) {
       return trimmedType;
     }
   }
   
-  // Then check notes for special designations
-  if (notes && notes.trim()) {
-    const combined = notes.trim();
+  // Then check field_notes for special designations
+  if (fieldNotes && fieldNotes.trim()) {
+    const combined = fieldNotes.trim();
     
-    // Check for known special designations (case insensitive for Hebrew)
-    // חילוץ variants
     if (combined.includes("ח.חילוץ") || combined.includes("ח. חילוץ") || 
         combined.includes("חלון חילוץ") || combined.includes("חילוץ")) {
       return "חילוץ";
     }
     
-    // מנואלה
     if (combined.includes("מנואלה")) {
       return "מנואלה";
     }
@@ -454,7 +450,7 @@ const ProjectItemsSummary = () => {
       
       const normCode = normalizeItemCode(item.item_code);
       const normSide = normalizeSide(item.motor_side);
-      const specialDesig = extractSpecialDesignation(item.notes, item.item_type);
+      const specialDesig = extractSpecialDesignation(item.field_notes, item.item_type);
       const key = `${normCode}|||${normSide ?? "NULL"}|||${specialDesig ?? "NULL"}`;
       
       const openingNum = item.opening_no ? parseInt(item.opening_no, 10) : Infinity;
@@ -506,7 +502,7 @@ const ProjectItemsSummary = () => {
       const specialDesigStr = parts[2];
       const normSide = sideStr === "NULL" ? null : sideStr;
       const specialDesig = specialDesigStr === "NULL" ? null : specialDesigStr;
-      const pocketType = extractPocketType(data.notes);
+      const pocketType = extractPocketType(data.mamad);
       rows.push({
         normalizedItemCode: normCode,
         normalizedSide: normSide,

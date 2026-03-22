@@ -81,14 +81,14 @@ const SUBPART_KEYWORDS: Record<string, string[]> = {
 };
 
 function itemRequiresSubpart(item: any, sp: string): boolean {
-  // First check if notes has exact match to known names
-  const notes = (item.notes || '').trim();
-  if (notes && NAME_TO_CODES[notes]) {
-    return NAME_TO_CODES[notes].includes(sp);
+  // Use item_type for exact match to known names (preferred over notes which is now height-from-floor)
+  const itemType = (item.item_type || '').trim();
+  if (itemType && NAME_TO_CODES[itemType]) {
+    return NAME_TO_CODES[itemType].includes(sp);
   }
   
-  // Fallback to keyword detection
-  const hay = [item.item_code, item.location, item.notes]
+  // Fallback to keyword detection in item_code and location (skip notes - it's numeric now)
+  const hay = [item.item_code, item.location]
     .filter(Boolean)
     .join(' ')
     .toLowerCase();
@@ -268,7 +268,7 @@ serve(async (req) => {
       console.log(`[labels-generate-start] Factory mode, Origin: ${clientOrigin}, User selected: ${userSelectedSubparts}`);
 
       for (const item of items) {
-        const itemType = item.item_type || item.notes || '';
+        const itemType = item.item_type || '';
         const singleLabel = isSingleLabelLoading(itemType);
         
         if (singleLabel) {
@@ -282,8 +282,8 @@ serve(async (req) => {
           console.log(`[single-label] Item ${item.id} (${itemType}) -> LOAD subpart`);
         } else {
           // Multi-label loading: create per-subpart labels
-          const notes = (item.notes || '').trim();
-          const mappedCodes = notes && NAME_TO_CODES[notes] ? NAME_TO_CODES[notes] : null;
+          const itemType = (item.item_type || '').trim();
+          const mappedCodes = itemType && NAME_TO_CODES[itemType] ? NAME_TO_CODES[itemType] : null;
           
           for (const sp of targetSubparts) {
             if (userSelectedSubparts) {
