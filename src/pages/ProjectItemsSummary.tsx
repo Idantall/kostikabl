@@ -100,35 +100,30 @@ const extractPocketType = (mamad: string | null): string | null => {
   return null;
 };
 
-// Extract special designation from notes/item_type for separate grouping
-// This captures any meaningful text that should be displayed with the item code
-// Excludes "אחר" since it's the most common type and not meaningful
-const extractSpecialDesignation = (notes: string | null, itemType: string | null): string | null => {
+// Extract special designation from field_notes/item_type for separate grouping
+// Note: Previously used 'notes' but that field now stores "height from floor" (numeric).
+// Use field_notes for text-based detection and item_type for type-based detection.
+const extractSpecialDesignation = (fieldNotes: string | null, itemType: string | null): string | null => {
   // First check item_type - if it has meaningful content, use it
   if (itemType && itemType.trim()) {
     const trimmedType = itemType.trim();
-    // Skip "אחר" as it's the default/most common type - check both exact match and includes
     if (trimmedType === 'אחר' || trimmedType.includes('אחר')) {
       return null;
     }
-    // Return item_type if it's not just whitespace
     if (trimmedType.length > 0) {
       return trimmedType;
     }
   }
   
-  // Then check notes for special designations
-  if (notes && notes.trim()) {
-    const combined = notes.trim();
+  // Then check field_notes for special designations
+  if (fieldNotes && fieldNotes.trim()) {
+    const combined = fieldNotes.trim();
     
-    // Check for known special designations (case insensitive for Hebrew)
-    // חילוץ variants
     if (combined.includes("ח.חילוץ") || combined.includes("ח. חילוץ") || 
         combined.includes("חלון חילוץ") || combined.includes("חילוץ")) {
       return "חילוץ";
     }
     
-    // מנואלה
     if (combined.includes("מנואלה")) {
       return "מנואלה";
     }
