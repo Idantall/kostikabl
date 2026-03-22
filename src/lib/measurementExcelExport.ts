@@ -272,6 +272,7 @@ function createWorksheet(
       { col: 'O', value: fieldNotesValue },
       { col: 'P', value: getField(row, 'internal_wing') || '' },
       { col: 'Q', value: getField(row, 'wing_position') || '' },
+      { col: 'R', value: getField(row, 'wing_position_out') || '' },
     ];
 
     // Write values to cells
