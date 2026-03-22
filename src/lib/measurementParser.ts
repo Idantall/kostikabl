@@ -36,19 +36,20 @@ const MEASUREMENT_COLUMNS = {
   location_in_apartment: ['מיקום בדירה', 'מיקום'],
   opening_no: ['מס\' פתח', 'פתח', 'מספר פתח'],
   contract_item: ['פרט חוזה'],
-  item_code: ['מס\' פרט', 'מספר פרט', 'מספר פריט', 'פרט'],
+  item_code: ['מס\' פרט', 'מספר פרט', 'מספר פריט', 'פרט', 'פרט יצור'],
   height: ['גובה'],
   width: ['רוחב'],
-  notes: ['הערות'],
-  hinge_direction: ['כיוון ציר'],
-  mamad: ['ממד'],
+  notes: ['הערות', 'גובה מהריצוף'],
+  hinge_direction: ['כיוון ציר', 'ציר מבט מבפנים'],
+  mamad: ['ממד', 'ממד כיס בצד'],
   field_notes: ['הערות מהשטח', 'הערות שטח'],
   wall_thickness: ['עובי קיר', 'עובי'],
-  depth: ['עומק'],
+  depth: ['עומק', 'עומק עד הפריקסט'],
   glyph: ['גליף'],
-  jamb_height: ['גובה יואים', 'גובה יאם'],
+  jamb_height: ['גובה יואים', 'גובה יאם', 'מדרגה בשיש'],
   is_manual: ['מנואלה'],
-  engine_side: ['צד מנוע', 'צד']
+  engine_side: ['צד מנוע', 'צד'],
+  internal_wing: ['כנף פנימית מבט פנים', 'כנף פנימית'],
 };
 
 // Normalize engine side value
