@@ -107,6 +107,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'jamb_height': return mr.jamb_height;
       case 'is_manual': return mr.is_manual ? 'מנואלה' : null;
       case 'engine_side': return mr.engine_side;
+      case 'internal_wing': return (mr as any).internal_wing || null;
       default: return null;
     }
   } else {
