@@ -356,6 +356,83 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         contractParseResult: action.payload.contractParseResult,
       };
     
+    case 'SAVE_APARTMENT_TYPE': {
+      const { name, apartment } = action.payload;
+      const newType: ApartmentType = {
+        id: crypto.randomUUID(),
+        name,
+        rows: apartment.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
+      };
+      return { ...state, apartmentTypes: [...state.apartmentTypes, newType] };
+    }
+
+    case 'DELETE_APARTMENT_TYPE':
+      return { ...state, apartmentTypes: state.apartmentTypes.filter(t => t.id !== action.payload) };
+
+    case 'APPLY_APARTMENT_TYPE': {
+      const aptType = state.apartmentTypes.find(t => t.id === action.payload.typeId);
+      if (!aptType) return state;
+      const newRows = aptType.rows.map((row, idx) => ({
+        ...row,
+        id: crypto.randomUUID(),
+        opening_no: idx + 1,
+      }));
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(floor =>
+          floor.id === action.payload.floorId
+            ? {
+                ...floor,
+                apartments: floor.apartments.map(apt =>
+                  apt.id === action.payload.apartmentId
+                    ? { ...apt, rows: newRows }
+                    : apt
+                ),
+              }
+            : floor
+        )
+      );
+    }
+
+    case 'SAVE_FLOOR_TYPE': {
+      const { name, floor } = action.payload;
+      const newType: FloorType = {
+        id: crypto.randomUUID(),
+        name,
+        apartments: floor.apartments.map(apt => ({
+          ...apt,
+          id: crypto.randomUUID(),
+          rows: apt.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
+        })),
+      };
+      return { ...state, floorTypes: [...state.floorTypes, newType] };
+    }
+
+    case 'DELETE_FLOOR_TYPE':
+      return { ...state, floorTypes: state.floorTypes.filter(t => t.id !== action.payload) };
+
+    case 'APPLY_FLOOR_TYPE': {
+      const floorType = state.floorTypes.find(t => t.id === action.payload.typeId);
+      if (!floorType) return state;
+      let nextAptNum = getGlobalMaxAptNum(state.buildings) + 1;
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(floor => {
+          if (!action.payload.targetFloorIds.includes(floor.id)) return floor;
+          return {
+            ...floor,
+            apartments: floorType.apartments.map(apt => ({
+              id: crypto.randomUUID(),
+              label: `דירה ${nextAptNum++}`,
+              rows: apt.rows.map((row, idx) => ({
+                ...row,
+                id: crypto.randomUUID(),
+                opening_no: idx + 1,
+              })),
+            })),
+          };
+        })
+      );
+    }
+
     case 'RESET':
       return initialState;
     
