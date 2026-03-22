@@ -459,7 +459,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* גובה יואים */}
                     <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">גובה יואים</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">מדרגה בשיש</label>
                       <Input
                         value={row.jamb_height || ''}
                         onChange={(e) => updateRow(row.id, 'jamb_height', e.target.value || null)}
