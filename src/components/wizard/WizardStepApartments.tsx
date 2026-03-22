@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWizard } from './WizardContext';
-import { LOCATION_OPTIONS, ANGLE1_OPTIONS, ANGLE2_OPTIONS, MAMAD_OPTIONS, WizardApartmentRow } from '@/lib/wizardTypes';
+import { LOCATION_OPTIONS, MAMAD_OPTIONS, WizardApartmentRow } from '@/lib/wizardTypes';
 import { useTableKeyboardNav } from '@/hooks/useTableKeyboardNav';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
