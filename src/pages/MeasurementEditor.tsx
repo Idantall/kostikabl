@@ -392,7 +392,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* הערות */}
                     <div className="w-28">
-                      <label className="text-[11px] text-muted-foreground block text-center">הערות</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">גובה מהריצוף</label>
                       <Input
                         value={getUserNotes(row.notes)}
                         onChange={(e) => updateRow(row.id, 'notes', mergeUserNotes(e.target.value, row.notes))}
