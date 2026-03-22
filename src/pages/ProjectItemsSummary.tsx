@@ -86,10 +86,11 @@ const normalizeSide = (raw: string | null | undefined): string | null => {
   return null;
 };
 
-// Extract pocket type from notes (for side column)
-const extractPocketType = (notes: string | null): string | null => {
-  if (!notes) return null;
-  const n = notes.trim();
+// Extract pocket type from mamad field (which contains ☒☐ patterns)
+// Note: Previously checked 'notes' but that field now stores "height from floor" (numeric)
+const extractPocketType = (mamad: string | null): string | null => {
+  if (!mamad) return null;
+  const n = mamad.trim();
   
   // Order matters: check for triple first
   if (n.includes("☒☐☒")) return "כיס כפול";
