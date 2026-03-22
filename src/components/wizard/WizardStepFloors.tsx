@@ -380,6 +380,7 @@ export function WizardStepFloors() {
                           <Input value={floor.label} onChange={e => handleUpdateFloorLabel(floor.id, e.target.value)} onClick={e => e.stopPropagation()} className="w-32 h-8" dir="rtl" />
                           <Badge variant={floor.isTypical ? 'default' : 'outline'}>{floor.apartments.length} דירות</Badge>
                           {floor.isTypical && <Badge variant="secondary">קומה טיפוסית</Badge>}
+                          {floor.sourceFloorTypeName && <Badge variant="secondary" className="text-xs">טיפוס {floor.sourceFloorTypeName}</Badge>}
                         </div>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); handleToggleTypical(floor.id); }}>
