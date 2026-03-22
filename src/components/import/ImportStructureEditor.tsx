@@ -534,6 +534,19 @@ export function ImportStructureEditor({ buildings, onBuildingsChange, bankItems 
                               </SelectContent>
                             </Select>
                           </TableCell>
+                          <TableCell data-row={rowIdx} data-col={13}>
+                            <Input value={row.field_notes || ''} onChange={e => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'field_notes', e.target.value || null)} className="h-8 text-xs" dir="rtl" />
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={14}>
+                            <Select value={row.internal_wing || 'none'} onValueChange={v => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'internal_wing', v === 'none' ? null : v)}>
+                              <SelectTrigger className="h-8 bg-background text-xs"><SelectValue placeholder="-" /></SelectTrigger>
+                              <SelectContent className="bg-background z-50">
+                                <SelectItem value="none">-</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
                           <TableCell>
                             <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleDeleteRow(selectedFloorId, selectedApartmentId, row.id)} disabled={selectedApt.rows.length <= 1}>
                               <Trash2 className="h-3 w-3 text-destructive" />

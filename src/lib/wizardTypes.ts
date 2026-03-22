@@ -94,6 +94,11 @@ export const LOCATION_OPTIONS = [
 ] as const;
 
 // Mamad (pocket door) options with glyphs
+export const MAMAD_OPTIONS = [
+  { value: '☒☐', label: '☒☐ כיס שמאל' },
+  { value: '☐☒', label: '☐☒ כיס ימין' },
+  { value: '☒☐☒', label: '☒☐☒ כיס כפול' },
+] as const;
 
 // Helper to create empty apartment row
 export const createEmptyRow = (openingNo: number): WizardApartmentRow => ({
