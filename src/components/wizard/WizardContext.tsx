@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react';
-import { BankItem, WizardFloor, WizardBuilding, WizardDraft, ProjectType, createEmptyFloor, createEmptyApartment, createEmptyBuilding, cloneBuilding, WizardApartmentRow, createEmptyRow } from '@/lib/wizardTypes';
+import { BankItem, WizardFloor, WizardBuilding, WizardDraft, ProjectType, ApartmentType, FloorType, createEmptyFloor, createEmptyApartment, createEmptyBuilding, cloneBuilding, WizardApartmentRow, WizardApartment, createEmptyRow } from '@/lib/wizardTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -16,6 +16,8 @@ interface WizardState {
   projectType: ProjectType;
   contractPdfPath: string | null;
   contractParseResult: any | null;
+  apartmentTypes: ApartmentType[];
+  floorTypes: FloorType[];
 }
 
 // Helper to get floors for the current building
@@ -38,7 +40,7 @@ function updateCurrentBuildingFloors(state: WizardState, updater: (floors: Wizar
 
 // Actions
 type WizardAction =
-  | { type: 'SET_DRAFT'; payload: { id: string; name: string; bankItems: BankItem[]; buildings: WizardBuilding[]; projectType?: ProjectType; contractPdfPath?: string | null; contractParseResult?: any | null } }
+  | { type: 'SET_DRAFT'; payload: { id: string; name: string; bankItems: BankItem[]; buildings: WizardBuilding[]; projectType?: ProjectType; contractPdfPath?: string | null; contractParseResult?: any | null; apartmentTypes?: ApartmentType[]; floorTypes?: FloorType[] } }
   | { type: 'SET_NAME'; payload: string }
   | { type: 'SET_STEP'; payload: number }
   | { type: 'SET_BANK_ITEMS'; payload: BankItem[] }
@@ -65,6 +67,12 @@ type WizardAction =
   | { type: 'CLONE_FLOORS'; payload: { sourceFloorId: string; count: number; startLabel: number } }
   | { type: 'SET_PROJECT_TYPE'; payload: ProjectType }
   | { type: 'SET_CONTRACT_DATA'; payload: { contractPdfPath: string; contractParseResult: any } }
+  | { type: 'SAVE_APARTMENT_TYPE'; payload: { name: string; apartment: WizardApartment } }
+  | { type: 'DELETE_APARTMENT_TYPE'; payload: string }
+  | { type: 'APPLY_APARTMENT_TYPE'; payload: { typeId: string; floorId: string; apartmentId: string } }
+  | { type: 'SAVE_FLOOR_TYPE'; payload: { name: string; floor: WizardFloor } }
+  | { type: 'DELETE_FLOOR_TYPE'; payload: string }
+  | { type: 'APPLY_FLOOR_TYPE'; payload: { typeId: string; targetFloorIds: string[] } }
   | { type: 'RESET' };
 
 const initialState: WizardState = {
@@ -79,6 +87,8 @@ const initialState: WizardState = {
   projectType: 'blind_jambs',
   contractPdfPath: null,
   contractParseResult: null,
+  apartmentTypes: [],
+  floorTypes: [],
 };
 
 // Helper: get the max apartment number across all buildings
@@ -109,6 +119,8 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         projectType: action.payload.projectType || 'blind_jambs',
         contractPdfPath: action.payload.contractPdfPath || null,
         contractParseResult: action.payload.contractParseResult || null,
+        apartmentTypes: action.payload.apartmentTypes || [],
+        floorTypes: action.payload.floorTypes || [],
       };
     }
     
@@ -344,6 +356,83 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         contractParseResult: action.payload.contractParseResult,
       };
     
+    case 'SAVE_APARTMENT_TYPE': {
+      const { name, apartment } = action.payload;
+      const newType: ApartmentType = {
+        id: crypto.randomUUID(),
+        name,
+        rows: apartment.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
+      };
+      return { ...state, apartmentTypes: [...state.apartmentTypes, newType] };
+    }
+
+    case 'DELETE_APARTMENT_TYPE':
+      return { ...state, apartmentTypes: state.apartmentTypes.filter(t => t.id !== action.payload) };
+
+    case 'APPLY_APARTMENT_TYPE': {
+      const aptType = state.apartmentTypes.find(t => t.id === action.payload.typeId);
+      if (!aptType) return state;
+      const newRows = aptType.rows.map((row, idx) => ({
+        ...row,
+        id: crypto.randomUUID(),
+        opening_no: idx + 1,
+      }));
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(floor =>
+          floor.id === action.payload.floorId
+            ? {
+                ...floor,
+                apartments: floor.apartments.map(apt =>
+                  apt.id === action.payload.apartmentId
+                    ? { ...apt, rows: newRows }
+                    : apt
+                ),
+              }
+            : floor
+        )
+      );
+    }
+
+    case 'SAVE_FLOOR_TYPE': {
+      const { name, floor } = action.payload;
+      const newType: FloorType = {
+        id: crypto.randomUUID(),
+        name,
+        apartments: floor.apartments.map(apt => ({
+          ...apt,
+          id: crypto.randomUUID(),
+          rows: apt.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
+        })),
+      };
+      return { ...state, floorTypes: [...state.floorTypes, newType] };
+    }
+
+    case 'DELETE_FLOOR_TYPE':
+      return { ...state, floorTypes: state.floorTypes.filter(t => t.id !== action.payload) };
+
+    case 'APPLY_FLOOR_TYPE': {
+      const floorType = state.floorTypes.find(t => t.id === action.payload.typeId);
+      if (!floorType) return state;
+      let nextAptNum = getGlobalMaxAptNum(state.buildings) + 1;
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(floor => {
+          if (!action.payload.targetFloorIds.includes(floor.id)) return floor;
+          return {
+            ...floor,
+            apartments: floorType.apartments.map(apt => ({
+              id: crypto.randomUUID(),
+              label: `דירה ${nextAptNum++}`,
+              rows: apt.rows.map((row, idx) => ({
+                ...row,
+                id: crypto.randomUUID(),
+                opening_no: idx + 1,
+              })),
+            })),
+          };
+        })
+      );
+    }
+
     case 'RESET':
       return initialState;
     
@@ -352,21 +441,31 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   }
 }
 
-// Backward compatibility: convert old flat floors[] to buildings[]
-function migrateFloorsToBuildings(floors: any[]): WizardBuilding[] {
-  if (!floors || floors.length === 0) {
-    return [createEmptyBuilding('בניין 1')];
+// Backward compatibility: convert old formats to { buildings, apartmentTypes, floorTypes }
+function migrateFloorsData(raw: any): { buildings: WizardBuilding[]; apartmentTypes: ApartmentType[]; floorTypes: FloorType[] } {
+  // V2 format: wrapper object with __v key
+  if (raw && typeof raw === 'object' && !Array.isArray(raw) && raw.__v === 2) {
+    return {
+      buildings: raw.buildings || [createEmptyBuilding('בניין 1')],
+      apartmentTypes: raw.apartmentTypes || [],
+      floorTypes: raw.floorTypes || [],
+    };
   }
-  // Check if already in buildings format (has 'label' and 'floors' keys)
+  // Legacy array format
+  const floors = Array.isArray(raw) ? raw : [];
+  if (floors.length === 0) {
+    return { buildings: [createEmptyBuilding('בניין 1')], apartmentTypes: [], floorTypes: [] };
+  }
+  // Buildings format (has 'label' and 'floors' keys)
   if (floors[0] && 'floors' in floors[0] && 'label' in floors[0] && Array.isArray(floors[0].floors)) {
-    return floors as WizardBuilding[];
+    return { buildings: floors as WizardBuilding[], apartmentTypes: [], floorTypes: [] };
   }
-  // Old format: wrap in a single building
-  return [{
-    id: crypto.randomUUID(),
-    label: 'בניין 1',
-    floors: floors as WizardFloor[],
-  }];
+  // Old flat floors format
+  return {
+    buildings: [{ id: crypto.randomUUID(), label: 'בניין 1', floors: floors as WizardFloor[] }],
+    apartmentTypes: [],
+    floorTypes: [],
+  };
 }
 
 // Context
@@ -405,7 +504,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
     }, 2000);
     
     return () => clearTimeout(timeoutId);
-  }, [state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath]);
+  }, [state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath, state.apartmentTypes, state.floorTypes]);
 
   const saveDraft = useCallback(async () => {
     if (!state.draftId) {
@@ -425,8 +524,13 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
       const updatePayload: any = {
         name: state.name,
         bank_items: JSON.parse(JSON.stringify(state.bankItems)),
-        // Save buildings into the 'floors' JSONB column
-        floors: JSON.parse(JSON.stringify(state.buildings)),
+        // Save buildings + types into the 'floors' JSONB column as a wrapper
+        floors: JSON.parse(JSON.stringify({
+          __v: 2,
+          buildings: state.buildings,
+          apartmentTypes: state.apartmentTypes,
+          floorTypes: state.floorTypes,
+        })),
         project_type: state.projectType,
         contract_pdf_path: state.contractPdfPath,
         contract_parse_result: state.contractParseResult ? JSON.parse(JSON.stringify(state.contractParseResult)) : null,
@@ -452,7 +556,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
     } finally {
       dispatch({ type: 'SET_SAVING', payload: false });
     }
-  }, [state.draftId, state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath, state.contractParseResult, userId]);
+  }, [state.draftId, state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath, state.contractParseResult, state.apartmentTypes, state.floorTypes, userId]);
 
   const loadDraft = useCallback(async (draftId: string) => {
     try {
@@ -464,8 +568,8 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
       
       if (error) throw error;
       
-      const rawFloors = (data.floors as unknown as any[]) || [];
-      const buildings = migrateFloorsToBuildings(rawFloors);
+      const rawFloors = data.floors as unknown as any;
+      const { buildings, apartmentTypes, floorTypes } = migrateFloorsData(rawFloors);
 
       dispatch({
         type: 'SET_DRAFT',
@@ -477,6 +581,8 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
           projectType: (data as any).project_type || 'blind_jambs',
           contractPdfPath: (data as any).contract_pdf_path || null,
           contractParseResult: (data as any).contract_parse_result || null,
+          apartmentTypes,
+          floorTypes,
         },
       });
     } catch (error: any) {

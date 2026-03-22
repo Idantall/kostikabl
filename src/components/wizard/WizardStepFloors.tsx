@@ -9,9 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, ArrowRight, Plus, Trash2, Copy, Building2, Home, ChevronDown, ChevronUp, Pencil, Check, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Plus, Trash2, Copy, Building2, Home, ChevronDown, ChevronUp, Pencil, Check, X, Save, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export function WizardStepFloors() {
   const { state, dispatch, currentFloors } = useWizard();
@@ -31,6 +32,14 @@ export function WizardStepFloors() {
   // Apartment label editing
   const [editingApt, setEditingApt] = useState<{ floorId: string; aptId: string } | null>(null);
   const [editingAptLabel, setEditingAptLabel] = useState('');
+  
+  // Floor type dialogs
+  const [saveFloorTypeDialogOpen, setSaveFloorTypeDialogOpen] = useState(false);
+  const [saveFloorTypeSourceId, setSaveFloorTypeSourceId] = useState('');
+  const [saveFloorTypeName, setSaveFloorTypeName] = useState('');
+  const [applyFloorTypeDialogOpen, setApplyFloorTypeDialogOpen] = useState(false);
+  const [applyFloorTypeId, setApplyFloorTypeId] = useState('');
+  const [applyFloorTypeTargets, setApplyFloorTypeTargets] = useState<Set<string>>(new Set());
 
   const handleStartEditApt = (floorId: string, aptId: string, label: string) => {
     setEditingApt({ floorId, aptId });
@@ -318,6 +327,42 @@ export function WizardStepFloors() {
             </Dialog>
           </div>
 
+          {/* Floor type actions */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {state.floorTypes.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => {
+                  setApplyFloorTypeId(state.floorTypes[0]?.id || '');
+                  setApplyFloorTypeTargets(new Set());
+                  setApplyFloorTypeDialogOpen(true);
+                }}
+              >
+                <Download className="h-3.5 w-3.5" />
+                החל סוג קומה
+              </Button>
+            )}
+            {state.floorTypes.length > 0 && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                סוגי קומות:
+                {state.floorTypes.map(t => (
+                  <Badge key={t.id} variant="secondary" className="text-xs gap-1">
+                    {t.name} ({t.apartments.length} דירות)
+                    <button
+                      type="button"
+                      onClick={() => dispatch({ type: 'DELETE_FLOOR_TYPE', payload: t.id })}
+                      className="hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
           {floors.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground border rounded-lg">
               <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -339,6 +384,20 @@ export function WizardStepFloors() {
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); handleToggleTypical(floor.id); }}>
                             {floor.isTypical ? 'בטל טיפוסית' : 'סמן כטיפוסית'}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-1"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSaveFloorTypeSourceId(floor.id);
+                              setSaveFloorTypeName(floor.label);
+                              setSaveFloorTypeDialogOpen(true);
+                            }}
+                          >
+                            <Save className="h-3.5 w-3.5" />
+                            שמור כסוג
                           </Button>
                           <Button variant="ghost" size="icon" onClick={e => { e.stopPropagation(); handleDeleteFloor(floor.id); }} className="text-destructive hover:text-destructive">
                             <Trash2 className="h-4 w-4" />
@@ -423,6 +482,105 @@ export function WizardStepFloors() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Save floor type dialog */}
+      <Dialog open={saveFloorTypeDialogOpen} onOpenChange={setSaveFloorTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>שמור כסוג קומה</DialogTitle>
+            <DialogDescription>שמור את מבנה הקומה (דירות ושורות) כתבנית לשימוש חוזר</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={saveFloorTypeName}
+              onChange={e => setSaveFloorTypeName(e.target.value)}
+              placeholder="שם הסוג"
+              dir="rtl"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSaveFloorTypeDialogOpen(false)}>ביטול</Button>
+            <Button onClick={() => {
+              if (!saveFloorTypeName.trim()) { toast.error('יש להזין שם'); return; }
+              const sourceFloor = floors.find(f => f.id === saveFloorTypeSourceId);
+              if (!sourceFloor) return;
+              dispatch({ type: 'SAVE_FLOOR_TYPE', payload: { name: saveFloorTypeName.trim(), floor: sourceFloor } });
+              toast.success('סוג קומה נשמר');
+              setSaveFloorTypeDialogOpen(false);
+            }}>שמור</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Apply floor type dialog */}
+      <Dialog open={applyFloorTypeDialogOpen} onOpenChange={setApplyFloorTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>החל סוג קומה</DialogTitle>
+            <DialogDescription>בחר סוג קומה וקומות יעד. הדירות הקיימות בקומות הנבחרות יוחלפו.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label>סוג קומה</Label>
+              <Select value={applyFloorTypeId} onValueChange={setApplyFloorTypeId}>
+                <SelectTrigger className="bg-background"><SelectValue placeholder="בחר סוג" /></SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {state.floorTypes.map(t => (
+                    <SelectItem key={t.id} value={t.id}>{t.name} ({t.apartments.length} דירות)</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>קומות יעד</Label>
+              <div className="space-y-1.5 max-h-60 overflow-y-auto border rounded-md p-2">
+                {floors.map(floor => (
+                  <label key={floor.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded">
+                    <Checkbox
+                      checked={applyFloorTypeTargets.has(floor.id)}
+                      onCheckedChange={(checked) => {
+                        setApplyFloorTypeTargets(prev => {
+                          const next = new Set(prev);
+                          if (checked) next.add(floor.id);
+                          else next.delete(floor.id);
+                          return next;
+                        });
+                      }}
+                    />
+                    <span className="text-sm">{floor.label}</span>
+                    {floor.apartments.length > 0 && (
+                      <Badge variant="outline" className="text-xs mr-auto">{floor.apartments.length} דירות</Badge>
+                    )}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApplyFloorTypeDialogOpen(false)}>ביטול</Button>
+            <Button
+              disabled={!applyFloorTypeId || applyFloorTypeTargets.size === 0}
+              onClick={() => {
+                const hasData = floors.some(f =>
+                  applyFloorTypeTargets.has(f.id) && f.apartments.some(a => a.rows.some(r => r.item_code))
+                );
+                if (hasData) {
+                  if (!confirm('חלק מהקומות הנבחרות מכילות נתונים. להחליף?')) return;
+                }
+                dispatch({
+                  type: 'APPLY_FLOOR_TYPE',
+                  payload: { typeId: applyFloorTypeId, targetFloorIds: Array.from(applyFloorTypeTargets) },
+                });
+                toast.success(`סוג קומה הוחל על ${applyFloorTypeTargets.size} קומות`);
+                setApplyFloorTypeDialogOpen(false);
+              }}
+            >
+              החל
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

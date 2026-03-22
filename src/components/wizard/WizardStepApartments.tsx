@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, Plus, Trash2, RotateCcw, Building2, Home, Pencil, Check, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ArrowLeft, ArrowRight, Plus, Trash2, RotateCcw, Building2, Home, Pencil, Check, X, Save, Download } from 'lucide-react';
 import { WingPositionSelector, WingPositionValue } from '@/components/WingPositionSelector';
 import { toast } from 'sonner';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -26,6 +27,11 @@ export function WizardStepApartments() {
   
   const [editingApartmentId, setEditingApartmentId] = useState<string | null>(null);
   const [editingApartmentLabel, setEditingApartmentLabel] = useState<string>('');
+  
+  // Apartment type dialogs
+  const [saveTypeDialogOpen, setSaveTypeDialogOpen] = useState(false);
+  const [saveTypeName, setSaveTypeName] = useState('');
+  const [applyTypeDialogOpen, setApplyTypeDialogOpen] = useState(false);
 
   const currentFloor = floors.find(f => f.id === selectedFloorId);
   const currentApartment = currentFloor?.apartments.find(a => a.id === selectedApartmentId);
@@ -236,6 +242,49 @@ export function WizardStepApartments() {
             )}
           </div>
 
+          {/* Apartment type actions */}
+          {currentApartment && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => { setSaveTypeName(currentApartment.label); setSaveTypeDialogOpen(true); }}
+              >
+                <Save className="h-3.5 w-3.5" />
+                שמור כסוג דירה
+              </Button>
+              {state.apartmentTypes.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setApplyTypeDialogOpen(true)}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  החל סוג דירה
+                </Button>
+              )}
+              {state.apartmentTypes.length > 0 && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  סוגים שמורים:
+                  {state.apartmentTypes.map(t => (
+                    <Badge key={t.id} variant="secondary" className="text-xs gap-1">
+                      {t.name} ({t.rows.length})
+                      <button
+                        type="button"
+                        onClick={() => dispatch({ type: 'DELETE_APARTMENT_TYPE', payload: t.id })}
+                        className="hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Apartment table */}
           {currentApartment ? (
             <>
@@ -407,6 +456,67 @@ export function WizardStepApartments() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Save apartment type dialog */}
+      <Dialog open={saveTypeDialogOpen} onOpenChange={setSaveTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>שמור כסוג דירה</DialogTitle>
+            <DialogDescription>שמור את מבנה הדירה הנוכחית כתבנית לשימוש חוזר</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={saveTypeName}
+              onChange={e => setSaveTypeName(e.target.value)}
+              placeholder="שם הסוג"
+              dir="rtl"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSaveTypeDialogOpen(false)}>ביטול</Button>
+            <Button onClick={() => {
+              if (!saveTypeName.trim()) { toast.error('יש להזין שם'); return; }
+              if (!currentApartment) return;
+              dispatch({ type: 'SAVE_APARTMENT_TYPE', payload: { name: saveTypeName.trim(), apartment: currentApartment } });
+              toast.success('סוג דירה נשמר');
+              setSaveTypeDialogOpen(false);
+            }}>שמור</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Apply apartment type dialog */}
+      <Dialog open={applyTypeDialogOpen} onOpenChange={setApplyTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>החל סוג דירה</DialogTitle>
+            <DialogDescription>בחר סוג דירה להחלה על הדירה הנוכחית. הנתונים הקיימים יוחלפו.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-2">
+            {state.apartmentTypes.map(t => (
+              <Button
+                key={t.id}
+                variant="outline"
+                className="w-full justify-start gap-2"
+                onClick={() => {
+                  if (!currentFloor || !currentApartment) return;
+                  if (currentApartment.rows.some(r => r.item_code)) {
+                    if (!confirm('לדירה זו יש נתונים קיימים. להחליף?')) return;
+                  }
+                  dispatch({ type: 'APPLY_APARTMENT_TYPE', payload: { typeId: t.id, floorId: currentFloor.id, apartmentId: currentApartment.id } });
+                  toast.success(`סוג "${t.name}" הוחל`);
+                  setApplyTypeDialogOpen(false);
+                }}
+              >
+                <Home className="h-4 w-4" />
+                {t.name}
+                <Badge variant="secondary" className="mr-auto">{t.rows.length} שורות</Badge>
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
