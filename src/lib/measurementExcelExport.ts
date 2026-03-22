@@ -75,6 +75,7 @@ const COLUMN_WIDTHS = [
   9.625, // N - צד מנוע
   13,    // O - הערות
   11,    // P - כנף פנימית מבט פנים
+  11,    // Q - מיקום כנף
 ];
 
 // Get floor label from row
