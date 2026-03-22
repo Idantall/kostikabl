@@ -42,6 +42,7 @@ interface MeasurementRow {
   is_manual: boolean;
   internal_wing: string | null;
   wing_position: string | null;
+  wing_position_out: string | null;
   updated_at: string;
 }
 
@@ -109,6 +110,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     is_manual: boolean;
     internal_wing: string | null;
     wing_position: string | null;
+    wing_position_out: string | null;
   }>({
     item_code: "",
     height: "",
@@ -128,6 +130,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     is_manual: false,
     internal_wing: null,
     wing_position: null,
+    wing_position_out: null,
   });
   const [saving, setSaving] = useState(false);
 
@@ -287,6 +290,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'is_manual': return row.is_manual ? 'כן' : null;
         case 'internal_wing': return row.internal_wing;
         case 'wing_position': return row.wing_position;
+        case 'wing_position_out': return row.wing_position_out;
         default: return null;
       }
     } else {
@@ -310,6 +314,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'is_manual': return (row as any).is_manual ? 'כן' : null;
         case 'internal_wing': return null;
         case 'wing_position': return null;
+        case 'wing_position_out': return null;
         default: return null;
       }
     }
@@ -363,6 +368,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       is_manual: getRowField(row, 'is_manual') === 'כן',
       internal_wing: getRowField(row, 'internal_wing'),
       wing_position: getRowField(row, 'wing_position'),
+      wing_position_out: getRowField(row, 'wing_position_out'),
     });
   };
 
@@ -387,6 +393,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       is_manual: false,
       internal_wing: null,
       wing_position: null,
+      wing_position_out: null,
     });
   };
 
@@ -569,6 +576,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
             is_manual: editValues.is_manual,
             internal_wing: editValues.internal_wing || null,
             wing_position: editValues.wing_position || null,
+            wing_position_out: editValues.wing_position_out || null,
           })
           .eq('id', stringId);
         
@@ -597,6 +605,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
               is_manual: editValues.is_manual,
               internal_wing: editValues.internal_wing || null,
               wing_position: editValues.wing_position || null,
+              wing_position_out: editValues.wing_position_out || null,
             } as MeasurementRow;
           }
           return r;
@@ -708,7 +717,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
   }
 
   const exportToCsv = () => {
-    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים', 'מיקום כנף'];
+    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים', 'ציר מבט פנים פתיחה פנימה', 'ציר מבט פנים פתיחה החוצה'];
     const csvRows = [headers.join(',')];
     
     rows.forEach(row => {
@@ -735,6 +744,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         (getRowField(row, 'field_notes') || '').replace(/,/g, ';'),
         getRowField(row, 'internal_wing') || '',
         getRowField(row, 'wing_position') || '',
+        getRowField(row, 'wing_position_out') || '',
       ];
       csvRows.push(values.join(','));
     });
@@ -882,7 +892,8 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                     <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
                     <TableHead className="text-right text-xs font-medium min-w-[80px]">הערות</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-20">מיקום כנף</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">פתיחה פנימה</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">פתיחה החוצה</TableHead>
                     {editMode && (
                       <TableHead className="text-center text-xs font-medium w-20">פעולות</TableHead>
                     )}
@@ -1165,6 +1176,18 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             />
                           ) : (
                             getRowField(row, 'wing_position') || '-'
+                          )}
+                        </TableCell>
+                        {/* ציר מבט פנים פתיחה החוצה */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.wing_position_out || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position_out: e.target.value || null }))}
+                              className="h-7 text-xs w-14"
+                            />
+                          ) : (
+                            getRowField(row, 'wing_position_out') || '-'
                           )}
                         </TableCell>
                         {editMode && (

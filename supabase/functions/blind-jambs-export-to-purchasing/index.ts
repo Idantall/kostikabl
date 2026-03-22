@@ -271,6 +271,7 @@ Deno.serve(async (req) => {
         engine_side: row.engine_side,
         internal_wing: row.internal_wing,
         wing_position: row.wing_position,
+        wing_position_out: row.wing_position_out,
       }));
 
       const { error: copyError } = await supabaseAdmin

@@ -64,14 +64,14 @@ export function WizardStepReview() {
             [`פרויקט: ${name}${isMultiBuilding ? ` - ${building.label}` : ''}`],
             [`קומה: ${floor.label}  דירה: ${apt.label}`],
             [],
-            ['מס\' פתח', 'מיקום בדירה', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'עומק עד הפריקסט', 'גליף', 'מדרגה בשיש', 'מנואלה', 'צד מנוע', 'הערות', 'כנף פנימית מבט פנים', 'מיקום כנף'],
+            ['מס\' פתח', 'מיקום בדירה', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'עומק עד הפריקסט', 'גליף', 'מדרגה בשיש', 'מנואלה', 'צד מנוע', 'הערות', 'כנף פנימית מבט פנים', 'ציר מבט פנים פתיחה פנימה', 'ציר מבט פנים פתיחה החוצה'],
             ...apt.rows.map(row => [
               row.opening_no, row.location_in_apartment || '', row.contract_item || '',
               row.item_code || '', row.height || '', row.width || '', row.notes || '',
               row.hinge_direction || '', row.mamad || '', row.depth || '',
               row.glyph || '', row.jamb_height || '', row.is_manual ? 'מנואלה' : '',
               row.engine_side || '', row.field_notes || '', row.internal_wing || '',
-              row.wing_position || '',
+              row.wing_position || '', row.wing_position_out || '',
             ]),
           ];
           const ws = XLSX.utils.aoa_to_sheet(data);
@@ -371,6 +371,7 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           field_notes: row.field_notes,
           internal_wing: row.internal_wing,
           wing_position: row.wing_position,
+          wing_position_out: row.wing_position_out,
         });
       });
     });

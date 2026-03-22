@@ -1,0 +1,1 @@
+ALTER TABLE public.measurement_rows ADD COLUMN wing_position_out text DEFAULT NULL;

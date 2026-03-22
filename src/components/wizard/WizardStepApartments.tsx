@@ -257,7 +257,8 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-20">מנוע</TableHead>
                         <TableHead className="text-right w-28">הערות</TableHead>
                         <TableHead className="text-right w-24">כנף פנימית</TableHead>
-                        <TableHead className="text-right w-24">מיקום כנף</TableHead>
+                        <TableHead className="text-right w-24">פתיחה פנימה</TableHead>
+                        <TableHead className="text-right w-24">פתיחה החוצה</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -359,6 +360,12 @@ export function WizardStepApartments() {
                             <WingPositionSelector
                               value={(row.wing_position as WingPositionValue) || null}
                               onChange={(v) => handleUpdateRow(row.id, 'wing_position', v)}
+                            />
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={17}>
+                            <WingPositionSelector
+                              value={(row.wing_position_out as WingPositionValue) || null}
+                              onChange={(v) => handleUpdateRow(row.id, 'wing_position_out', v)}
                             />
                           </TableCell>
                           <TableCell>
