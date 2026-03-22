@@ -16,6 +16,8 @@ interface WizardState {
   projectType: ProjectType;
   contractPdfPath: string | null;
   contractParseResult: any | null;
+  apartmentTypes: ApartmentType[];
+  floorTypes: FloorType[];
 }
 
 // Helper to get floors for the current building
