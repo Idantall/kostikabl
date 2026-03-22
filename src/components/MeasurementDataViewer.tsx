@@ -883,7 +883,9 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                     <TableHead className="text-right text-xs font-medium w-16">מיקום</TableHead>
                     <TableHead className="text-right text-xs font-medium w-12">פתח</TableHead>
                     <TableHead className="text-right text-xs font-medium w-16">פרט חוזה</TableHead>
-                    <TableHead className="text-right text-xs font-medium w-20">פרט יצור</TableHead>
+                    {projectStatus !== 'pre_contract' && projectStatus !== 'blind_jambs' && (
+                      <TableHead className="text-right text-xs font-medium w-20">פרט יצור</TableHead>
+                    )}
                     <TableHead className="text-center text-xs font-medium w-20">גובה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">רוחב</TableHead>
                     <TableHead className="text-right text-xs font-medium min-w-[80px]">גובה מהריצוף</TableHead>
