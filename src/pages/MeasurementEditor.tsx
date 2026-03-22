@@ -545,12 +545,21 @@ const MeasurementEditor = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    {/* מיקום כנף */}
+                    {/* ציר מבט פנים פתיחה פנימה */}
                     <div className="w-24">
-                      <label className="text-[11px] text-muted-foreground block text-center">מיקום כנף</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה פנימה</label>
                       <WingPositionSelector
                         value={(row.wing_position as WingPositionValue) || null}
                         onChange={(v) => updateRow(row.id, 'wing_position' as any, v)}
+                        size="sm"
+                      />
+                    </div>
+                    {/* ציר מבט פנים פתיחה החוצה */}
+                    <div className="w-24">
+                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה החוצה</label>
+                      <WingPositionSelector
+                        value={(row.wing_position_out as WingPositionValue) || null}
+                        onChange={(v) => updateRow(row.id, 'wing_position_out' as any, v)}
                         size="sm"
                       />
                     </div>
