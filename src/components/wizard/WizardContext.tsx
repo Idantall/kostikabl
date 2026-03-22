@@ -67,6 +67,12 @@ type WizardAction =
   | { type: 'CLONE_FLOORS'; payload: { sourceFloorId: string; count: number; startLabel: number } }
   | { type: 'SET_PROJECT_TYPE'; payload: ProjectType }
   | { type: 'SET_CONTRACT_DATA'; payload: { contractPdfPath: string; contractParseResult: any } }
+  | { type: 'SAVE_APARTMENT_TYPE'; payload: { name: string; apartment: WizardApartment } }
+  | { type: 'DELETE_APARTMENT_TYPE'; payload: string }
+  | { type: 'APPLY_APARTMENT_TYPE'; payload: { typeId: string; floorId: string; apartmentId: string } }
+  | { type: 'SAVE_FLOOR_TYPE'; payload: { name: string; floor: WizardFloor } }
+  | { type: 'DELETE_FLOOR_TYPE'; payload: string }
+  | { type: 'APPLY_FLOOR_TYPE'; payload: { typeId: string; targetFloorIds: string[] } }
   | { type: 'RESET' };
 
 const initialState: WizardState = {
