@@ -358,7 +358,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* פרט */}
                     <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">פרט</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">פרט יצור</label>
                       <Input
                         value={row.item_code || ''}
                         onChange={(e) => updateRow(row.id, 'item_code', e.target.value || null)}
