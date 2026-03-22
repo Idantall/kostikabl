@@ -68,6 +68,7 @@ const MeasurementEditor = () => {
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   
   const { connectionStatus, pendingCount, lastError, queueUpdate, forceSync } = useOfflineSync(projectId);
+  const { debouncedQueueUpdate, flushAll } = useDebouncedSync(queueUpdate, 600);
 
   useEffect(() => {
     const checkUserAndFetch = async () => {
