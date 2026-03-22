@@ -126,6 +126,7 @@ export function parsedApartmentsToBuildings(apartments: ParsedApartment[]): Wiza
         engine_side: item.motor_side || null,
         field_notes: null,
         internal_wing: null,
+        wing_position: null,
       }));
 
       return {
