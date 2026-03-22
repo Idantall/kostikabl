@@ -282,8 +282,8 @@ serve(async (req) => {
           console.log(`[single-label] Item ${item.id} (${itemType}) -> LOAD subpart`);
         } else {
           // Multi-label loading: create per-subpart labels
-          const notes = (item.notes || '').trim();
-          const mappedCodes = notes && NAME_TO_CODES[notes] ? NAME_TO_CODES[notes] : null;
+          const itemType = (item.item_type || '').trim();
+          const mappedCodes = itemType && NAME_TO_CODES[itemType] ? NAME_TO_CODES[itemType] : null;
           
           for (const sp of targetSubparts) {
             if (userSelectedSubparts) {

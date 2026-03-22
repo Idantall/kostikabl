@@ -502,7 +502,7 @@ const ProjectItemsSummary = () => {
       const specialDesigStr = parts[2];
       const normSide = sideStr === "NULL" ? null : sideStr;
       const specialDesig = specialDesigStr === "NULL" ? null : specialDesigStr;
-      const pocketType = extractPocketType(data.notes);
+      const pocketType = extractPocketType(data.mamad);
       rows.push({
         normalizedItemCode: normCode,
         normalizedSide: normSide,
