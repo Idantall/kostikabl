@@ -290,6 +290,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'is_manual': return row.is_manual ? 'כן' : null;
         case 'internal_wing': return row.internal_wing;
         case 'wing_position': return row.wing_position;
+        case 'wing_position_out': return row.wing_position_out;
         default: return null;
       }
     } else {
