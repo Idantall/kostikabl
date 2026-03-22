@@ -119,6 +119,8 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         projectType: action.payload.projectType || 'blind_jambs',
         contractPdfPath: action.payload.contractPdfPath || null,
         contractParseResult: action.payload.contractParseResult || null,
+        apartmentTypes: action.payload.apartmentTypes || [],
+        floorTypes: action.payload.floorTypes || [],
       };
     }
     
