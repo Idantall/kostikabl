@@ -343,9 +343,10 @@ export function WizardStepBank() {
             <Table dir="rtl">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right w-1/3">מספר פרט</TableHead>
-                  <TableHead className="text-right w-1/4">גובה</TableHead>
-                  <TableHead className="text-right w-1/4">רוחב</TableHead>
+                  <TableHead className="text-right w-1/4">מספר פרט</TableHead>
+                  <TableHead className="text-right w-1/5">גובה</TableHead>
+                  <TableHead className="text-right w-1/5">רוחב</TableHead>
+                  <TableHead className="text-right w-1/5">גובה מהריצוף</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
