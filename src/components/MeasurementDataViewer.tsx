@@ -1155,6 +1155,17 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'internal_wing') || '-'
                           )}
                         </TableCell>
+                        {/* מיקום כנף */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.wing_position || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position: e.target.value || null }))}
+                              className="h-7 text-xs w-14"
+                            />
+                          ) : (
+                            getRowField(row, 'wing_position') || '-'
+                          )}
                         {editMode && (
                           <TableCell className="text-center">
                             {isEditing ? (
