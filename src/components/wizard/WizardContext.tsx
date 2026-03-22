@@ -556,7 +556,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
     } finally {
       dispatch({ type: 'SET_SAVING', payload: false });
     }
-  }, [state.draftId, state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath, state.contractParseResult, userId]);
+  }, [state.draftId, state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath, state.contractParseResult, state.apartmentTypes, state.floorTypes, userId]);
 
   const loadDraft = useCallback(async (draftId: string) => {
     try {
