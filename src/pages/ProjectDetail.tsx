@@ -759,13 +759,14 @@ const ProjectDetail = () => {
                         return;
                       }
                       const { exportMeasurementToExcel } = await import('@/lib/measurementExcelExport');
-                      await exportMeasurementToExcel({
+                       await exportMeasurementToExcel({
                         rows,
                         project: {
                           name: project.name,
                           building_code: project.building_code,
                           measurement_rule: project.measurement_rule,
                         },
+                        projectStatus: project.status,
                       });
                       toast.success('הקובץ הורד בהצלחה');
                     } catch (err) {

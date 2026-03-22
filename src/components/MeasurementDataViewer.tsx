@@ -301,6 +301,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'id': return String(row.id);
         case 'opening_no': return row.opening_no;
         case 'contract_item': return (row as any).contract_item || null;
+        case 'blind_jamb_item': return null;
         case 'item_code': return row.item_code;
         case 'location': return row.location;
         case 'height': return row.height;
