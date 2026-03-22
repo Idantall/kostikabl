@@ -351,6 +351,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       jamb_height: getRowField(row, 'jamb_height') || '',
       apartment_label: getRowApartmentLabel(row) || '',
       floor_label: getRowFloorLabel(row) || '',
+      contract_item: getRowField(row, 'contract_item') || '',
+      hinge_direction: getRowField(row, 'hinge_direction'),
+      mamad: getRowField(row, 'mamad'),
+      depth: getRowField(row, 'depth') || '',
+      is_manual: getRowField(row, 'is_manual') === 'כן',
+      internal_wing: getRowField(row, 'internal_wing'),
     });
   };
 
@@ -368,6 +374,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       jamb_height: "",
       apartment_label: "",
       floor_label: "",
+      contract_item: "",
+      hinge_direction: null,
+      mamad: null,
+      depth: "",
+      is_manual: false,
+      internal_wing: null,
     });
   };
 
