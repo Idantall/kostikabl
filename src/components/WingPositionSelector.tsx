@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 
 // Door swing diagrams matching architectural standards
-function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'; className?: string }) {
+function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR' | 'TP'; className?: string }) {
   const renderDiagram = () => {
     switch (position) {
       case 'TL':
@@ -40,6 +40,32 @@ function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'
             <line x1="45" y1="61" x2="3" y2="32" stroke="currentColor" strokeWidth="1.5" />
           </>
         );
+      case 'TP':
+        // Triple panel: left panel with swing, center tall panel, right panel with swing
+        return (
+          <>
+            {/* Outer frame */}
+            <rect x="2" y="2" width="44" height="60" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            {/* Left panel vertical divider */}
+            <line x1="15" y1="2" x2="15" y2="62" stroke="currentColor" strokeWidth="1" />
+            {/* Right panel vertical divider */}
+            <line x1="33" y1="2" x2="33" y2="62" stroke="currentColor" strokeWidth="1" />
+            {/* Left panel horizontal divider */}
+            <line x1="2" y1="34" x2="15" y2="34" stroke="currentColor" strokeWidth="1" />
+            {/* Right panel horizontal divider */}
+            <line x1="33" y1="34" x2="46" y2="34" stroke="currentColor" strokeWidth="1" />
+            {/* Left top triangle (swing) */}
+            <line x1="2" y1="2" x2="15" y2="18" stroke="currentColor" strokeWidth="1" />
+            <line x1="15" y1="2" x2="2" y2="18" stroke="currentColor" strokeWidth="1" />
+            {/* Right top triangle (swing) */}
+            <line x1="33" y1="2" x2="46" y2="18" stroke="currentColor" strokeWidth="1" />
+            <line x1="46" y1="2" x2="33" y2="18" stroke="currentColor" strokeWidth="1" />
+            {/* Left bottom swing line */}
+            <line x1="2" y1="62" x2="15" y2="44" stroke="currentColor" strokeWidth="1" />
+            {/* Right bottom swing line */}
+            <line x1="46" y1="62" x2="33" y2="44" stroke="currentColor" strokeWidth="1" />
+          </>
+        );
     }
   };
 
@@ -55,9 +81,10 @@ const WING_OPTIONS = [
   { value: 'TR' as const, label: 'דלת בודדת ימין', position: 'TR' as const },
   { value: 'BL' as const, label: 'דלת כפולה שמאל', position: 'BL' as const },
   { value: 'BR' as const, label: 'דלת בודדת שמאל', position: 'BR' as const },
+  { value: 'TP' as const, label: 'חלון תלת-כנפי', position: 'TP' as const },
 ];
 
-export type WingPositionValue = 'TL' | 'TR' | 'BL' | 'BR' | null;
+export type WingPositionValue = 'TL' | 'TR' | 'BL' | 'BR' | 'TP' | null;
 
 interface WingPositionSelectorProps {
   value: WingPositionValue;
@@ -113,7 +140,8 @@ export function WingPositionSelector({ value, onChange, size = 'sm' }: WingPosit
                   'rounded border p-1 flex items-center justify-center transition-all',
                   value === opt.value
                     ? 'border-primary bg-primary/10 ring-1 ring-primary text-primary'
-                    : 'border-border hover:border-muted-foreground text-foreground'
+                    : 'border-border hover:border-muted-foreground text-foreground',
+                  opt.value === 'TP' ? 'col-span-2' : ''
                 )}
               >
                 <WingIcon position={opt.position} className="h-10 w-7" />
@@ -135,49 +163,65 @@ export function wingPositionLabel(value: string | null): string {
 
 // Generate a PNG data URL from canvas for Excel embedding
 export function wingPositionToPngBase64(position: string): string | null {
-  if (!['TL', 'TR', 'BL', 'BR'].includes(position)) return null;
+  if (!['TL', 'TR', 'BL', 'BR', 'TP'].includes(position)) return null;
 
   const w = 48;
   const h = 64;
   const canvas = document.createElement('canvas');
-  canvas.width = w * 2; // 2x for clarity
+  canvas.width = w * 2;
   canvas.height = h * 2;
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
   ctx.scale(2, 2);
 
-  // White background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
   ctx.strokeStyle = '#000000';
   ctx.lineWidth = 1.5;
 
-  // Outer rect
-  ctx.strokeRect(3, 3, 42, 58);
-
   switch (position) {
-    case 'TL': // Double door, right leaf
-      // Center divider
+    case 'TL':
+      ctx.strokeRect(3, 3, 42, 58);
       ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(24, 61); ctx.stroke();
-      // Top diagonal
       ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(45, 32); ctx.stroke();
-      // Bottom diagonal
       ctx.beginPath(); ctx.moveTo(24, 61); ctx.lineTo(45, 32); ctx.stroke();
       break;
-    case 'TR': // Single door, opens right
+    case 'TR':
+      ctx.strokeRect(3, 3, 42, 58);
       ctx.beginPath(); ctx.moveTo(3, 3); ctx.lineTo(45, 32); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(3, 61); ctx.lineTo(45, 32); ctx.stroke();
       break;
-    case 'BL': // Double door, left leaf
+    case 'BL':
+      ctx.strokeRect(3, 3, 42, 58);
       ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(24, 61); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(24, 3); ctx.lineTo(3, 32); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(24, 61); ctx.lineTo(3, 32); ctx.stroke();
       break;
-    case 'BR': // Single door, opens left
+    case 'BR':
+      ctx.strokeRect(3, 3, 42, 58);
       ctx.beginPath(); ctx.moveTo(45, 3); ctx.lineTo(3, 32); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(45, 61); ctx.lineTo(3, 32); ctx.stroke();
+      break;
+    case 'TP':
+      ctx.lineWidth = 1;
+      ctx.strokeRect(2, 2, 44, 60);
+      // Vertical dividers
+      ctx.beginPath(); ctx.moveTo(15, 2); ctx.lineTo(15, 62); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(33, 2); ctx.lineTo(33, 62); ctx.stroke();
+      // Horizontal dividers
+      ctx.beginPath(); ctx.moveTo(2, 34); ctx.lineTo(15, 34); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(33, 34); ctx.lineTo(46, 34); ctx.stroke();
+      // Left top X
+      ctx.beginPath(); ctx.moveTo(2, 2); ctx.lineTo(15, 18); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(15, 2); ctx.lineTo(2, 18); ctx.stroke();
+      // Right top X
+      ctx.beginPath(); ctx.moveTo(33, 2); ctx.lineTo(46, 18); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(46, 2); ctx.lineTo(33, 18); ctx.stroke();
+      // Bottom swing lines
+      ctx.beginPath(); ctx.moveTo(2, 62); ctx.lineTo(15, 44); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(46, 62); ctx.lineTo(33, 44); ctx.stroke();
       break;
   }
 
