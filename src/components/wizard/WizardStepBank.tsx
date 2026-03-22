@@ -231,12 +231,12 @@ export function WizardStepBank() {
 
   const handleDownloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
-      ['מספר פרט', 'גובה', 'רוחב'],
-      ['ח-1', '120', '100'],
-      ['ח-2', '150', '80'],
-      ['D-1', '210', '90'],
+      ['מספר פרט', 'גובה', 'רוחב', 'גובה מהריצוף'],
+      ['ח-1', '120', '100', '250'],
+      ['ח-2', '150', '80', '260'],
+      ['D-1', '210', '90', '255'],
     ]);
-    ws['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 10 }];
+    ws['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 14 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'בנק פרטים');
     XLSX.writeFile(wb, 'תבנית_בנק_פרטים.xlsx');
