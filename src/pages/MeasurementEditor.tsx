@@ -157,8 +157,8 @@ const MeasurementEditor = () => {
       row.id === id ? { ...row, [field]: value } : row
     ));
     
-    // Queue for offline-aware sync
-    queueUpdate(id, 'measurement_rows', { [field]: value });
+    // Queue for offline-aware sync (debounced to avoid race conditions)
+    debouncedQueueUpdate(id, 'measurement_rows', { [field]: value });
   };
 
   const addRow = async () => {
