@@ -69,6 +69,7 @@ export function WizardStepBank() {
       item_no: '',
       height: '',
       width: '',
+      floor_height: '',
     };
     dispatch({ type: 'ADD_BANK_ITEM', payload: newItem });
   };
@@ -147,6 +148,7 @@ export function WizardStepBank() {
       item_no: item.item_no,
       height: item.height,
       width: item.width,
+      floor_height: '',
     }));
 
     dispatch({ type: 'SET_BANK_ITEMS', payload: newItems });
@@ -184,6 +186,13 @@ export function WizardStepBank() {
       if (heightCol === -1) heightCol = 1;
       if (widthCol === -1) widthCol = 2;
 
+      let floorHeightCol = -1;
+      headerRow.forEach((cell, idx) => {
+        const val = String(cell || '').trim();
+        if (val.includes('מריצוף') || val.includes('מהריצוף')) floorHeightCol = idx;
+      });
+      if (floorHeightCol === -1) floorHeightCol = 3;
+
       const newItems: BankItem[] = [];
       for (let i = 1; i < rows.length; i++) {
         const row = rows[i] as any[];
@@ -192,6 +201,7 @@ export function WizardStepBank() {
         const itemNo = String(row[itemNoCol] || '').trim();
         const height = String(row[heightCol] || '').trim();
         const width = String(row[widthCol] || '').trim();
+        const floorHeight = String(row[floorHeightCol] || '').trim();
         
         if (itemNo) {
           newItems.push({
@@ -199,6 +209,7 @@ export function WizardStepBank() {
             item_no: itemNo,
             height,
             width,
+            floor_height: floorHeight,
           });
         }
       }
@@ -220,12 +231,12 @@ export function WizardStepBank() {
 
   const handleDownloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
-      ['מספר פרט', 'גובה', 'רוחב'],
-      ['ח-1', '120', '100'],
-      ['ח-2', '150', '80'],
-      ['D-1', '210', '90'],
+      ['מספר פרט', 'גובה', 'רוחב', 'גובה מהריצוף'],
+      ['ח-1', '120', '100', '250'],
+      ['ח-2', '150', '80', '260'],
+      ['D-1', '210', '90', '255'],
     ]);
-    ws['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 10 }];
+    ws['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 14 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'בנק פרטים');
     XLSX.writeFile(wb, 'תבנית_בנק_פרטים.xlsx');
@@ -332,16 +343,17 @@ export function WizardStepBank() {
             <Table dir="rtl">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right w-1/3">מספר פרט</TableHead>
-                  <TableHead className="text-right w-1/4">גובה</TableHead>
-                  <TableHead className="text-right w-1/4">רוחב</TableHead>
+                  <TableHead className="text-right w-1/4">מספר פרט</TableHead>
+                  <TableHead className="text-right w-1/5">גובה</TableHead>
+                  <TableHead className="text-right w-1/5">רוחב</TableHead>
+                  <TableHead className="text-right w-1/5">גובה מהריצוף</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {bankItems.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                     <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       אין פרטים בבנק. הוסף פרט או העלה קובץ Excel.
                     </TableCell>
                   </TableRow>
@@ -373,6 +385,15 @@ export function WizardStepBank() {
                           placeholder="100"
                           dir="ltr"
                           className={errors[item.id]?.includes('רוחב') ? 'border-destructive' : ''}
+                        />
+                      </TableCell>
+                      <TableCell data-row={rowIdx} data-col={3}>
+                        <Input
+                          value={item.floor_height || ''}
+                          onChange={(e) => handleUpdateItem(item.id, 'floor_height', e.target.value)}
+                          placeholder="250"
+                          dir="ltr"
+                          type="number"
                         />
                       </TableCell>
                       <TableCell>

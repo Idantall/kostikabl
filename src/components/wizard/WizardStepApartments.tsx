@@ -85,6 +85,7 @@ export function WizardStepApartments() {
         const row = currentApartment.rows.find(r => r.id === rowId);
         if (row && !row.height_overridden) updates.height = bankItem.height;
         if (row && !row.width_overridden) updates.width = bankItem.width;
+        if (bankItem.floor_height) updates.notes = bankItem.floor_height;
       }
     }
     if (field === 'height') updates.height_overridden = true;
@@ -98,7 +99,9 @@ export function WizardStepApartments() {
     if (!row || !row.item_code) return;
     const bankItem = bankItems.find(b => b.item_no === row.item_code);
     if (!bankItem) return;
-    dispatch({ type: 'UPDATE_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, rowId, updates: { height: bankItem.height, height_overridden: false, width: bankItem.width, width_overridden: false } } });
+    const resetUpdates: Partial<WizardApartmentRow> = { height: bankItem.height, height_overridden: false, width: bankItem.width, width_overridden: false };
+    if (bankItem.floor_height) resetUpdates.notes = bankItem.floor_height;
+    dispatch({ type: 'UPDATE_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, rowId, updates: resetUpdates } });
     toast.success('הערכים אופסו לפי הבנק');
   };
 
