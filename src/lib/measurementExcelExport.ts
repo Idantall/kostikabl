@@ -223,16 +223,10 @@ function createWorksheet(
   for (const row of sortedRows) {
     ws.getRow(rowIndex).height = 18;
 
-    // Build notes value: combine notes + field_notes if present
-    let notesValue = getField(row, 'notes') || '';
-    const fieldNotes = getField(row, 'field_notes');
-    if (fieldNotes) {
-      notesValue = notesValue 
-        ? `${notesValue}\n[מהשטח] ${fieldNotes}`
-        : `[מהשטח] ${fieldNotes}`;
-    }
+    // Build cell values
+    const notesValue = getField(row, 'notes') || '';
+    const fieldNotesValue = getField(row, 'field_notes') || '';
 
-    // Build cell values for A-J
     const values: { col: string; value: string | number }[] = [
       { col: 'A', value: getField(row, 'location') || '' },
       { col: 'B', value: getField(row, 'opening_no') || '' },
@@ -248,33 +242,9 @@ function createWorksheet(
       { col: 'L', value: getField(row, 'jamb_height') || '' },
       { col: 'M', value: getField(row, 'is_manual') || '' },
       { col: 'N', value: getField(row, 'engine_side') || '' },
+      { col: 'O', value: fieldNotesValue },
+      { col: 'P', value: getField(row, 'internal_wing') || '' },
     ];
-
-    values.forEach(({ col, value }) => {
-      const cell = ws.getCell(`${col}${rowIndex}`);
-      cell.value = value;
-      cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.font = { name: 'Arial', size: 14, bold: true };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
-    });
-
-    // O-S: angle columns (leave blank but add borders)
-    ['O', 'P', 'Q', 'R', 'S'].forEach(col => {
-      const cell = ws.getCell(`${col}${rowIndex}`);
-      cell.value = '';
-      cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
-    });
 
     rowIndex++;
   }
