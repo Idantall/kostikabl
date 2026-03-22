@@ -43,6 +43,7 @@ export interface WizardFloor {
   label: string;                        // "קומה 1" or custom
   apartments: WizardApartment[];
   isTypical: boolean;                   // For cloning reference
+  sourceFloorTypeName?: string | null;  // Name of floor type applied
 }
 
 export interface WizardBuilding {

@@ -351,7 +351,9 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
       apt.rows.forEach((row: any) => {
         measurementRows.push({
           project_id: projectId,
-          floor_label: floor.label.replace('קומה ', ''),
+          floor_label: floor.sourceFloorTypeName
+            ? `${floor.label.replace('קומה ', '')} (טיפוס ${floor.sourceFloorTypeName})`
+            : floor.label.replace('קומה ', ''),
           apartment_label: apt.label.replace('דירה ', ''),
           sheet_name: `${floor.label}_${apt.label}`,
           location_in_apartment: row.location_in_apartment,
