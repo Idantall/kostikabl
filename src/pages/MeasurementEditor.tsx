@@ -367,7 +367,8 @@ const MeasurementEditor = () => {
                         dir="rtl"
                       />
                     </div>
-                    {/* פרט */}
+                    {/* פרט יצור - only show for measurement stage */}
+                    {project?.status !== 'pre_contract' && project?.status !== 'blind_jambs' && (
                     <div className="w-20">
                       <label className="text-[11px] text-muted-foreground block text-center">פרט יצור</label>
                       <Input
@@ -377,6 +378,7 @@ const MeasurementEditor = () => {
                         dir="rtl"
                       />
                     </div>
+                    )}
                     {/* גובה */}
                     <div className="w-28">
                       <label className="text-[11px] text-muted-foreground block text-center">גובה</label>

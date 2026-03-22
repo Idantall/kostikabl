@@ -1029,6 +1029,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                           )}
                         </TableCell>
                         {/* פרט משקופים */}
+                        {projectStatus !== 'pre_contract' && (
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
                             <Input
@@ -1040,6 +1041,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'blind_jamb_item') || '-'
                           )}
                         </TableCell>
+                        )}
                         {/* ממד כיס בצד */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
