@@ -27,6 +27,7 @@ interface MeasurementRow {
   location_in_apartment: string | null;
   opening_no: string | null;
   contract_item: string | null;
+  blind_jamb_item: string | null;
   item_code: string | null;
   height: string | null;
   width: string | null;
@@ -275,6 +276,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'id': return row.id;
         case 'opening_no': return row.opening_no;
         case 'contract_item': return row.contract_item;
+        case 'blind_jamb_item': return (row as any).blind_jamb_item || null;
         case 'item_code': return row.item_code;
         case 'location': return row.location_in_apartment;
         case 'height': return row.height;
@@ -299,6 +301,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'id': return String(row.id);
         case 'opening_no': return row.opening_no;
         case 'contract_item': return (row as any).contract_item || null;
+        case 'blind_jamb_item': return null;
         case 'item_code': return row.item_code;
         case 'location': return row.location;
         case 'height': return row.height;
@@ -772,6 +775,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         project: projectMetadata,
         selectedFloor,
         selectedApartment,
+        projectStatus,
       });
       toast.success('הקובץ הורד בהצלחה');
     } catch (err: any) {
@@ -883,7 +887,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                     <TableHead className="text-center text-xs font-medium w-20">גובה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">רוחב</TableHead>
                     <TableHead className="text-right text-xs font-medium min-w-[80px]">גובה מהריצוף</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-16">ציר מבט מבפנים</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">פרט משקופים</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">ממד כיס בצד</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">גליף</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">עומק עד הפריקסט</TableHead>
@@ -1018,24 +1022,16 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'notes') || '-'
                           )}
                         </TableCell>
-                        {/* ציר מבט מבפנים */}
+                        {/* פרט משקופים */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
-                            <Select
-                              value={editValues.hinge_direction || "none"}
-                              onValueChange={(val) => setEditValues(prev => ({ ...prev, hinge_direction: val === "none" ? null : val }))}
-                            >
-                              <SelectTrigger className="h-7 text-sm w-14">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">—</SelectItem>
-                                <SelectItem value="L">L</SelectItem>
-                                <SelectItem value="R">R</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <Input
+                              value={(editValues as any).blind_jamb_item || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, blind_jamb_item: e.target.value || null } as any))}
+                              className="h-7 text-sm w-16"
+                            />
                           ) : (
-                            getRowField(row, 'hinge_direction') || '-'
+                            getRowField(row, 'blind_jamb_item') || '-'
                           )}
                         </TableCell>
                         {/* ממד כיס בצד */}

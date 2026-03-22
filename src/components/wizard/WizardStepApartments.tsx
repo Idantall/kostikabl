@@ -82,10 +82,13 @@ export function WizardStepApartments() {
     setEditingApartmentLabel('');
   };
 
+  const isPreContract = state.projectType === 'pre_contract';
+  const bankField: keyof WizardApartmentRow = isPreContract ? 'contract_item' : 'item_code';
+
   const handleUpdateRow = (rowId: string, field: keyof WizardApartmentRow, value: any) => {
     if (!currentFloor || !currentApartment) return;
     let updates: Partial<WizardApartmentRow> = { [field]: value };
-    if (field === 'item_code' && value) {
+    if (field === bankField && value) {
       const bankItem = bankItems.find(b => b.item_no === value);
       if (bankItem) {
         const row = currentApartment.rows.find(r => r.id === rowId);
@@ -292,11 +295,17 @@ export function WizardStepApartments() {
                 <div className="border rounded-lg min-w-[1500px]" ref={tableRef} onKeyDown={onTableKeyDown}>
                   <Table dir="rtl" className="table-fixed">
                     <TableHeader>
-                      <TableRow>
+                    <TableRow>
                          <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
-                        <TableHead className="text-right w-20">פרט חוזה</TableHead>
-                        <TableHead className="text-right w-32">פרט יצור</TableHead>
+                        {isPreContract ? (
+                          <TableHead className="text-right w-32">פרט חוזה</TableHead>
+                        ) : (
+                          <>
+                            <TableHead className="text-right w-20">פרט חוזה</TableHead>
+                            <TableHead className="text-right w-32">פרט יצור</TableHead>
+                          </>
+                        )}
                         <TableHead className="text-right w-28">גובה</TableHead>
                         <TableHead className="text-right w-20">רוחב</TableHead>
                         <TableHead className="text-right w-28">גובה מהריצוף</TableHead>
@@ -326,18 +335,32 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={2}>
-                            <Input value={row.contract_item || ''} onChange={e => handleUpdateRow(row.id, 'contract_item', e.target.value || null)} className="h-9" dir="rtl" />
-                          </TableCell>
-                          <TableCell data-row={rowIdx} data-col={3}>
-                            <Select value={row.item_code || 'none'} onValueChange={v => handleUpdateRow(row.id, 'item_code', v === 'none' ? null : v)}>
-                              <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50 max-h-60">
-                                <SelectItem value="none">-</SelectItem>
-                                {bankItems.map(item => <SelectItem key={item.id} value={item.item_no}>{item.item_no}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
+                          {isPreContract ? (
+                            <TableCell data-row={rowIdx} data-col={2}>
+                              <Select value={row.contract_item || 'none'} onValueChange={v => handleUpdateRow(row.id, 'contract_item', v === 'none' ? null : v)}>
+                                <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
+                                <SelectContent className="bg-background z-50 max-h-60">
+                                  <SelectItem value="none">-</SelectItem>
+                                  {bankItems.map(item => <SelectItem key={item.id} value={item.item_no}>{item.item_no}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                          ) : (
+                            <>
+                              <TableCell data-row={rowIdx} data-col={2}>
+                                <Input value={row.contract_item || ''} onChange={e => handleUpdateRow(row.id, 'contract_item', e.target.value || null)} className="h-9" dir="rtl" />
+                              </TableCell>
+                              <TableCell data-row={rowIdx} data-col={3}>
+                                <Select value={row.item_code || 'none'} onValueChange={v => handleUpdateRow(row.id, 'item_code', v === 'none' ? null : v)}>
+                                  <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
+                                  <SelectContent className="bg-background z-50 max-h-60">
+                                    <SelectItem value="none">-</SelectItem>
+                                    {bankItems.map(item => <SelectItem key={item.id} value={item.item_no}>{item.item_no}</SelectItem>)}
+                                  </SelectContent>
+                                </Select>
+                              </TableCell>
+                            </>
+                          )}
                           <TableCell data-row={rowIdx} data-col={4}>
                             <div className="relative">
                               <Input value={row.height || ''} onChange={e => handleUpdateRow(row.id, 'height', e.target.value)} className={`h-9 w-full min-w-[80px] ${row.height_overridden ? 'bg-yellow-50 dark:bg-yellow-950/30' : 'bg-primary/5'}`} dir="ltr" />

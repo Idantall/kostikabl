@@ -1,0 +1,1 @@
+ALTER TABLE public.measurement_rows ADD COLUMN IF NOT EXISTS blind_jamb_item text DEFAULT NULL;
