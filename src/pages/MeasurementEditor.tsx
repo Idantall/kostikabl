@@ -497,67 +497,30 @@ const MeasurementEditor = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    {/* זווית עליונה */}
-                    <div className="w-24">
-                      <label className="text-[11px] text-muted-foreground block text-center">זווית עליונה</label>
-                      <Select
-                        value={row.notes?.match(/זווית1:([^;]*)/)?.[1] || 'none'}
-                        onValueChange={(value) => {
-                          const otherNotes = row.notes?.replace(/זווית1:[^;]*;?/g, '').trim() || '';
-                          const newNotes = value === 'none' 
-                            ? otherNotes || null 
-                            : `זווית1:${value};${otherNotes}`.replace(/;$/, '');
-                          updateRow(row.id, 'notes', newNotes);
-                        }}
-                      >
-                        <SelectTrigger className="h-10 text-sm px-1">
-                          <SelectValue placeholder="-" />
-                        </SelectTrigger>
-                        <SelectContent side="bottom">
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="55 מברשת">55 מברשת</SelectItem>
-                          <SelectItem value="95 מברשת">95 מברשת</SelectItem>
-                          <SelectItem value="125 מברשת">125 מברשת</SelectItem>
-                          <SelectItem value="140 מברשת">140 מברשת</SelectItem>
-                          <SelectItem value="190 מברשת">190 מברשת</SelectItem>
-                          <SelectItem value="60 מברשת">60 מברשת</SelectItem>
-                          <SelectItem value="100 מברשת">100 מברשת</SelectItem>
-                          <SelectItem value="95+55">95+55</SelectItem>
-                          <SelectItem value="125+55">125+55</SelectItem>
-                          <SelectItem value="140+55">140+55</SelectItem>
-                          <SelectItem value="190+55">190+55</SelectItem>
-                          <SelectItem value="55+55">55+55</SelectItem>
-                          <SelectItem value="אחר">אחר (טקסט חופשי)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    {/* הערות */}
+                    <div className="w-28">
+                      <label className="text-[11px] text-muted-foreground block text-center">הערות</label>
+                      <Input
+                        value={row.field_notes || ''}
+                        onChange={(e) => updateRow(row.id, 'field_notes', e.target.value || null)}
+                        className="h-10 text-base px-2"
+                        dir="rtl"
+                      />
                     </div>
-                    {/* זווית תחתונה */}
+                    {/* כנף פנימית מבט פנים */}
                     <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">זווית תחתונה</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">כנף פנימית</label>
                       <Select
-                        value={row.notes?.match(/זווית2:([^;]*)/)?.[1] || 'none'}
-                        onValueChange={(value) => {
-                          const otherNotes = row.notes?.replace(/זווית2:[^;]*;?/g, '').trim() || '';
-                          const newNotes = value === 'none' 
-                            ? otherNotes || null 
-                            : `זווית2:${value};${otherNotes}`.replace(/;$/, '');
-                          updateRow(row.id, 'notes', newNotes);
-                        }}
+                        value={(row as any).internal_wing || 'none'}
+                        onValueChange={(value) => updateRow(row.id, 'internal_wing' as any, value === 'none' ? null : value)}
                       >
-                        <SelectTrigger className="h-10 text-sm px-1">
-                          <SelectValue placeholder="-" />
+                        <SelectTrigger className="h-10 text-base px-2">
+                          <SelectValue />
                         </SelectTrigger>
-                        <SelectContent side="bottom">
+                        <SelectContent>
                           <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="18/30">18/30</SelectItem>
-                          <SelectItem value="15/20">15/20</SelectItem>
-                          <SelectItem value="18/40">18/40</SelectItem>
-                          <SelectItem value="18/100">18/100</SelectItem>
-                          <SelectItem value="18/70">18/70</SelectItem>
-                          <SelectItem value="18/135">18/135</SelectItem>
-                          <SelectItem value="25/135">25/135</SelectItem>
-                          <SelectItem value="18/120">18/120</SelectItem>
-                          <SelectItem value="אחר">אחר (טקסט חופשי)</SelectItem>
+                          <SelectItem value="R">ימין</SelectItem>
+                          <SelectItem value="L">שמאל</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
