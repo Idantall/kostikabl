@@ -128,6 +128,7 @@ export function parsedApartmentsToBuildings(apartments: ParsedApartment[]): Wiza
         field_notes: null,
         internal_wing: null,
         wing_position: null,
+        wing_position_out: null,
       }));
 
       return {
