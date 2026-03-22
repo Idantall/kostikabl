@@ -257,7 +257,8 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-20">מנוע</TableHead>
                         <TableHead className="text-right w-28">הערות</TableHead>
                         <TableHead className="text-right w-24">כנף פנימית</TableHead>
-                        <TableHead className="text-right w-24">מיקום כנף</TableHead>
+                        <TableHead className="text-right w-24">פתיחה פנימה</TableHead>
+                        <TableHead className="text-right w-24">פתיחה החוצה</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
