@@ -1020,24 +1020,16 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'notes') || '-'
                           )}
                         </TableCell>
-                        {/* ציר מבט מבפנים */}
+                        {/* פרט משקופים */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
-                            <Select
-                              value={editValues.hinge_direction || "none"}
-                              onValueChange={(val) => setEditValues(prev => ({ ...prev, hinge_direction: val === "none" ? null : val }))}
-                            >
-                              <SelectTrigger className="h-7 text-sm w-14">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">—</SelectItem>
-                                <SelectItem value="L">L</SelectItem>
-                                <SelectItem value="R">R</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <Input
+                              value={(editValues as any).blind_jamb_item || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, blind_jamb_item: e.target.value || null } as any))}
+                              className="h-7 text-sm w-16"
+                            />
                           ) : (
-                            getRowField(row, 'hinge_direction') || '-'
+                            getRowField(row, 'blind_jamb_item') || '-'
                           )}
                         </TableCell>
                         {/* ממד כיס בצד */}
