@@ -187,14 +187,15 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
 };
 
 // Create a styled worksheet matching reference file structure
-function createWorksheet(
+async function createWorksheet(
   workbook: ExcelJS.Workbook,
   sheetName: string,
   sheetRows: (MeasurementRow | ItemRow)[],
   project: ProjectMetadata,
   floorLabel: string,
-  apartmentLabel: string
-): void {
+  apartmentLabel: string,
+  wingImages: Record<string, string>
+): Promise<void> {
   // Clean sheet name for Excel (max 31 chars, no special chars)
   const cleanName = sheetName.substring(0, 31).replace(/[\\/?*\[\]:]/g, '_');
   const ws = workbook.addWorksheet(cleanName, {
