@@ -555,6 +555,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
             jamb_height: editValues.jamb_height || null,
             apartment_label: editValues.apartment_label || null,
             floor_label: editValues.floor_label || null,
+            contract_item: editValues.contract_item || null,
+            hinge_direction: editValues.hinge_direction || null,
+            mamad: editValues.mamad || null,
+            depth: editValues.depth || null,
+            is_manual: editValues.is_manual,
+            internal_wing: editValues.internal_wing || null,
           })
           .eq('id', stringId);
         
