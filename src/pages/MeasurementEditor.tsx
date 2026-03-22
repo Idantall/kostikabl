@@ -419,7 +419,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* ממד */}
                     <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">ממד</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">ממד כיס בצד</label>
                       <Select
                         value={(row as any).mamad || 'none'}
                         onValueChange={(value) => updateRow(row.id, 'mamad' as any, value === 'none' ? null : value)}
