@@ -27,6 +27,11 @@ export function WizardStepApartments() {
   
   const [editingApartmentId, setEditingApartmentId] = useState<string | null>(null);
   const [editingApartmentLabel, setEditingApartmentLabel] = useState<string>('');
+  
+  // Apartment type dialogs
+  const [saveTypeDialogOpen, setSaveTypeDialogOpen] = useState(false);
+  const [saveTypeName, setSaveTypeName] = useState('');
+  const [applyTypeDialogOpen, setApplyTypeDialogOpen] = useState(false);
 
   const currentFloor = floors.find(f => f.id === selectedFloorId);
   const currentApartment = currentFloor?.apartments.find(a => a.id === selectedApartmentId);
