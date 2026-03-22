@@ -514,8 +514,13 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
       const updatePayload: any = {
         name: state.name,
         bank_items: JSON.parse(JSON.stringify(state.bankItems)),
-        // Save buildings into the 'floors' JSONB column
-        floors: JSON.parse(JSON.stringify(state.buildings)),
+        // Save buildings + types into the 'floors' JSONB column as a wrapper
+        floors: JSON.parse(JSON.stringify({
+          __v: 2,
+          buildings: state.buildings,
+          apartmentTypes: state.apartmentTypes,
+          floorTypes: state.floorTypes,
+        })),
         project_type: state.projectType,
         contract_pdf_path: state.contractPdfPath,
         contract_parse_result: state.contractParseResult ? JSON.parse(JSON.stringify(state.contractParseResult)) : null,
