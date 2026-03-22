@@ -544,6 +544,15 @@ const MeasurementEditor = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* מיקום כנף */}
+                    <div className="w-24">
+                      <label className="text-[11px] text-muted-foreground block text-center">מיקום כנף</label>
+                      <WingPositionSelector
+                        value={(row.wing_position as WingPositionValue) || null}
+                        onChange={(v) => updateRow(row.id, 'wing_position' as any, v)}
+                        size="sm"
+                      />
+                    </div>
                     
                     {/* Delete Button */}
                     <div className="w-10 flex items-end">
