@@ -977,6 +977,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                           )}
                         </TableCell>
                         {/* פרט יצור */}
+                        {projectStatus !== 'pre_contract' && projectStatus !== 'blind_jambs' && (
                         <TableCell className="text-right text-sm">
                           {isEditing ? (
                             <Input
@@ -988,6 +989,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'item_code') || '-'
                           )}
                         </TableCell>
+                        )}
                         {/* גובה */}
                         <TableCell className="text-center text-sm font-medium">
                           {isEditing ? (
