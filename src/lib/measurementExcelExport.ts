@@ -466,10 +466,13 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
     return a.localeCompare(b, 'he');
   });
 
+  // Pre-load wing images
+  const wingImages = await getWingImages();
+
   // Create worksheets
   for (const sheetKey of sortedSheetKeys) {
     const { rows: sheetRows, floorLabel, apartmentLabel } = groupedBySheet.get(sheetKey)!;
-    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel);
+    await createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages);
   }
 
   // Generate and download
