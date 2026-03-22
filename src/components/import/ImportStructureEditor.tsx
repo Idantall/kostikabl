@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WizardBuilding, WizardFloor, WizardApartmentRow, createEmptyFloor, createEmptyApartment, createEmptyRow, cloneBuilding, LOCATION_OPTIONS, MAMAD_OPTIONS, ANGLE1_OPTIONS, ANGLE2_OPTIONS } from '@/lib/wizardTypes';
+import { WizardBuilding, WizardFloor, WizardApartmentRow, createEmptyFloor, createEmptyApartment, createEmptyRow, cloneBuilding, LOCATION_OPTIONS, MAMAD_OPTIONS } from '@/lib/wizardTypes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -450,19 +450,21 @@ export function ImportStructureEditor({ buildings, onBuildingsChange, bankItems 
                   <Table dir="rtl" className="table-fixed">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-right w-14">פתח</TableHead>
+                         <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-32">מיקום</TableHead>
                         <TableHead className="text-right w-20">פרט חוזה</TableHead>
-                        <TableHead className="text-right w-24">פרט</TableHead>
+                        <TableHead className="text-right w-24">פרט יצור</TableHead>
                         <TableHead className="text-right w-18">גובה</TableHead>
                         <TableHead className="text-right w-18">רוחב</TableHead>
-                        <TableHead className="text-right w-24">הערות</TableHead>
-                        <TableHead className="text-right w-18">ציר</TableHead>
-                        <TableHead className="text-right w-28">ממד</TableHead>
+                        <TableHead className="text-right w-24">גובה מהריצוף</TableHead>
+                        <TableHead className="text-right w-18">ציר מבט מבפנים</TableHead>
+                        <TableHead className="text-right w-28">ממד כיס בצד</TableHead>
                         <TableHead className="text-right w-16">גליף</TableHead>
-                        <TableHead className="text-right w-18">עומק</TableHead>
-                        <TableHead className="text-right w-20">גו' יואים</TableHead>
+                        <TableHead className="text-right w-18">עומק עד הפריקסט</TableHead>
+                        <TableHead className="text-right w-20">מדרגה בשיש</TableHead>
                         <TableHead className="text-right w-18">מנוע</TableHead>
+                        <TableHead className="text-right w-24">הערות</TableHead>
+                        <TableHead className="text-right w-20">כנף פנימית</TableHead>
                         <TableHead className="w-10"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -524,6 +526,19 @@ export function ImportStructureEditor({ buildings, onBuildingsChange, bankItems 
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={12}>
                             <Select value={row.engine_side || 'none'} onValueChange={v => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'engine_side', v === 'none' ? null : v)}>
+                              <SelectTrigger className="h-8 bg-background text-xs"><SelectValue placeholder="-" /></SelectTrigger>
+                              <SelectContent className="bg-background z-50">
+                                <SelectItem value="none">-</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={13}>
+                            <Input value={row.field_notes || ''} onChange={e => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'field_notes', e.target.value || null)} className="h-8 text-xs" dir="rtl" />
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={14}>
+                            <Select value={row.internal_wing || 'none'} onValueChange={v => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'internal_wing', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-8 bg-background text-xs"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50">
                                 <SelectItem value="none">-</SelectItem>

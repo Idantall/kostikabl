@@ -17,16 +17,16 @@ export interface WizardApartmentRow {
   height_overridden: boolean;           // Track manual override
   width: string | null;
   width_overridden: boolean;
-  notes: string | null;
-  hinge_direction: string | null;       // L/R (כיוון ציר)
-  mamad: string | null;                 // ☒☐/☐☒/☒☐☒ (ממד)
+  notes: string | null;                 // גובה מהריצוף
+  hinge_direction: string | null;       // L/R (ציר מבט מבפנים)
+  mamad: string | null;                 // ☒☐/☐☒/☒☐☒ (ממד כיס בצד)
   glyph: string | null;
-  jamb_height: string | null;
-  depth: string | null;                 // עומק
+  jamb_height: string | null;           // מדרגה בשיש
+  depth: string | null;                 // עומק עד הפריקסט
   is_manual: boolean;                   // מנואלה
   engine_side: string | null;           // ימין/שמאל/null
-  angle1: string | null;                // זווית עליונה
-  angle2: string | null;                // זווית תחתונה
+  field_notes: string | null;           // הערות
+  internal_wing: string | null;         // כנף פנימית מבט פנים (L/R)
 }
 
 export interface WizardApartment {
@@ -93,42 +93,11 @@ export const LOCATION_OPTIONS = [
   'כיס כפול',
 ] as const;
 
-// Angle options for dropdowns
-export const ANGLE1_OPTIONS = [
-  '55 מברשת',
-  '95 מברשת',
-  '125 מברשת',
-  '140 מברשת',
-  '190 מברשת',
-  '60 מברשת',
-  '100 מברשת',
-  '95+55',
-  '125+55',
-  '140+55',
-  '190+55',
-  '55+55',
-] as const;
-
 // Mamad (pocket door) options with glyphs
 export const MAMAD_OPTIONS = [
   { value: '☒☐', label: '☒☐ כיס שמאל' },
   { value: '☐☒', label: '☐☒ כיס ימין' },
   { value: '☒☐☒', label: '☒☐☒ כיס כפול' },
-] as const;
-
-export const ANGLE2_OPTIONS = [
-  '55 מברשת',
-  '95 מברשת',
-  '125 מברשת',
-  '140 מברשת',
-  '190 מברשת',
-  '60 מברשת',
-  '100 מברשת',
-  '95+55',
-  '125+55',
-  '140+55',
-  '190+55',
-  '55+55',
 ] as const;
 
 // Helper to create empty apartment row
@@ -150,8 +119,8 @@ export const createEmptyRow = (openingNo: number): WizardApartmentRow => ({
   depth: null,
   is_manual: false,
   engine_side: null,
-  angle1: null,
-  angle2: null,
+  field_notes: null,
+  internal_wing: null,
 });
 
 // Helper to create empty apartment

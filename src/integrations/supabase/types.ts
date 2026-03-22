@@ -1057,6 +1057,7 @@ export type Database = {
           height: string | null
           hinge_direction: string | null
           id: string
+          internal_wing: string | null
           is_manual: boolean
           item_code: string | null
           jamb_height: string | null
@@ -1082,6 +1083,7 @@ export type Database = {
           height?: string | null
           hinge_direction?: string | null
           id?: string
+          internal_wing?: string | null
           is_manual?: boolean
           item_code?: string | null
           jamb_height?: string | null
@@ -1107,6 +1109,7 @@ export type Database = {
           height?: string | null
           hinge_direction?: string | null
           id?: string
+          internal_wing?: string | null
           is_manual?: boolean
           item_code?: string | null
           jamb_height?: string | null

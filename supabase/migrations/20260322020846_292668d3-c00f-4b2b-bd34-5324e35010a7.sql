@@ -1,0 +1,1 @@
+ALTER TABLE public.measurement_rows ADD COLUMN internal_wing text;

@@ -22,6 +22,7 @@ export interface MeasurementRow {
   jamb_height: string | null;
   is_manual: boolean;
   engine_side: string | null;
+  internal_wing: string | null;
 }
 
 export interface MeasurementParseResult {
@@ -35,23 +36,34 @@ const MEASUREMENT_COLUMNS = {
   location_in_apartment: ['מיקום בדירה', 'מיקום'],
   opening_no: ['מס\' פתח', 'פתח', 'מספר פתח'],
   contract_item: ['פרט חוזה'],
-  item_code: ['מס\' פרט', 'מספר פרט', 'מספר פריט', 'פרט'],
+  item_code: ['מס\' פרט', 'מספר פרט', 'מספר פריט', 'פרט', 'פרט יצור'],
   height: ['גובה'],
   width: ['רוחב'],
-  notes: ['הערות'],
-  hinge_direction: ['כיוון ציר'],
-  mamad: ['ממד'],
+  notes: ['הערות', 'גובה מהריצוף'],
+  hinge_direction: ['כיוון ציר', 'ציר מבט מבפנים'],
+  mamad: ['ממד', 'ממד כיס בצד'],
   field_notes: ['הערות מהשטח', 'הערות שטח'],
   wall_thickness: ['עובי קיר', 'עובי'],
-  depth: ['עומק'],
+  depth: ['עומק', 'עומק עד הפריקסט'],
   glyph: ['גליף'],
-  jamb_height: ['גובה יואים', 'גובה יאם'],
+  jamb_height: ['גובה יואים', 'גובה יאם', 'מדרגה בשיש'],
   is_manual: ['מנואלה'],
-  engine_side: ['צד מנוע', 'צד']
+  engine_side: ['צד מנוע', 'צד'],
+  internal_wing: ['כנף פנימית מבט פנים', 'כנף פנימית'],
 };
 
 // Normalize engine side value
 const normalizeEngineSide = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  const trimmed = value.trim().toUpperCase();
+  if (trimmed === '') return null;
+  if (trimmed === 'L' || trimmed === 'LEFT' || trimmed.includes('שמאל')) return 'L';
+  if (trimmed === 'R' || trimmed === 'RIGHT' || trimmed.includes('ימין')) return 'R';
+  return null;
+};
+
+// Normalize internal wing side value
+const normalizeInternalWing = (value: string | null | undefined): string | null => {
   if (!value) return null;
   const trimmed = value.trim().toUpperCase();
   if (trimmed === '') return null;
@@ -299,7 +311,8 @@ export const parseMeasurementExcel = async (file: File): Promise<MeasurementPars
           glyph: getCell('glyph'),
           jamb_height: getCell('jamb_height'),
           is_manual: isManualValue(getCell('is_manual')),
-          engine_side: normalizeEngineSide(getCell('engine_side'))
+          engine_side: normalizeEngineSide(getCell('engine_side')),
+          internal_wing: normalizeInternalWing(getCell('internal_wing'))
         });
       }
     }

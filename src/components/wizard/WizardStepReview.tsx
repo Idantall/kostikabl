@@ -64,13 +64,13 @@ export function WizardStepReview() {
             [`פרויקט: ${name}${isMultiBuilding ? ` - ${building.label}` : ''}`],
             [`קומה: ${floor.label}  דירה: ${apt.label}`],
             [],
-            ['מס\' פתח', 'מיקום בדירה', 'פרט חוזה', 'מס\' פרט', 'גובה', 'רוחב', 'הערות', 'כיוון ציר', 'ממד', 'עומק', 'גליף', 'גובה יואים', 'מנואלה', 'צד מנוע', 'זווית עליונה', 'זווית תחתונה'],
+            ['מס\' פתח', 'מיקום בדירה', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'עומק עד הפריקסט', 'גליף', 'מדרגה בשיש', 'מנואלה', 'צד מנוע', 'הערות', 'כנף פנימית מבט פנים'],
             ...apt.rows.map(row => [
               row.opening_no, row.location_in_apartment || '', row.contract_item || '',
               row.item_code || '', row.height || '', row.width || '', row.notes || '',
               row.hinge_direction || '', row.mamad || '', row.depth || '',
               row.glyph || '', row.jamb_height || '', row.is_manual ? 'מנואלה' : '',
-              row.engine_side || '', row.angle1 || '', row.angle2 || '',
+              row.engine_side || '', row.field_notes || '', row.internal_wing || '',
             ]),
           ];
           const ws = XLSX.utils.aoa_to_sheet(data);
@@ -348,9 +348,6 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
   floors.forEach(floor => {
     floor.apartments.forEach((apt: any) => {
       apt.rows.forEach((row: any) => {
-        let notesWithAngles = row.notes || '';
-        if (row.angle1) notesWithAngles = `זווית1:${row.angle1};${notesWithAngles}`;
-        if (row.angle2) notesWithAngles = `זווית2:${row.angle2};${notesWithAngles}`;
         measurementRows.push({
           project_id: projectId,
           floor_label: floor.label.replace('קומה ', ''),
@@ -362,7 +359,7 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           item_code: row.item_code,
           height: row.height,
           width: row.width,
-          notes: notesWithAngles.trim() || null,
+          notes: row.notes,
           hinge_direction: row.hinge_direction,
           mamad: row.mamad,
           glyph: row.glyph,
@@ -370,6 +367,8 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           depth: row.depth,
           is_manual: row.is_manual || false,
           engine_side: row.engine_side === 'ימין' ? 'R' : row.engine_side === 'שמאל' ? 'L' : null,
+          field_notes: row.field_notes,
+          internal_wing: row.internal_wing,
         });
       });
     });

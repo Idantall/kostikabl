@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWizard } from './WizardContext';
-import { LOCATION_OPTIONS, ANGLE1_OPTIONS, ANGLE2_OPTIONS, MAMAD_OPTIONS, WizardApartmentRow } from '@/lib/wizardTypes';
+import { LOCATION_OPTIONS, MAMAD_OPTIONS, WizardApartmentRow } from '@/lib/wizardTypes';
 import { useTableKeyboardNav } from '@/hooks/useTableKeyboardNav';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -240,22 +240,22 @@ export function WizardStepApartments() {
                   <Table dir="rtl" className="table-fixed">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-right w-14">פתח</TableHead>
+                         <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
                         <TableHead className="text-right w-20">פרט חוזה</TableHead>
-                        <TableHead className="text-right w-32">פרט</TableHead>
+                        <TableHead className="text-right w-32">פרט יצור</TableHead>
                         <TableHead className="text-right w-20">גובה</TableHead>
                         <TableHead className="text-right w-20">רוחב</TableHead>
-                        <TableHead className="text-right w-28">הערות</TableHead>
-                        <TableHead className="text-right w-20">כיוון ציר</TableHead>
-                        <TableHead className="text-right w-32">ממד</TableHead>
+                        <TableHead className="text-right w-28">גובה מהריצוף</TableHead>
+                        <TableHead className="text-right w-24">ציר מבט מבפנים</TableHead>
+                        <TableHead className="text-right w-32">ממד כיס בצד</TableHead>
                         <TableHead className="text-right w-16">גליף</TableHead>
-                        <TableHead className="text-right w-20">עומק</TableHead>
-                        <TableHead className="text-right w-24">גובה יואים</TableHead>
+                        <TableHead className="text-right w-20">עומק עד הפריקסט</TableHead>
+                        <TableHead className="text-right w-24">מדרגה בשיש</TableHead>
                         <TableHead className="text-right w-16">מנואלה</TableHead>
                         <TableHead className="text-right w-20">מנוע</TableHead>
-                        <TableHead className="text-right w-28">זווית עליונה</TableHead>
-                        <TableHead className="text-right w-28">זווית תחתונה</TableHead>
+                        <TableHead className="text-right w-28">הערות</TableHead>
+                        <TableHead className="text-right w-24">כנף פנימית</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -341,22 +341,15 @@ export function WizardStepApartments() {
                             </Select>
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={14}>
-                            <Select value={row.angle1 || 'none'} onValueChange={v => handleUpdateRow(row.id, 'angle1', v === 'none' ? null : v)}>
-                              <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50 max-h-60">
-                                <SelectItem value="none">-</SelectItem>
-                                {ANGLE1_OPTIONS.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                                <SelectItem value="אחר">אחר</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <Input value={row.field_notes || ''} onChange={e => handleUpdateRow(row.id, 'field_notes', e.target.value || null)} className="h-9" dir="rtl" />
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={15}>
-                            <Select value={row.angle2 || 'none'} onValueChange={v => handleUpdateRow(row.id, 'angle2', v === 'none' ? null : v)}>
+                            <Select value={row.internal_wing || 'none'} onValueChange={v => handleUpdateRow(row.id, 'internal_wing', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50 max-h-60">
+                              <SelectContent className="bg-background z-50">
                                 <SelectItem value="none">-</SelectItem>
-                                {ANGLE2_OPTIONS.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                                <SelectItem value="אחר">אחר</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
                               </SelectContent>
                             </Select>
                           </TableCell>

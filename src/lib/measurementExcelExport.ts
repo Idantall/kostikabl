@@ -107,6 +107,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'jamb_height': return mr.jamb_height;
       case 'is_manual': return mr.is_manual ? 'מנואלה' : null;
       case 'engine_side': return mr.engine_side;
+      case 'internal_wing': return (mr as any).internal_wing || null;
       default: return null;
     }
   } else {
@@ -128,6 +129,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'jamb_height': return null;
       case 'is_manual': return (ir as any).is_manual ? 'מנואלה' : null;
       case 'engine_side': return ir.motor_side;
+      case 'internal_wing': return null;
       default: return null;
     }
   }
@@ -196,58 +198,20 @@ function createWorksheet(
     { col: 'A', value: 'מיקום בדירה' },
     { col: 'B', value: "מס'  פתח" },
     { col: 'C', value: 'פרט חוזה' },
-    { col: 'D', value: "מס'  פרט" },
+    { col: 'D', value: 'פרט יצור' },
     { col: 'E', value: 'גובה' },
     { col: 'F', value: 'רוחב' },
-    { col: 'G', value: 'הערות' },
-    { col: 'H', value: 'כיוון ציר' },
-    { col: 'I', value: 'ממד' },
+    { col: 'G', value: 'גובה מהריצוף' },
+    { col: 'H', value: 'ציר מבט מבפנים' },
+    { col: 'I', value: 'ממד כיס בצד' },
     { col: 'J', value: 'עובי קיר' },
-    { col: 'K', value: 'עומק' },
-    { col: 'L', value: 'גובה יואים' },
+    { col: 'K', value: 'עומק עד הפריקסט' },
+    { col: 'L', value: 'מדרגה בשיש' },
     { col: 'M', value: 'מנואלה' },
     { col: 'N', value: 'צד מנוע' },
+    { col: 'O', value: 'הערות' },
+    { col: 'P', value: 'כנף פנימית מבט פנים' },
   ];
-
-  simpleHeaders.forEach(({ col, value }) => {
-    const cell = ws.getCell(`${col}5`);
-    cell.value = value;
-    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-    cell.font = { name: 'Arial', size: 14, bold: true };
-    cell.border = {
-      top: { style: 'thin' },
-      bottom: { style: 'thin' },
-      left: { style: 'thin' },
-      right: { style: 'thin' },
-    };
-  });
-
-  // Merged angle headers
-  // O5:P5 - "זווית 18/120"
-  ws.mergeCells('O5:P5');
-  const angleCell1 = ws.getCell('O5');
-  angleCell1.value = 'זווית 18/120\n\n\nפנים              חוץ\n';
-  angleCell1.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
-  angleCell1.font = { name: 'Arial', size: 14, bold: true };
-  angleCell1.border = {
-    top: { style: 'thin' },
-    bottom: { style: 'thin' },
-    left: { style: 'thin' },
-    right: { style: 'thin' },
-  };
-
-  // Q5:S5 - "זווית פריקסט"
-  ws.mergeCells('Q5:S5');
-  const angleCell2 = ws.getCell('Q5');
-  angleCell2.value = 'זווית פריקסט\n\n\n     סוג              פנים             חוץ\n';
-  angleCell2.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
-  angleCell2.font = { name: 'Arial', size: 14, bold: true };
-  angleCell2.border = {
-    top: { style: 'thin' },
-    bottom: { style: 'thin' },
-    left: { style: 'thin' },
-    right: { style: 'thin' },
-  };
 
   // Sort rows by opening_no
   const sortedRows = [...sheetRows].sort((a, b) => {
@@ -261,16 +225,10 @@ function createWorksheet(
   for (const row of sortedRows) {
     ws.getRow(rowIndex).height = 18;
 
-    // Build notes value: combine notes + field_notes if present
-    let notesValue = getField(row, 'notes') || '';
-    const fieldNotes = getField(row, 'field_notes');
-    if (fieldNotes) {
-      notesValue = notesValue 
-        ? `${notesValue}\n[מהשטח] ${fieldNotes}`
-        : `[מהשטח] ${fieldNotes}`;
-    }
+    // Build cell values
+    const notesValue = getField(row, 'notes') || '';
+    const fieldNotesValue = getField(row, 'field_notes') || '';
 
-    // Build cell values for A-J
     const values: { col: string; value: string | number }[] = [
       { col: 'A', value: getField(row, 'location') || '' },
       { col: 'B', value: getField(row, 'opening_no') || '' },
@@ -286,33 +244,9 @@ function createWorksheet(
       { col: 'L', value: getField(row, 'jamb_height') || '' },
       { col: 'M', value: getField(row, 'is_manual') || '' },
       { col: 'N', value: getField(row, 'engine_side') || '' },
+      { col: 'O', value: fieldNotesValue },
+      { col: 'P', value: getField(row, 'internal_wing') || '' },
     ];
-
-    values.forEach(({ col, value }) => {
-      const cell = ws.getCell(`${col}${rowIndex}`);
-      cell.value = value;
-      cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.font = { name: 'Arial', size: 14, bold: true };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
-    });
-
-    // O-S: angle columns (leave blank but add borders)
-    ['O', 'P', 'Q', 'R', 'S'].forEach(col => {
-      const cell = ws.getCell(`${col}${rowIndex}`);
-      cell.value = '';
-      cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
-    });
 
     rowIndex++;
   }
@@ -326,7 +260,7 @@ function createWorksheet(
     ws.getRow(rowIndex).height = 18;
 
     // Add empty cells with borders for columns A-O
-    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'].forEach(col => {
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'].forEach(col => {
       const cell = ws.getCell(`${col}${rowIndex}`);
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };

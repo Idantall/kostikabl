@@ -138,7 +138,8 @@ const ImportMeasurement = () => {
         wall_thickness: row.wall_thickness,
         glyph: row.glyph,
         jamb_height: row.jamb_height,
-        engine_side: row.engine_side
+        engine_side: row.engine_side,
+        internal_wing: row.internal_wing,
       }));
 
       // Insert in batches of 100

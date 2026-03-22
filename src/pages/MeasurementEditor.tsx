@@ -33,6 +33,7 @@ interface MeasurementRow {
   mamad: string | null;
   depth: string | null;
   is_manual: boolean;
+  internal_wing: string | null;
 }
 
 // Helper to extract user notes (excluding angle patterns)
@@ -357,7 +358,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* פרט */}
                     <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">פרט</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">פרט יצור</label>
                       <Input
                         value={row.item_code || ''}
                         onChange={(e) => updateRow(row.id, 'item_code', e.target.value || null)}
@@ -391,7 +392,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* הערות */}
                     <div className="w-28">
-                      <label className="text-[11px] text-muted-foreground block text-center">הערות</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">גובה מהריצוף</label>
                       <Input
                         value={getUserNotes(row.notes)}
                         onChange={(e) => updateRow(row.id, 'notes', mergeUserNotes(e.target.value, row.notes))}
@@ -401,7 +402,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* כיוון ציר */}
                     <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">ציר</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">ציר מבט מבפנים</label>
                       <Select
                         value={(row as any).hinge_direction || 'none'}
                         onValueChange={(value) => updateRow(row.id, 'hinge_direction' as any, value === 'none' ? null : value)}
@@ -418,7 +419,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* ממד */}
                     <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">ממד</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">ממד כיס בצד</label>
                       <Select
                         value={(row as any).mamad || 'none'}
                         onValueChange={(value) => updateRow(row.id, 'mamad' as any, value === 'none' ? null : value)}
@@ -447,7 +448,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* עומק */}
                     <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">עומק</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">עומק עד הפריקסט</label>
                       <Input
                         value={(row as any).depth || ''}
                         onChange={(e) => updateRow(row.id, 'depth' as any, e.target.value || null)}
@@ -458,7 +459,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* גובה יואים */}
                     <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">גובה יואים</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">מדרגה בשיש</label>
                       <Input
                         value={row.jamb_height || ''}
                         onChange={(e) => updateRow(row.id, 'jamb_height', e.target.value || null)}
@@ -496,73 +497,9 @@ const MeasurementEditor = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    {/* זווית עליונה */}
-                    <div className="w-24">
-                      <label className="text-[11px] text-muted-foreground block text-center">זווית עליונה</label>
-                      <Select
-                        value={row.notes?.match(/זווית1:([^;]*)/)?.[1] || 'none'}
-                        onValueChange={(value) => {
-                          const otherNotes = row.notes?.replace(/זווית1:[^;]*;?/g, '').trim() || '';
-                          const newNotes = value === 'none' 
-                            ? otherNotes || null 
-                            : `זווית1:${value};${otherNotes}`.replace(/;$/, '');
-                          updateRow(row.id, 'notes', newNotes);
-                        }}
-                      >
-                        <SelectTrigger className="h-10 text-sm px-1">
-                          <SelectValue placeholder="-" />
-                        </SelectTrigger>
-                        <SelectContent side="bottom">
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="55 מברשת">55 מברשת</SelectItem>
-                          <SelectItem value="95 מברשת">95 מברשת</SelectItem>
-                          <SelectItem value="125 מברשת">125 מברשת</SelectItem>
-                          <SelectItem value="140 מברשת">140 מברשת</SelectItem>
-                          <SelectItem value="190 מברשת">190 מברשת</SelectItem>
-                          <SelectItem value="60 מברשת">60 מברשת</SelectItem>
-                          <SelectItem value="100 מברשת">100 מברשת</SelectItem>
-                          <SelectItem value="95+55">95+55</SelectItem>
-                          <SelectItem value="125+55">125+55</SelectItem>
-                          <SelectItem value="140+55">140+55</SelectItem>
-                          <SelectItem value="190+55">190+55</SelectItem>
-                          <SelectItem value="55+55">55+55</SelectItem>
-                          <SelectItem value="אחר">אחר (טקסט חופשי)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* זווית תחתונה */}
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">זווית תחתונה</label>
-                      <Select
-                        value={row.notes?.match(/זווית2:([^;]*)/)?.[1] || 'none'}
-                        onValueChange={(value) => {
-                          const otherNotes = row.notes?.replace(/זווית2:[^;]*;?/g, '').trim() || '';
-                          const newNotes = value === 'none' 
-                            ? otherNotes || null 
-                            : `זווית2:${value};${otherNotes}`.replace(/;$/, '');
-                          updateRow(row.id, 'notes', newNotes);
-                        }}
-                      >
-                        <SelectTrigger className="h-10 text-sm px-1">
-                          <SelectValue placeholder="-" />
-                        </SelectTrigger>
-                        <SelectContent side="bottom">
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="18/30">18/30</SelectItem>
-                          <SelectItem value="15/20">15/20</SelectItem>
-                          <SelectItem value="18/40">18/40</SelectItem>
-                          <SelectItem value="18/100">18/100</SelectItem>
-                          <SelectItem value="18/70">18/70</SelectItem>
-                          <SelectItem value="18/135">18/135</SelectItem>
-                          <SelectItem value="25/135">25/135</SelectItem>
-                          <SelectItem value="18/120">18/120</SelectItem>
-                          <SelectItem value="אחר">אחר (טקסט חופשי)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* הערות מהשטח */}
-                    <div className="flex-1 min-w-[140px]">
-                      <label className="text-[11px] text-muted-foreground block text-center">הערות מהשטח</label>
+                    {/* הערות */}
+                    <div className="w-28">
+                      <label className="text-[11px] text-muted-foreground block text-center">הערות</label>
                       <Input
                         value={row.field_notes || ''}
                         onChange={(e) => updateRow(row.id, 'field_notes', e.target.value || null)}
@@ -570,6 +507,24 @@ const MeasurementEditor = () => {
                         dir="rtl"
                       />
                     </div>
+                    {/* כנף פנימית מבט פנים */}
+                    <div className="w-20">
+                      <label className="text-[11px] text-muted-foreground block text-center">כנף פנימית</label>
+                      <Select
+                        value={(row as any).internal_wing || 'none'}
+                        onValueChange={(value) => updateRow(row.id, 'internal_wing' as any, value === 'none' ? null : value)}
+                      >
+                        <SelectTrigger className="h-10 text-base px-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">-</SelectItem>
+                          <SelectItem value="R">ימין</SelectItem>
+                          <SelectItem value="L">שמאל</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
                     {/* Delete Button */}
                     <div className="w-10 flex items-end">
                       <Button
