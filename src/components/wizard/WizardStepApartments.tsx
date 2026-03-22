@@ -355,6 +355,12 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
+                          <TableCell data-row={rowIdx} data-col={16}>
+                            <WingPositionSelector
+                              value={(row.wing_position as WingPositionValue) || null}
+                              onChange={(v) => handleUpdateRow(row.id, 'wing_position', v)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
                               {(row.height_overridden || row.width_overridden) && row.item_code && (
