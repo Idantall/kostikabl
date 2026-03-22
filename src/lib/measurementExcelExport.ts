@@ -22,6 +22,7 @@ interface MeasurementRow {
   is_manual: boolean;
   engine_side: string | null;
   internal_wing: string | null;
+  wing_position: string | null;
 }
 
 interface ItemRow {
