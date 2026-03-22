@@ -4,7 +4,7 @@ import { wingPositionToPngBase64 } from '@/components/WingPositionSelector';
 // Generate wing images as base64 PNGs using canvas
 function getWingImages(): Record<string, string> {
   const images: Record<string, string> = {};
-  for (const pos of ['TL', 'TR', 'BL', 'BR']) {
+  for (const pos of ['TL', 'TR', 'BL', 'BR', 'TP']) {
     const b64 = wingPositionToPngBase64(pos);
     if (b64) images[pos] = b64;
   }
