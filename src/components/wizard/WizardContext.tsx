@@ -87,6 +87,8 @@ const initialState: WizardState = {
   projectType: 'blind_jambs',
   contractPdfPath: null,
   contractParseResult: null,
+  apartmentTypes: [],
+  floorTypes: [],
 };
 
 // Helper: get the max apartment number across all buildings
