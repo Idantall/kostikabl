@@ -75,20 +75,19 @@ const COLUMN_WIDTHS = [
   9.75,  // B - מס' פתח
   9.5,   // C - פרט חוזה
   8.625, // D - פרט יצור
-  13,    // E - גובה
+  16,    // E - גובה (wider for up to 8 digits)
   21.625,// F - רוחב
   8.375, // G - גובה מהריצוף
-  7.625, // H - ציר מבט מבפנים
-  9.75,  // I - ממד כיס בצד
-  8.25,  // J - גליף
-  9.625, // K - עומק עד הפריקסט
-  13,    // L - מדרגה בשיש
-  8,     // M - מנואלה
-  9.625, // N - צד מנוע
-  13,    // O - הערות
-  11,    // P - כנף פנימית מבט פנים
-  11,    // Q - ציר מבט פנים פתיחה פנימה
-  11,    // R - ציר מבט פנים פתיחה החוצה
+  9.75,  // H - ממד כיס בצד
+  8.25,  // I - גליף
+  9.625, // J - עומק עד הפריקסט
+  13,    // K - מדרגה בשיש
+  8,     // L - מנואלה
+  9.625, // M - צד מנוע
+  13,    // N - הערות
+  11,    // O - כנף פנימית מבט פנים
+  11,    // P - ציר מבט פנים פתיחה פנימה
+  11,    // Q - ציר מבט פנים פתיחה החוצה
 ];
 
 // Get floor label from row
@@ -224,17 +223,16 @@ function createWorksheet(
     { col: 'E', value: 'גובה' },
     { col: 'F', value: 'רוחב' },
     { col: 'G', value: 'גובה מהריצוף' },
-    { col: 'H', value: 'ציר מבט מבפנים' },
-    { col: 'I', value: 'ממד כיס בצד' },
-    { col: 'J', value: 'גליף' },
-    { col: 'K', value: 'עומק עד הפריקסט' },
-    { col: 'L', value: 'מדרגה בשיש' },
-    { col: 'M', value: 'מנואלה' },
-    { col: 'N', value: 'צד מנוע' },
-    { col: 'O', value: 'הערות' },
-    { col: 'P', value: 'כנף פנימית מבט פנים' },
-    { col: 'Q', value: 'ציר מבט פנים פתיחה פנימה' },
-    { col: 'R', value: 'ציר מבט פנים פתיחה החוצה' },
+    { col: 'H', value: 'ממד כיס בצד' },
+    { col: 'I', value: 'גליף' },
+    { col: 'J', value: 'עומק עד הפריקסט' },
+    { col: 'K', value: 'מדרגה בשיש' },
+    { col: 'L', value: 'מנואלה' },
+    { col: 'M', value: 'צד מנוע' },
+    { col: 'N', value: 'הערות' },
+    { col: 'O', value: 'כנף פנימית מבט פנים' },
+    { col: 'P', value: 'ציר מבט פנים פתיחה פנימה' },
+    { col: 'Q', value: 'ציר מבט פנים פתיחה החוצה' },
   ];
 
   // Write header cells
@@ -277,17 +275,16 @@ function createWorksheet(
       { col: 'E', value: parseNumericOrString(getField(row, 'height')) },
       { col: 'F', value: parseNumericOrString(getField(row, 'width')) },
       { col: 'G', value: notesValue },
-      { col: 'H', value: getField(row, 'hinge_direction') || '' },
-      { col: 'I', value: getField(row, 'mamad') || '' },
-      { col: 'J', value: getField(row, 'glyph') || '' },
-      { col: 'K', value: getField(row, 'depth') || '' },
-      { col: 'L', value: getField(row, 'jamb_height') || '' },
-      { col: 'M', value: getField(row, 'is_manual') || '' },
-      { col: 'N', value: getField(row, 'engine_side') || '' },
-      { col: 'O', value: fieldNotesValue },
-      { col: 'P', value: getField(row, 'internal_wing') || '' },
+      { col: 'H', value: getField(row, 'mamad') || '' },
+      { col: 'I', value: getField(row, 'glyph') || '' },
+      { col: 'J', value: getField(row, 'depth') || '' },
+      { col: 'K', value: getField(row, 'jamb_height') || '' },
+      { col: 'L', value: getField(row, 'is_manual') || '' },
+      { col: 'M', value: getField(row, 'engine_side') || '' },
+      { col: 'N', value: fieldNotesValue },
+      { col: 'O', value: getField(row, 'internal_wing') || '' },
+      { col: 'P', value: '' },
       { col: 'Q', value: '' },
-      { col: 'R', value: '' },
     ];
 
     // Write values to cells
@@ -304,7 +301,7 @@ function createWorksheet(
       };
     }
 
-    // Embed wing images in Q and R columns (ExcelJS uses 0-based col index)
+    // Embed wing images in P and Q columns (ExcelJS uses 0-based col index)
     const addWingImage = (val: string, col0: number) => {
       if (val && wingImages[val]) {
         const imageId = workbook.addImage({
@@ -318,8 +315,8 @@ function createWorksheet(
         } as any);
       }
     };
-    addWingImage(wingPosVal, 16);    // Q = 0-based index 16
-    addWingImage(wingPosOutVal, 17); // R = 0-based index 17
+    addWingImage(wingPosVal, 15);    // P = 0-based index 15
+    addWingImage(wingPosOutVal, 16); // Q = 0-based index 16
 
     rowIndex++;
   }
@@ -333,7 +330,7 @@ function createWorksheet(
     ws.getRow(rowIndex).height = 18;
 
     // Add empty cells with borders for columns A-O
-    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'].forEach(col => {
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'].forEach(col => {
       const cell = ws.getCell(`${col}${rowIndex}`);
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };

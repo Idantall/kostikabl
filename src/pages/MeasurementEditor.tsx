@@ -378,7 +378,7 @@ const MeasurementEditor = () => {
                       />
                     </div>
                     {/* גובה */}
-                    <div className="w-20">
+                    <div className="w-28">
                       <label className="text-[11px] text-muted-foreground block text-center">גובה</label>
                       <Input
                         value={row.height || ''}
@@ -410,23 +410,6 @@ const MeasurementEditor = () => {
                         className="h-10 text-base px-2"
                         dir="rtl"
                       />
-                    </div>
-                    {/* כיוון ציר */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">ציר מבט מבפנים</label>
-                      <Select
-                        value={(row as any).hinge_direction || 'none'}
-                        onValueChange={(value) => updateRow(row.id, 'hinge_direction' as any, value === 'none' ? null : value)}
-                      >
-                        <SelectTrigger className="h-10 text-base px-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="L">L</SelectItem>
-                          <SelectItem value="R">R</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                     {/* ממד */}
                     <div className="w-20">

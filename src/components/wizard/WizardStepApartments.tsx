@@ -245,10 +245,9 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-36">מיקום</TableHead>
                         <TableHead className="text-right w-20">פרט חוזה</TableHead>
                         <TableHead className="text-right w-32">פרט יצור</TableHead>
-                        <TableHead className="text-right w-20">גובה</TableHead>
+                        <TableHead className="text-right w-28">גובה</TableHead>
                         <TableHead className="text-right w-20">רוחב</TableHead>
                         <TableHead className="text-right w-28">גובה מהריצוף</TableHead>
-                        <TableHead className="text-right w-24">ציר מבט מבפנים</TableHead>
                         <TableHead className="text-right w-32">ממד כיס בצד</TableHead>
                         <TableHead className="text-right w-16">גליף</TableHead>
                         <TableHead className="text-right w-20">עומק עד הפריקסט</TableHead>
@@ -289,7 +288,7 @@ export function WizardStepApartments() {
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={4}>
                             <div className="relative">
-                              <Input value={row.height || ''} onChange={e => handleUpdateRow(row.id, 'height', e.target.value)} className={`h-9 w-full min-w-[60px] ${row.height_overridden ? 'bg-yellow-50 dark:bg-yellow-950/30' : 'bg-primary/5'}`} dir="ltr" />
+                              <Input value={row.height || ''} onChange={e => handleUpdateRow(row.id, 'height', e.target.value)} className={`h-9 w-full min-w-[80px] ${row.height_overridden ? 'bg-yellow-50 dark:bg-yellow-950/30' : 'bg-primary/5'}`} dir="ltr" />
                               {row.height_overridden && <Badge variant="outline" className="absolute -top-2 -right-2 text-[10px] px-1 py-0">שונה</Badge>}
                             </div>
                           </TableCell>
@@ -303,16 +302,6 @@ export function WizardStepApartments() {
                             <Input value={row.notes || ''} onChange={e => handleUpdateRow(row.id, 'notes', e.target.value)} className="h-9" dir="rtl" />
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={7}>
-                            <Select value={row.hinge_direction || 'none'} onValueChange={v => handleUpdateRow(row.id, 'hinge_direction', v === 'none' ? null : v)}>
-                              <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50">
-                                <SelectItem value="none">-</SelectItem>
-                                <SelectItem value="L">ימין (L)</SelectItem>
-                                <SelectItem value="R">שמאל (R)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell data-row={rowIdx} data-col={8}>
                             <Select value={row.mamad || 'none'} onValueChange={v => handleUpdateRow(row.id, 'mamad', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50">
