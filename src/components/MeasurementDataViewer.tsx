@@ -858,14 +858,20 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                     <TableHead className="text-right text-xs font-medium w-16">דירה</TableHead>
                     <TableHead className="text-right text-xs font-medium w-16">מיקום</TableHead>
                     <TableHead className="text-right text-xs font-medium w-12">פתח</TableHead>
-                    <TableHead className="text-right text-xs font-medium w-20">פרט</TableHead>
+                    <TableHead className="text-right text-xs font-medium w-16">פרט חוזה</TableHead>
+                    <TableHead className="text-right text-xs font-medium w-20">פרט יצור</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">גובה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">רוחב</TableHead>
-                    <TableHead className="text-right text-xs font-medium min-w-[100px]">הערות</TableHead>
-                    <TableHead className="text-right text-xs font-medium min-w-[100px]">הערות מהשטח</TableHead>
+                    <TableHead className="text-right text-xs font-medium min-w-[80px]">גובה מהריצוף</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">ציר מבט מבפנים</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">ממד כיס בצד</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">גליף</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-20">גובה יואים</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">עומק עד הפריקסט</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">מדרגה בשיש</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-14">מנואלה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
+                    <TableHead className="text-right text-xs font-medium min-w-[80px]">הערות</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
                     {editMode && (
                       <TableHead className="text-center text-xs font-medium w-20">פעולות</TableHead>
                     )}
