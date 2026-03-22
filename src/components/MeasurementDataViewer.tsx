@@ -101,6 +101,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     jamb_height: string;
     apartment_label: string;
     floor_label: string;
+    contract_item: string;
+    hinge_direction: string | null;
+    mamad: string | null;
+    depth: string;
+    is_manual: boolean;
+    internal_wing: string | null;
   }>({
     item_code: "",
     height: "",
@@ -113,6 +119,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     jamb_height: "",
     apartment_label: "",
     floor_label: "",
+    contract_item: "",
+    hinge_direction: null,
+    mamad: null,
+    depth: "",
+    is_manual: false,
+    internal_wing: null,
   });
   const [saving, setSaving] = useState(false);
 
