@@ -353,7 +353,7 @@ export function WizardStepBank() {
               <TableBody>
                 {bankItems.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                     <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       אין פרטים בבנק. הוסף פרט או העלה קובץ Excel.
                     </TableCell>
                   </TableRow>
