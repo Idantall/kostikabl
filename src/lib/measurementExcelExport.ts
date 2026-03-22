@@ -241,7 +241,7 @@ function createWorksheet(
       { col: 'G', value: notesValue },
       { col: 'H', value: getField(row, 'hinge_direction') || '' },
       { col: 'I', value: getField(row, 'mamad') || '' },
-      { col: 'J', value: getField(row, 'wall_thickness') || '' },
+      { col: 'J', value: getField(row, 'glyph') || '' },
       { col: 'K', value: getField(row, 'depth') || '' },
       { col: 'L', value: getField(row, 'jamb_height') || '' },
       { col: 'M', value: getField(row, 'is_manual') || '' },

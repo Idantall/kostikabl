@@ -445,7 +445,7 @@ const MeasurementEditor = () => {
                         dir="ltr"
                       />
                     </div>
-                    {/* עובי קיר */}
+                    {/* עובי קיר - legacy field, keep for existing data */}
                     <div className="w-16">
                       <label className="text-[11px] text-muted-foreground block text-center">עובי קיר</label>
                       <Input

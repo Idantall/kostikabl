@@ -934,7 +934,19 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                         <TableCell className="text-right text-sm font-medium">
                           {getRowField(row, 'opening_no') || '-'}
                         </TableCell>
-                        {/* פרט */}
+                        {/* פרט חוזה */}
+                        <TableCell className="text-right text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.contract_item}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, contract_item: e.target.value }))}
+                              className="h-7 text-sm w-16"
+                            />
+                          ) : (
+                            getRowField(row, 'contract_item') || '-'
+                          )}
+                        </TableCell>
+                        {/* פרט יצור */}
                         <TableCell className="text-right text-sm">
                           {isEditing ? (
                             <Input
@@ -972,28 +984,57 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'width') || '-'
                           )}
                         </TableCell>
-                        {/* הערות */}
+                        {/* גובה מהריצוף */}
                         <TableCell className="text-right text-xs text-muted-foreground">
                           {isEditing ? (
                             <Input
                               value={editValues.notes}
                               onChange={(e) => setEditValues(prev => ({ ...prev, notes: e.target.value }))}
-                              className="h-7 text-xs min-w-[80px]"
+                              className="h-7 text-xs min-w-[60px]"
                             />
                           ) : (
                             getRowField(row, 'notes') || '-'
                           )}
                         </TableCell>
-                        {/* הערות מהשטח */}
-                        <TableCell className="text-right text-xs text-muted-foreground">
+                        {/* ציר מבט מבפנים */}
+                        <TableCell className="text-center text-sm">
                           {isEditing ? (
-                            <Input
-                              value={editValues.field_notes}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, field_notes: e.target.value }))}
-                              className="h-7 text-xs min-w-[80px]"
-                            />
+                            <Select
+                              value={editValues.hinge_direction || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, hinge_direction: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-14">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="L">L</SelectItem>
+                                <SelectItem value="R">R</SelectItem>
+                              </SelectContent>
+                            </Select>
                           ) : (
-                            getRowField(row, 'field_notes') || '-'
+                            getRowField(row, 'hinge_direction') || '-'
+                          )}
+                        </TableCell>
+                        {/* ממד כיס בצד */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.mamad || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, mamad: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-xs w-16">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="☒☐">☒☐</SelectItem>
+                                <SelectItem value="☐☒">☐☒</SelectItem>
+                                <SelectItem value="☒☐☒">☒☐☒</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'mamad') || '-'
                           )}
                         </TableCell>
                         {/* גליף */}
@@ -1009,7 +1050,20 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'glyph') || '-'
                           )}
                         </TableCell>
-                        {/* גובה יואים */}
+                        {/* עומק עד הפריקסט */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.depth}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, depth: e.target.value }))}
+                              className="h-7 text-sm w-16 text-center"
+                              inputMode="tel"
+                            />
+                          ) : (
+                            getRowField(row, 'depth') || '-'
+                          )}
+                        </TableCell>
+                        {/* מדרגה בשיש */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
                             <Input
@@ -1020,6 +1074,19 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             />
                           ) : (
                             getRowField(row, 'jamb_height') || '-'
+                          )}
+                        </TableCell>
+                        {/* מנואלה */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <input
+                              type="checkbox"
+                              checked={editValues.is_manual}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, is_manual: e.target.checked }))}
+                              className="h-4 w-4 rounded border-border"
+                            />
+                          ) : (
+                            getRowField(row, 'is_manual') || '-'
                           )}
                         </TableCell>
                         {/* מנוע */}
@@ -1043,6 +1110,38 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             </Select>
                           ) : (
                             getRowField(row, 'engine_side') || '-'
+                          )}
+                        </TableCell>
+                        {/* הערות */}
+                        <TableCell className="text-right text-xs text-muted-foreground">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.field_notes}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, field_notes: e.target.value }))}
+                              className="h-7 text-xs min-w-[60px]"
+                            />
+                          ) : (
+                            getRowField(row, 'field_notes') || '-'
+                          )}
+                        </TableCell>
+                        {/* כנף פנימית */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.internal_wing || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, internal_wing: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-14">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'internal_wing') || '-'
                           )}
                         </TableCell>
                         {editMode && (
