@@ -110,6 +110,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     is_manual: boolean;
     internal_wing: string | null;
     wing_position: string | null;
+    wing_position_out: string | null;
   }>({
     item_code: "",
     height: "",
@@ -129,6 +130,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     is_manual: false,
     internal_wing: null,
     wing_position: null,
+    wing_position_out: null,
   });
   const [saving, setSaving] = useState(false);
 
