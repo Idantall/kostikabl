@@ -206,7 +206,7 @@ function createWorksheet(
     { col: 'G', value: 'גובה מהריצוף' },
     { col: 'H', value: 'ציר מבט מבפנים' },
     { col: 'I', value: 'ממד כיס בצד' },
-    { col: 'J', value: 'עובי קיר' },
+    { col: 'J', value: 'גליף' },
     { col: 'K', value: 'עומק עד הפריקסט' },
     { col: 'L', value: 'מדרגה בשיש' },
     { col: 'M', value: 'מנואלה' },
