@@ -5,6 +5,7 @@ export interface BankItem {
   item_no: string;    // unique within project
   height: string;     // allows non-integer like "253+"
   width: string;
+  floor_height: string; // גובה מהריצוף
 }
 
 export interface WizardApartmentRow {

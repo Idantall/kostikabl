@@ -99,7 +99,9 @@ export function WizardStepApartments() {
     if (!row || !row.item_code) return;
     const bankItem = bankItems.find(b => b.item_no === row.item_code);
     if (!bankItem) return;
-    dispatch({ type: 'UPDATE_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, rowId, updates: { height: bankItem.height, height_overridden: false, width: bankItem.width, width_overridden: false } } });
+    const resetUpdates: Partial<WizardApartmentRow> = { height: bankItem.height, height_overridden: false, width: bankItem.width, width_overridden: false };
+    if (bankItem.floor_height) resetUpdates.notes = bankItem.floor_height;
+    dispatch({ type: 'UPDATE_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, rowId, updates: resetUpdates } });
     toast.success('הערכים אופסו לפי הבנק');
   };
 

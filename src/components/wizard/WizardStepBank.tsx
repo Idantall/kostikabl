@@ -387,6 +387,15 @@ export function WizardStepBank() {
                           className={errors[item.id]?.includes('רוחב') ? 'border-destructive' : ''}
                         />
                       </TableCell>
+                      <TableCell data-row={rowIdx} data-col={3}>
+                        <Input
+                          value={item.floor_height || ''}
+                          onChange={(e) => handleUpdateItem(item.id, 'floor_height', e.target.value)}
+                          placeholder="250"
+                          dir="ltr"
+                          type="number"
+                        />
+                      </TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
