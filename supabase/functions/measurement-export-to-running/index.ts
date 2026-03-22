@@ -39,23 +39,24 @@ function classifySubpartsByKeywords(text: string): string[] {
   return codes.length > 0 ? codes : ["00"];
 }
 
-// Derive item_type and required_codes from item_code or notes
-function deriveItemTypeAndCodes(itemCode: string | null, notes: string | null): { itemType: string; requiredCodes: string[] } {
-  const searchText = (notes || itemCode || "").trim();
-  
-  // First try exact match from notes
-  if (searchText && NAME_TO_CODES[searchText]) {
-    return { itemType: searchText, requiredCodes: NAME_TO_CODES[searchText] };
+// Derive item_type and required_codes from item_code and field_notes (actual descriptive notes).
+// IMPORTANT: Do NOT pass measurement_rows.notes here — that field now stores numeric
+// "height from floor" data, not item type descriptions.
+function deriveItemTypeAndCodes(itemCode: string | null, fieldNotes: string | null): { itemType: string; requiredCodes: string[] } {
+  const codeText = (itemCode || "").trim();
+  if (codeText && NAME_TO_CODES[codeText]) {
+    return { itemType: codeText, requiredCodes: NAME_TO_CODES[codeText] };
   }
-  
-  // Try partial matches
+  const notesText = (fieldNotes || "").trim();
+  if (notesText && NAME_TO_CODES[notesText]) {
+    return { itemType: notesText, requiredCodes: NAME_TO_CODES[notesText] };
+  }
+  const searchText = `${codeText} ${notesText}`;
   for (const [name, codes] of Object.entries(NAME_TO_CODES)) {
     if (searchText.includes(name)) {
       return { itemType: name, requiredCodes: codes };
     }
   }
-  
-  // Fallback: use keyword detection
   const codes = classifySubpartsByKeywords(searchText);
   return { itemType: "אחר", requiredCodes: codes };
 }
