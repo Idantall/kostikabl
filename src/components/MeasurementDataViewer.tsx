@@ -27,6 +27,7 @@ interface MeasurementRow {
   location_in_apartment: string | null;
   opening_no: string | null;
   contract_item: string | null;
+  blind_jamb_item: string | null;
   item_code: string | null;
   height: string | null;
   width: string | null;
