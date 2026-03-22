@@ -293,7 +293,7 @@ Deno.serve(async (req) => {
       }
 
       // Derive item_type and required_codes from item_code and notes
-      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.notes);
+      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.field_notes);
       const motorSide = normalizeEngineSide(row.engine_side);
 
       itemInserts.push({
