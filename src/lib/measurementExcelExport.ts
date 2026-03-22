@@ -215,7 +215,20 @@ function createWorksheet(
     { col: 'P', value: 'כנף פנימית מבט פנים' },
   ];
 
-  // Sort rows by opening_no
+  // Write header cells
+  for (const { col, value } of simpleHeaders) {
+    const cell = ws.getCell(`${col}5`);
+    cell.value = value;
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true, textRotation: 90 };
+    cell.font = { name: 'Arial', size: 10, bold: true };
+    cell.border = {
+      top: { style: 'thin' },
+      bottom: { style: 'thin' },
+      left: { style: 'thin' },
+      right: { style: 'thin' },
+    };
+  }
+
   const sortedRows = [...sheetRows].sort((a, b) => {
     const aNum = parseInt(getField(a, 'opening_no') || '999999', 10);
     const bNum = parseInt(getField(b, 'opening_no') || '999999', 10);
