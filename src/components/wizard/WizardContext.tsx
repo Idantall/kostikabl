@@ -419,6 +419,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
           if (!action.payload.targetFloorIds.includes(floor.id)) return floor;
           return {
             ...floor,
+            sourceFloorTypeName: floorType.name,
             apartments: floorType.apartments.map(apt => ({
               id: crypto.randomUUID(),
               label: `דירה ${nextAptNum++}`,
