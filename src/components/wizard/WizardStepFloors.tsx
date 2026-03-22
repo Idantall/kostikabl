@@ -482,6 +482,105 @@ export function WizardStepFloors() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Save floor type dialog */}
+      <Dialog open={saveFloorTypeDialogOpen} onOpenChange={setSaveFloorTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>שמור כסוג קומה</DialogTitle>
+            <DialogDescription>שמור את מבנה הקומה (דירות ושורות) כתבנית לשימוש חוזר</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={saveFloorTypeName}
+              onChange={e => setSaveFloorTypeName(e.target.value)}
+              placeholder="שם הסוג"
+              dir="rtl"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSaveFloorTypeDialogOpen(false)}>ביטול</Button>
+            <Button onClick={() => {
+              if (!saveFloorTypeName.trim()) { toast.error('יש להזין שם'); return; }
+              const sourceFloor = floors.find(f => f.id === saveFloorTypeSourceId);
+              if (!sourceFloor) return;
+              dispatch({ type: 'SAVE_FLOOR_TYPE', payload: { name: saveFloorTypeName.trim(), floor: sourceFloor } });
+              toast.success('סוג קומה נשמר');
+              setSaveFloorTypeDialogOpen(false);
+            }}>שמור</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Apply floor type dialog */}
+      <Dialog open={applyFloorTypeDialogOpen} onOpenChange={setApplyFloorTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>החל סוג קומה</DialogTitle>
+            <DialogDescription>בחר סוג קומה וקומות יעד. הדירות הקיימות בקומות הנבחרות יוחלפו.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label>סוג קומה</Label>
+              <Select value={applyFloorTypeId} onValueChange={setApplyFloorTypeId}>
+                <SelectTrigger className="bg-background"><SelectValue placeholder="בחר סוג" /></SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {state.floorTypes.map(t => (
+                    <SelectItem key={t.id} value={t.id}>{t.name} ({t.apartments.length} דירות)</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>קומות יעד</Label>
+              <div className="space-y-1.5 max-h-60 overflow-y-auto border rounded-md p-2">
+                {floors.map(floor => (
+                  <label key={floor.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded">
+                    <Checkbox
+                      checked={applyFloorTypeTargets.has(floor.id)}
+                      onCheckedChange={(checked) => {
+                        setApplyFloorTypeTargets(prev => {
+                          const next = new Set(prev);
+                          if (checked) next.add(floor.id);
+                          else next.delete(floor.id);
+                          return next;
+                        });
+                      }}
+                    />
+                    <span className="text-sm">{floor.label}</span>
+                    {floor.apartments.length > 0 && (
+                      <Badge variant="outline" className="text-xs mr-auto">{floor.apartments.length} דירות</Badge>
+                    )}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApplyFloorTypeDialogOpen(false)}>ביטול</Button>
+            <Button
+              disabled={!applyFloorTypeId || applyFloorTypeTargets.size === 0}
+              onClick={() => {
+                const hasData = floors.some(f =>
+                  applyFloorTypeTargets.has(f.id) && f.apartments.some(a => a.rows.some(r => r.item_code))
+                );
+                if (hasData) {
+                  if (!confirm('חלק מהקומות הנבחרות מכילות נתונים. להחליף?')) return;
+                }
+                dispatch({
+                  type: 'APPLY_FLOOR_TYPE',
+                  payload: { typeId: applyFloorTypeId, targetFloorIds: Array.from(applyFloorTypeTargets) },
+                });
+                toast.success(`סוג קומה הוחל על ${applyFloorTypeTargets.size} קומות`);
+                setApplyFloorTypeDialogOpen(false);
+              }}
+            >
+              החל
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
