@@ -286,6 +286,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'depth': return row.depth;
         case 'is_manual': return row.is_manual ? 'כן' : null;
         case 'internal_wing': return row.internal_wing;
+        case 'wing_position': return row.wing_position;
         default: return null;
       }
     } else {
