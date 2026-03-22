@@ -33,6 +33,7 @@ interface MeasurementRow {
   mamad: string | null;
   depth: string | null;
   is_manual: boolean;
+  internal_wing: string | null;
 }
 
 // Helper to extract user notes (excluding angle patterns)
