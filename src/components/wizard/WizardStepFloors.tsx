@@ -32,6 +32,14 @@ export function WizardStepFloors() {
   // Apartment label editing
   const [editingApt, setEditingApt] = useState<{ floorId: string; aptId: string } | null>(null);
   const [editingAptLabel, setEditingAptLabel] = useState('');
+  
+  // Floor type dialogs
+  const [saveFloorTypeDialogOpen, setSaveFloorTypeDialogOpen] = useState(false);
+  const [saveFloorTypeSourceId, setSaveFloorTypeSourceId] = useState('');
+  const [saveFloorTypeName, setSaveFloorTypeName] = useState('');
+  const [applyFloorTypeDialogOpen, setApplyFloorTypeDialogOpen] = useState(false);
+  const [applyFloorTypeId, setApplyFloorTypeId] = useState('');
+  const [applyFloorTypeTargets, setApplyFloorTypeTargets] = useState<Set<string>>(new Set());
 
   const handleStartEditApt = (floorId: string, aptId: string, label: string) => {
     setEditingApt({ floorId, aptId });
