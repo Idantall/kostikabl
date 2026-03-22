@@ -40,7 +40,7 @@ function updateCurrentBuildingFloors(state: WizardState, updater: (floors: Wizar
 
 // Actions
 type WizardAction =
-  | { type: 'SET_DRAFT'; payload: { id: string; name: string; bankItems: BankItem[]; buildings: WizardBuilding[]; projectType?: ProjectType; contractPdfPath?: string | null; contractParseResult?: any | null } }
+  | { type: 'SET_DRAFT'; payload: { id: string; name: string; bankItems: BankItem[]; buildings: WizardBuilding[]; projectType?: ProjectType; contractPdfPath?: string | null; contractParseResult?: any | null; apartmentTypes?: ApartmentType[]; floorTypes?: FloorType[] } }
   | { type: 'SET_NAME'; payload: string }
   | { type: 'SET_STEP'; payload: number }
   | { type: 'SET_BANK_ITEMS'; payload: BankItem[] }
