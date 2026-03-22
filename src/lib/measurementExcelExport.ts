@@ -437,12 +437,12 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
   });
 
   // Pre-load wing images
-  const wingImages = await getWingImages();
+  const wingImages = getWingImages();
 
   // Create worksheets
   for (const sheetKey of sortedSheetKeys) {
     const { rows: sheetRows, floorLabel, apartmentLabel } = groupedBySheet.get(sheetKey)!;
-    await createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages);
+    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages);
   }
 
   // Generate and download
