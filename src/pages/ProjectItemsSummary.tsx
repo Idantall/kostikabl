@@ -673,7 +673,7 @@ const ProjectItemsSummary = () => {
         return val;
       };
 
-      const headers = "קומה,דירה,מס' פתח,מס' פרט,צד מנוע,גובה,רוחב,עומק,מיקום,פרט חוזה,כיוון ציר,ממד,מנואלה,הערות,הערות מהשטח";
+      const headers = "קומה,דירה,מס' פתח,פרט יצור,צד מנוע,גובה,רוחב,עומק עד הפריקסט,מיקום,פרט חוזה,ציר מבט מבפנים,ממד כיס בצד,גליף,מדרגה בשיש,מנואלה,גובה מהריצוף,הערות,כנף פנימית מבט פנים";
       
       // Sort items by floor, then apartment, then opening number
       const sortedItems = [...filteredItems].sort((a, b) => {
