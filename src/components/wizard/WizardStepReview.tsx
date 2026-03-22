@@ -370,6 +370,7 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           engine_side: row.engine_side === 'ימין' ? 'R' : row.engine_side === 'שמאל' ? 'L' : null,
           field_notes: row.field_notes,
           internal_wing: row.internal_wing,
+          wing_position: row.wing_position,
         });
       });
     });
