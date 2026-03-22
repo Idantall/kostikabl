@@ -21,6 +21,7 @@ interface MeasurementRow {
   jamb_height: string | null;
   is_manual: boolean;
   engine_side: string | null;
+  internal_wing: string | null;
 }
 
 interface ItemRow {
@@ -55,23 +56,24 @@ interface ExportOptions {
   selectedApartment?: string;
 }
 
-// Column widths from reference file (A-O)
+// Column widths from reference file (A-P)
 const COLUMN_WIDTHS = [
-  11.75, // A
-  9.75,  // B
-  9.5,   // C
-  8.625, // D
-  13,    // E
-  21.625,// F
-  8.375, // G
-  7.625, // H
-  9.75,  // I
-  8.25,  // J
-  9.625, // K
-  13,    // L
-  12.625,// M
-  9.625, // N
-  13,    // O
+  11.75, // A - מיקום בדירה
+  9.75,  // B - מס' פתח
+  9.5,   // C - פרט חוזה
+  8.625, // D - פרט יצור
+  13,    // E - גובה
+  21.625,// F - רוחב
+  8.375, // G - גובה מהריצוף
+  7.625, // H - ציר מבט מבפנים
+  9.75,  // I - ממד כיס בצד
+  8.25,  // J - גליף
+  9.625, // K - עומק עד הפריקסט
+  13,    // L - מדרגה בשיש
+  8,     // M - מנואלה
+  9.625, // N - צד מנוע
+  13,    // O - הערות
+  11,    // P - כנף פנימית מבט פנים
 ];
 
 // Get floor label from row
@@ -204,7 +206,7 @@ function createWorksheet(
     { col: 'G', value: 'גובה מהריצוף' },
     { col: 'H', value: 'ציר מבט מבפנים' },
     { col: 'I', value: 'ממד כיס בצד' },
-    { col: 'J', value: 'עובי קיר' },
+    { col: 'J', value: 'גליף' },
     { col: 'K', value: 'עומק עד הפריקסט' },
     { col: 'L', value: 'מדרגה בשיש' },
     { col: 'M', value: 'מנואלה' },
@@ -239,7 +241,7 @@ function createWorksheet(
       { col: 'G', value: notesValue },
       { col: 'H', value: getField(row, 'hinge_direction') || '' },
       { col: 'I', value: getField(row, 'mamad') || '' },
-      { col: 'J', value: getField(row, 'wall_thickness') || '' },
+      { col: 'J', value: getField(row, 'glyph') || '' },
       { col: 'K', value: getField(row, 'depth') || '' },
       { col: 'L', value: getField(row, 'jamb_height') || '' },
       { col: 'M', value: getField(row, 'is_manual') || '' },

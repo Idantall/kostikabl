@@ -40,6 +40,7 @@ interface MeasurementRow {
   wall_thickness?: string | null;
   depth: string | null;
   is_manual: boolean;
+  internal_wing: string | null;
   updated_at: string;
 }
 
@@ -100,6 +101,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     jamb_height: string;
     apartment_label: string;
     floor_label: string;
+    contract_item: string;
+    hinge_direction: string | null;
+    mamad: string | null;
+    depth: string;
+    is_manual: boolean;
+    internal_wing: string | null;
   }>({
     item_code: "",
     height: "",
@@ -112,6 +119,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     jamb_height: "",
     apartment_label: "",
     floor_label: "",
+    contract_item: "",
+    hinge_direction: null,
+    mamad: null,
+    depth: "",
+    is_manual: false,
+    internal_wing: null,
   });
   const [saving, setSaving] = useState(false);
 
@@ -255,6 +268,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       switch (field) {
         case 'id': return row.id;
         case 'opening_no': return row.opening_no;
+        case 'contract_item': return row.contract_item;
         case 'item_code': return row.item_code;
         case 'location': return row.location_in_apartment;
         case 'height': return row.height;
@@ -264,13 +278,19 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'field_notes': return row.field_notes;
         case 'glyph': return row.glyph;
         case 'jamb_height': return row.jamb_height;
+        case 'hinge_direction': return row.hinge_direction;
+        case 'mamad': return row.mamad;
+        case 'depth': return row.depth;
+        case 'is_manual': return row.is_manual ? 'כן' : null;
+        case 'internal_wing': return row.internal_wing;
         default: return null;
       }
     } else {
-      // ItemRow - glyph and jamb_height not available
+      // ItemRow
       switch (field) {
         case 'id': return String(row.id);
         case 'opening_no': return row.opening_no;
+        case 'contract_item': return (row as any).contract_item || null;
         case 'item_code': return row.item_code;
         case 'location': return row.location;
         case 'height': return row.height;
@@ -280,6 +300,11 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'field_notes': return row.field_notes;
         case 'glyph': return null;
         case 'jamb_height': return null;
+        case 'hinge_direction': return (row as any).hinge_direction || null;
+        case 'mamad': return (row as any).mamad || null;
+        case 'depth': return (row as any).depth || null;
+        case 'is_manual': return (row as any).is_manual ? 'כן' : null;
+        case 'internal_wing': return null;
         default: return null;
       }
     }
@@ -326,6 +351,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       jamb_height: getRowField(row, 'jamb_height') || '',
       apartment_label: getRowApartmentLabel(row) || '',
       floor_label: getRowFloorLabel(row) || '',
+      contract_item: getRowField(row, 'contract_item') || '',
+      hinge_direction: getRowField(row, 'hinge_direction'),
+      mamad: getRowField(row, 'mamad'),
+      depth: getRowField(row, 'depth') || '',
+      is_manual: getRowField(row, 'is_manual') === 'כן',
+      internal_wing: getRowField(row, 'internal_wing'),
     });
   };
 
@@ -343,6 +374,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       jamb_height: "",
       apartment_label: "",
       floor_label: "",
+      contract_item: "",
+      hinge_direction: null,
+      mamad: null,
+      depth: "",
+      is_manual: false,
+      internal_wing: null,
     });
   };
 
@@ -518,6 +555,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
             jamb_height: editValues.jamb_height || null,
             apartment_label: editValues.apartment_label || null,
             floor_label: editValues.floor_label || null,
+            contract_item: editValues.contract_item || null,
+            hinge_direction: editValues.hinge_direction || null,
+            mamad: editValues.mamad || null,
+            depth: editValues.depth || null,
+            is_manual: editValues.is_manual,
+            internal_wing: editValues.internal_wing || null,
           })
           .eq('id', stringId);
         
@@ -539,6 +582,12 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
               jamb_height: editValues.jamb_height || null,
               apartment_label: editValues.apartment_label || null,
               floor_label: editValues.floor_label || null,
+              contract_item: editValues.contract_item || null,
+              hinge_direction: editValues.hinge_direction || null,
+              mamad: editValues.mamad || null,
+              depth: editValues.depth || null,
+              is_manual: editValues.is_manual,
+              internal_wing: editValues.internal_wing || null,
             } as MeasurementRow;
           }
           return r;
@@ -650,7 +699,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
   }
 
   const exportToCsv = () => {
-    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט', 'גובה', 'רוחב', 'הערות', 'גליף', 'גובה יואים', 'מנוע'];
+    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים'];
     const csvRows = [headers.join(',')];
     
     rows.forEach(row => {
@@ -662,13 +711,20 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         aptLabel || '',
         getRowField(row, 'location') || '',
         getRowField(row, 'opening_no') || '',
+        getRowField(row, 'contract_item') || '',
         getRowField(row, 'item_code') || '',
         getRowField(row, 'height') || '',
         getRowField(row, 'width') || '',
         (getRowField(row, 'notes') || '').replace(/,/g, ';'),
+        getRowField(row, 'hinge_direction') || '',
+        getRowField(row, 'mamad') || '',
         getRowField(row, 'glyph') || '',
+        getRowField(row, 'depth') || '',
         getRowField(row, 'jamb_height') || '',
-        getRowField(row, 'engine_side') || ''
+        getRowField(row, 'is_manual') || '',
+        getRowField(row, 'engine_side') || '',
+        (getRowField(row, 'field_notes') || '').replace(/,/g, ';'),
+        getRowField(row, 'internal_wing') || '',
       ];
       csvRows.push(values.join(','));
     });
@@ -802,14 +858,20 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                     <TableHead className="text-right text-xs font-medium w-16">דירה</TableHead>
                     <TableHead className="text-right text-xs font-medium w-16">מיקום</TableHead>
                     <TableHead className="text-right text-xs font-medium w-12">פתח</TableHead>
-                    <TableHead className="text-right text-xs font-medium w-20">פרט</TableHead>
+                    <TableHead className="text-right text-xs font-medium w-16">פרט חוזה</TableHead>
+                    <TableHead className="text-right text-xs font-medium w-20">פרט יצור</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">גובה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">רוחב</TableHead>
-                    <TableHead className="text-right text-xs font-medium min-w-[100px]">הערות</TableHead>
-                    <TableHead className="text-right text-xs font-medium min-w-[100px]">הערות מהשטח</TableHead>
+                    <TableHead className="text-right text-xs font-medium min-w-[80px]">גובה מהריצוף</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">ציר מבט מבפנים</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">ממד כיס בצד</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">גליף</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-20">גובה יואים</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">עומק עד הפריקסט</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">מדרגה בשיש</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-14">מנואלה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
+                    <TableHead className="text-right text-xs font-medium min-w-[80px]">הערות</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
                     {editMode && (
                       <TableHead className="text-center text-xs font-medium w-20">פעולות</TableHead>
                     )}
@@ -872,7 +934,19 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                         <TableCell className="text-right text-sm font-medium">
                           {getRowField(row, 'opening_no') || '-'}
                         </TableCell>
-                        {/* פרט */}
+                        {/* פרט חוזה */}
+                        <TableCell className="text-right text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.contract_item}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, contract_item: e.target.value }))}
+                              className="h-7 text-sm w-16"
+                            />
+                          ) : (
+                            getRowField(row, 'contract_item') || '-'
+                          )}
+                        </TableCell>
+                        {/* פרט יצור */}
                         <TableCell className="text-right text-sm">
                           {isEditing ? (
                             <Input
@@ -910,28 +984,57 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'width') || '-'
                           )}
                         </TableCell>
-                        {/* הערות */}
+                        {/* גובה מהריצוף */}
                         <TableCell className="text-right text-xs text-muted-foreground">
                           {isEditing ? (
                             <Input
                               value={editValues.notes}
                               onChange={(e) => setEditValues(prev => ({ ...prev, notes: e.target.value }))}
-                              className="h-7 text-xs min-w-[80px]"
+                              className="h-7 text-xs min-w-[60px]"
                             />
                           ) : (
                             getRowField(row, 'notes') || '-'
                           )}
                         </TableCell>
-                        {/* הערות מהשטח */}
-                        <TableCell className="text-right text-xs text-muted-foreground">
+                        {/* ציר מבט מבפנים */}
+                        <TableCell className="text-center text-sm">
                           {isEditing ? (
-                            <Input
-                              value={editValues.field_notes}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, field_notes: e.target.value }))}
-                              className="h-7 text-xs min-w-[80px]"
-                            />
+                            <Select
+                              value={editValues.hinge_direction || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, hinge_direction: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-14">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="L">L</SelectItem>
+                                <SelectItem value="R">R</SelectItem>
+                              </SelectContent>
+                            </Select>
                           ) : (
-                            getRowField(row, 'field_notes') || '-'
+                            getRowField(row, 'hinge_direction') || '-'
+                          )}
+                        </TableCell>
+                        {/* ממד כיס בצד */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.mamad || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, mamad: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-xs w-16">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="☒☐">☒☐</SelectItem>
+                                <SelectItem value="☐☒">☐☒</SelectItem>
+                                <SelectItem value="☒☐☒">☒☐☒</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'mamad') || '-'
                           )}
                         </TableCell>
                         {/* גליף */}
@@ -947,7 +1050,20 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'glyph') || '-'
                           )}
                         </TableCell>
-                        {/* גובה יואים */}
+                        {/* עומק עד הפריקסט */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.depth}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, depth: e.target.value }))}
+                              className="h-7 text-sm w-16 text-center"
+                              inputMode="tel"
+                            />
+                          ) : (
+                            getRowField(row, 'depth') || '-'
+                          )}
+                        </TableCell>
+                        {/* מדרגה בשיש */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
                             <Input
@@ -958,6 +1074,19 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             />
                           ) : (
                             getRowField(row, 'jamb_height') || '-'
+                          )}
+                        </TableCell>
+                        {/* מנואלה */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <input
+                              type="checkbox"
+                              checked={editValues.is_manual}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, is_manual: e.target.checked }))}
+                              className="h-4 w-4 rounded border-border"
+                            />
+                          ) : (
+                            getRowField(row, 'is_manual') || '-'
                           )}
                         </TableCell>
                         {/* מנוע */}
@@ -981,6 +1110,38 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             </Select>
                           ) : (
                             getRowField(row, 'engine_side') || '-'
+                          )}
+                        </TableCell>
+                        {/* הערות */}
+                        <TableCell className="text-right text-xs text-muted-foreground">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.field_notes}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, field_notes: e.target.value }))}
+                              className="h-7 text-xs min-w-[60px]"
+                            />
+                          ) : (
+                            getRowField(row, 'field_notes') || '-'
+                          )}
+                        </TableCell>
+                        {/* כנף פנימית */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.internal_wing || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, internal_wing: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-14">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'internal_wing') || '-'
                           )}
                         </TableCell>
                         {editMode && (
