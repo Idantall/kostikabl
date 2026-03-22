@@ -240,22 +240,22 @@ export function WizardStepApartments() {
                   <Table dir="rtl" className="table-fixed">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-right w-14">פתח</TableHead>
+                         <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
                         <TableHead className="text-right w-20">פרט חוזה</TableHead>
-                        <TableHead className="text-right w-32">פרט</TableHead>
+                        <TableHead className="text-right w-32">פרט יצור</TableHead>
                         <TableHead className="text-right w-20">גובה</TableHead>
                         <TableHead className="text-right w-20">רוחב</TableHead>
-                        <TableHead className="text-right w-28">הערות</TableHead>
-                        <TableHead className="text-right w-20">כיוון ציר</TableHead>
-                        <TableHead className="text-right w-32">ממד</TableHead>
+                        <TableHead className="text-right w-28">גובה מהריצוף</TableHead>
+                        <TableHead className="text-right w-24">ציר מבט מבפנים</TableHead>
+                        <TableHead className="text-right w-32">ממד כיס בצד</TableHead>
                         <TableHead className="text-right w-16">גליף</TableHead>
-                        <TableHead className="text-right w-20">עומק</TableHead>
-                        <TableHead className="text-right w-24">גובה יואים</TableHead>
+                        <TableHead className="text-right w-20">עומק עד הפריקסט</TableHead>
+                        <TableHead className="text-right w-24">מדרגה בשיש</TableHead>
                         <TableHead className="text-right w-16">מנואלה</TableHead>
                         <TableHead className="text-right w-20">מנוע</TableHead>
-                        <TableHead className="text-right w-28">זווית עליונה</TableHead>
-                        <TableHead className="text-right w-28">זווית תחתונה</TableHead>
+                        <TableHead className="text-right w-28">הערות</TableHead>
+                        <TableHead className="text-right w-24">כנף פנימית</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
