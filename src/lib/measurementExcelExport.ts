@@ -290,11 +290,14 @@ async function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 18;
+    ws.getRow(rowIndex).height = 30; // Taller for images
 
     // Build cell values
     const notesValue = getField(row, 'notes') || '';
     const fieldNotesValue = getField(row, 'field_notes') || '';
+
+    const wingPosVal = getField(row, 'wing_position') || '';
+    const wingPosOutVal = getField(row, 'wing_position_out') || '';
 
     const values: { col: string; value: string | number }[] = [
       { col: 'A', value: getField(row, 'location') || '' },
@@ -313,8 +316,8 @@ async function createWorksheet(
       { col: 'N', value: getField(row, 'engine_side') || '' },
       { col: 'O', value: fieldNotesValue },
       { col: 'P', value: getField(row, 'internal_wing') || '' },
-      { col: 'Q', value: getField(row, 'wing_position') || '' },
-      { col: 'R', value: getField(row, 'wing_position_out') || '' },
+      { col: 'Q', value: '' },
+      { col: 'R', value: '' },
     ];
 
     // Write values to cells
@@ -330,6 +333,22 @@ async function createWorksheet(
         right: { style: 'thin' },
       };
     }
+
+    // Embed wing images in Q and R columns
+    const addWingImage = (val: string, colIndex: number) => {
+      if (val && wingImages[val]) {
+        const imageId = workbook.addImage({
+          base64: wingImages[val],
+          extension: 'png',
+        });
+        ws.addImage(imageId, {
+          tl: { col: colIndex - 1 + 0.15, row: rowIndex - 1 + 0.1 },
+          br: { col: colIndex - 1 + 0.85, row: rowIndex - 1 + 0.9 },
+        });
+      }
+    };
+    addWingImage(wingPosVal, 17);    // Q = column 17
+    addWingImage(wingPosOutVal, 18); // R = column 18
 
     rowIndex++;
   }
