@@ -301,7 +301,7 @@ function createWorksheet(
       };
     }
 
-    // Embed wing images in Q and R columns (ExcelJS uses 0-based col index)
+    // Embed wing images in P and Q columns (ExcelJS uses 0-based col index)
     const addWingImage = (val: string, col0: number) => {
       if (val && wingImages[val]) {
         const imageId = workbook.addImage({
@@ -315,8 +315,8 @@ function createWorksheet(
         } as any);
       }
     };
-    addWingImage(wingPosVal, 16);    // Q = 0-based index 16
-    addWingImage(wingPosOutVal, 17); // R = 0-based index 17
+    addWingImage(wingPosVal, 15);    // P = 0-based index 15
+    addWingImage(wingPosOutVal, 16); // Q = 0-based index 16
 
     rowIndex++;
   }
