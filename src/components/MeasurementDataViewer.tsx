@@ -393,6 +393,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       is_manual: false,
       internal_wing: null,
       wing_position: null,
+      wing_position_out: null,
     });
   };
 
