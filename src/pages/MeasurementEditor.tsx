@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, Plus, Loader2, Trash2 } from "lucide-react";
+import { WingPositionSelector, WingPositionValue } from "@/components/WingPositionSelector";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useOfflineSync, getAllPendingData } from "@/hooks/useOfflineSync";
@@ -35,6 +36,7 @@ interface MeasurementRow {
   depth: string | null;
   is_manual: boolean;
   internal_wing: string | null;
+  wing_position: string | null;
 }
 
 // Helper to extract user notes (excluding angle patterns from legacy data)
@@ -541,6 +543,15 @@ const MeasurementEditor = () => {
                           <SelectItem value="L">שמאל</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    {/* מיקום כנף */}
+                    <div className="w-24">
+                      <label className="text-[11px] text-muted-foreground block text-center">מיקום כנף</label>
+                      <WingPositionSelector
+                        value={(row.wing_position as WingPositionValue) || null}
+                        onChange={(v) => updateRow(row.id, 'wing_position' as any, v)}
+                        size="sm"
+                      />
                     </div>
                     
                     {/* Delete Button */}

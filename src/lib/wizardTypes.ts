@@ -27,6 +27,7 @@ export interface WizardApartmentRow {
   engine_side: string | null;           // ימין/שמאל/null
   field_notes: string | null;           // הערות
   internal_wing: string | null;         // כנף פנימית מבט פנים (L/R)
+  wing_position: string | null;         // מיקום כנף (TL/TR/BL/BR)
 }
 
 export interface WizardApartment {
@@ -121,6 +122,7 @@ export const createEmptyRow = (openingNo: number): WizardApartmentRow => ({
   engine_side: null,
   field_notes: null,
   internal_wing: null,
+  wing_position: null,
 });
 
 // Helper to create empty apartment

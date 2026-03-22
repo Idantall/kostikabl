@@ -270,6 +270,7 @@ Deno.serve(async (req) => {
         is_manual: row.is_manual,
         engine_side: row.engine_side,
         internal_wing: row.internal_wing,
+        wing_position: row.wing_position,
       }));
 
       const { error: copyError } = await supabaseAdmin

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Plus, Trash2, RotateCcw, Building2, Home, Pencil, Check, X } from 'lucide-react';
+import { WingPositionSelector, WingPositionValue } from '@/components/WingPositionSelector';
 import { toast } from 'sonner';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
@@ -256,6 +257,7 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-20">מנוע</TableHead>
                         <TableHead className="text-right w-28">הערות</TableHead>
                         <TableHead className="text-right w-24">כנף פנימית</TableHead>
+                        <TableHead className="text-right w-24">מיקום כנף</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -352,6 +354,12 @@ export function WizardStepApartments() {
                                 <SelectItem value="L">שמאל</SelectItem>
                               </SelectContent>
                             </Select>
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={16}>
+                            <WingPositionSelector
+                              value={(row.wing_position as WingPositionValue) || null}
+                              onChange={(v) => handleUpdateRow(row.id, 'wing_position', v)}
+                            />
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">

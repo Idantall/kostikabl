@@ -41,6 +41,7 @@ interface MeasurementRow {
   depth: string | null;
   is_manual: boolean;
   internal_wing: string | null;
+  wing_position: string | null;
   updated_at: string;
 }
 
@@ -107,6 +108,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     depth: string;
     is_manual: boolean;
     internal_wing: string | null;
+    wing_position: string | null;
   }>({
     item_code: "",
     height: "",
@@ -125,6 +127,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
     depth: "",
     is_manual: false,
     internal_wing: null,
+    wing_position: null,
   });
   const [saving, setSaving] = useState(false);
 
@@ -283,6 +286,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'depth': return row.depth;
         case 'is_manual': return row.is_manual ? 'כן' : null;
         case 'internal_wing': return row.internal_wing;
+        case 'wing_position': return row.wing_position;
         default: return null;
       }
     } else {
@@ -305,6 +309,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'depth': return (row as any).depth || null;
         case 'is_manual': return (row as any).is_manual ? 'כן' : null;
         case 'internal_wing': return null;
+        case 'wing_position': return null;
         default: return null;
       }
     }
@@ -357,6 +362,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       depth: getRowField(row, 'depth') || '',
       is_manual: getRowField(row, 'is_manual') === 'כן',
       internal_wing: getRowField(row, 'internal_wing'),
+      wing_position: getRowField(row, 'wing_position'),
     });
   };
 
@@ -380,6 +386,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       depth: "",
       is_manual: false,
       internal_wing: null,
+      wing_position: null,
     });
   };
 
@@ -561,6 +568,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
             depth: editValues.depth || null,
             is_manual: editValues.is_manual,
             internal_wing: editValues.internal_wing || null,
+            wing_position: editValues.wing_position || null,
           })
           .eq('id', stringId);
         
@@ -588,6 +596,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
               depth: editValues.depth || null,
               is_manual: editValues.is_manual,
               internal_wing: editValues.internal_wing || null,
+              wing_position: editValues.wing_position || null,
             } as MeasurementRow;
           }
           return r;
@@ -699,7 +708,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
   }
 
   const exportToCsv = () => {
-    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים'];
+    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים', 'מיקום כנף'];
     const csvRows = [headers.join(',')];
     
     rows.forEach(row => {
@@ -725,6 +734,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         getRowField(row, 'engine_side') || '',
         (getRowField(row, 'field_notes') || '').replace(/,/g, ';'),
         getRowField(row, 'internal_wing') || '',
+        getRowField(row, 'wing_position') || '',
       ];
       csvRows.push(values.join(','));
     });
@@ -872,6 +882,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                     <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
                     <TableHead className="text-right text-xs font-medium min-w-[80px]">הערות</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">מיקום כנף</TableHead>
                     {editMode && (
                       <TableHead className="text-center text-xs font-medium w-20">פעולות</TableHead>
                     )}
@@ -1142,6 +1153,18 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             </Select>
                           ) : (
                             getRowField(row, 'internal_wing') || '-'
+                          )}
+                        </TableCell>
+                        {/* מיקום כנף */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.wing_position || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position: e.target.value || null }))}
+                              className="h-7 text-xs w-14"
+                            />
+                          ) : (
+                            getRowField(row, 'wing_position') || '-'
                           )}
                         </TableCell>
                         {editMode && (

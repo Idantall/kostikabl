@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Plus, Trash2, Copy, Building2, Home, ChevronDown, ChevronUp, Pencil, Check, X } from 'lucide-react';
+import { WingPositionSelector, WingPositionValue } from '@/components/WingPositionSelector';
 import { toast } from 'sonner';
 import { useTableKeyboardNav } from '@/hooks/useTableKeyboardNav';
 
@@ -465,6 +466,7 @@ export function ImportStructureEditor({ buildings, onBuildingsChange, bankItems 
                         <TableHead className="text-right w-18">מנוע</TableHead>
                         <TableHead className="text-right w-24">הערות</TableHead>
                         <TableHead className="text-right w-20">כנף פנימית</TableHead>
+                        <TableHead className="text-right w-24">מיקום כנף</TableHead>
                         <TableHead className="w-10"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -546,6 +548,12 @@ export function ImportStructureEditor({ buildings, onBuildingsChange, bankItems 
                                 <SelectItem value="L">שמאל</SelectItem>
                               </SelectContent>
                             </Select>
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={15}>
+                            <WingPositionSelector
+                              value={(row.wing_position as WingPositionValue) || null}
+                              onChange={(v) => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'wing_position', v)}
+                            />
                           </TableCell>
                           <TableCell>
                             <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleDeleteRow(selectedFloorId, selectedApartmentId, row.id)} disabled={selectedApt.rows.length <= 1}>

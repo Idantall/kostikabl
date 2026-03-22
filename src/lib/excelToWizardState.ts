@@ -57,6 +57,7 @@ export function measurementRowsToBuildings(rows: MeasurementRow[]): WizardBuildi
         engine_side: row.engine_side,
         field_notes: row.field_notes,
         internal_wing: null,
+        wing_position: null,
       }));
 
       return {
@@ -125,6 +126,7 @@ export function parsedApartmentsToBuildings(apartments: ParsedApartment[]): Wiza
         engine_side: item.motor_side || null,
         field_notes: null,
         internal_wing: null,
+        wing_position: null,
       }));
 
       return {

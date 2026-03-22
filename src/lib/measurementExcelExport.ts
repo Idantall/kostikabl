@@ -22,6 +22,7 @@ interface MeasurementRow {
   is_manual: boolean;
   engine_side: string | null;
   internal_wing: string | null;
+  wing_position: string | null;
 }
 
 interface ItemRow {
@@ -74,6 +75,7 @@ const COLUMN_WIDTHS = [
   9.625, // N - צד מנוע
   13,    // O - הערות
   11,    // P - כנף פנימית מבט פנים
+  11,    // Q - מיקום כנף
 ];
 
 // Get floor label from row
@@ -110,6 +112,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'is_manual': return mr.is_manual ? 'מנואלה' : null;
       case 'engine_side': return mr.engine_side;
       case 'internal_wing': return (mr as any).internal_wing || null;
+      case 'wing_position': return (mr as any).wing_position || null;
       default: return null;
     }
   } else {
@@ -132,6 +135,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'is_manual': return (ir as any).is_manual ? 'מנואלה' : null;
       case 'engine_side': return ir.motor_side;
       case 'internal_wing': return null;
+      case 'wing_position': return null;
       default: return null;
     }
   }
@@ -213,6 +217,7 @@ function createWorksheet(
     { col: 'N', value: 'צד מנוע' },
     { col: 'O', value: 'הערות' },
     { col: 'P', value: 'כנף פנימית מבט פנים' },
+    { col: 'Q', value: 'מיקום כנף' },
   ];
 
   // Write header cells
@@ -261,6 +266,7 @@ function createWorksheet(
       { col: 'N', value: getField(row, 'engine_side') || '' },
       { col: 'O', value: fieldNotesValue },
       { col: 'P', value: getField(row, 'internal_wing') || '' },
+      { col: 'Q', value: getField(row, 'wing_position') || '' },
     ];
 
     // Write values to cells
@@ -289,7 +295,7 @@ function createWorksheet(
     ws.getRow(rowIndex).height = 18;
 
     // Add empty cells with borders for columns A-O
-    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'].forEach(col => {
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'].forEach(col => {
       const cell = ws.getCell(`${col}${rowIndex}`);
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
