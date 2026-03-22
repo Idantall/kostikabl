@@ -295,11 +295,17 @@ export function WizardStepApartments() {
                 <div className="border rounded-lg min-w-[1500px]" ref={tableRef} onKeyDown={onTableKeyDown}>
                   <Table dir="rtl" className="table-fixed">
                     <TableHeader>
-                      <TableRow>
+                    <TableRow>
                          <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
-                        <TableHead className="text-right w-20">פרט חוזה</TableHead>
-                        <TableHead className="text-right w-32">פרט יצור</TableHead>
+                        {isPreContract ? (
+                          <TableHead className="text-right w-32">פרט חוזה</TableHead>
+                        ) : (
+                          <>
+                            <TableHead className="text-right w-20">פרט חוזה</TableHead>
+                            <TableHead className="text-right w-32">פרט יצור</TableHead>
+                          </>
+                        )}
                         <TableHead className="text-right w-28">גובה</TableHead>
                         <TableHead className="text-right w-20">רוחב</TableHead>
                         <TableHead className="text-right w-28">גובה מהריצוף</TableHead>
