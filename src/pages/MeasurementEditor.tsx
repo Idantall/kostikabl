@@ -402,7 +402,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* כיוון ציר */}
                     <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">ציר</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">ציר מבט מבפנים</label>
                       <Select
                         value={(row as any).hinge_direction || 'none'}
                         onValueChange={(value) => updateRow(row.id, 'hinge_direction' as any, value === 'none' ? null : value)}
