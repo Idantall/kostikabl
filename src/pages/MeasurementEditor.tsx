@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRight, Plus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { useOfflineSync, getAllPendingData } from "@/hooks/useOfflineSync";
+import { useDebouncedSync } from "@/hooks/useDebouncedSync";
 import { ConnectionStatusBadge } from "@/components/ConnectionStatusBadge";
 
 interface MeasurementRow {
