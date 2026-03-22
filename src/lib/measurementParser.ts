@@ -301,7 +301,8 @@ export const parseMeasurementExcel = async (file: File): Promise<MeasurementPars
           glyph: getCell('glyph'),
           jamb_height: getCell('jamb_height'),
           is_manual: isManualValue(getCell('is_manual')),
-          engine_side: normalizeEngineSide(getCell('engine_side'))
+          engine_side: normalizeEngineSide(getCell('engine_side')),
+          internal_wing: normalizeInternalWing(getCell('internal_wing'))
         });
       }
     }
