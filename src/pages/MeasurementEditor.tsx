@@ -37,6 +37,7 @@ interface MeasurementRow {
   is_manual: boolean;
   internal_wing: string | null;
   wing_position: string | null;
+  wing_position_out: string | null;
 }
 
 // Helper to extract user notes (excluding angle patterns from legacy data)

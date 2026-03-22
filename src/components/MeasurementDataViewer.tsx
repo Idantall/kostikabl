@@ -42,6 +42,7 @@ interface MeasurementRow {
   is_manual: boolean;
   internal_wing: string | null;
   wing_position: string | null;
+  wing_position_out: string | null;
   updated_at: string;
 }
 
