@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WizardBuilding, WizardFloor, WizardApartmentRow, createEmptyFloor, createEmptyApartment, createEmptyRow, cloneBuilding, LOCATION_OPTIONS, MAMAD_OPTIONS, ANGLE1_OPTIONS, ANGLE2_OPTIONS } from '@/lib/wizardTypes';
+import { WizardBuilding, WizardFloor, WizardApartmentRow, createEmptyFloor, createEmptyApartment, createEmptyRow, cloneBuilding, LOCATION_OPTIONS, MAMAD_OPTIONS } from '@/lib/wizardTypes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
