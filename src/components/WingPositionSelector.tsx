@@ -1,12 +1,12 @@
+import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { ChevronDown } from 'lucide-react';
 
 // Door swing diagrams matching architectural standards
 function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'; className?: string }) {
-  // Each position renders a distinct door swing diagram
   const renderDiagram = () => {
     switch (position) {
       case 'TL':
-        // Double door, right leaf active: rect + center divider + two triangles in right half
         return (
           <>
             <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -16,7 +16,6 @@ function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'
           </>
         );
       case 'TR':
-        // Single door, left-hinged opening right: two triangles forming ">" arrow
         return (
           <>
             <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -25,7 +24,6 @@ function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'
           </>
         );
       case 'BL':
-        // Double door, left leaf active: rect + center divider + two triangles in left half
         return (
           <>
             <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -35,7 +33,6 @@ function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'
           </>
         );
       case 'BR':
-        // Single door, right-hinged opening left: two triangles forming "<" arrow
         return (
           <>
             <rect x="3" y="3" width="42" height="58" rx="1" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -69,26 +66,62 @@ interface WingPositionSelectorProps {
 }
 
 export function WingPositionSelector({ value, onChange, size = 'sm' }: WingPositionSelectorProps) {
-  const iconSize = size === 'sm' ? 'h-10 w-7' : 'h-12 w-9';
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const iconSize = size === 'sm' ? 'h-8 w-6' : 'h-10 w-7';
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   return (
-    <div className="grid grid-cols-2 gap-1">
-      {WING_OPTIONS.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          title={opt.label}
-          onClick={() => onChange(value === opt.value ? null : opt.value)}
-          className={cn(
-            'rounded border p-0.5 transition-all flex items-center justify-center',
-            value === opt.value
-              ? 'border-primary bg-primary/10 ring-1 ring-primary text-primary'
-              : 'border-border hover:border-muted-foreground text-foreground'
-          )}
-        >
-          <WingIcon position={opt.position} className={iconSize} />
-        </button>
-      ))}
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={cn(
+          'flex items-center gap-1 rounded border px-1.5 py-1 transition-all min-w-[40px] justify-center',
+          value
+            ? 'border-primary bg-primary/10 text-primary'
+            : 'border-input bg-background text-muted-foreground hover:border-muted-foreground'
+        )}
+      >
+        {value ? (
+          <WingIcon position={value} className={iconSize} />
+        ) : (
+          <span className="text-xs">—</span>
+        )}
+        <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
+      </button>
+
+      {open && (
+        <div className="absolute z-50 mt-1 rounded-md border bg-popover p-1 shadow-md">
+          <div className="grid grid-cols-2 gap-1">
+            {WING_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(value === opt.value ? null : opt.value);
+                  setOpen(false);
+                }}
+                className={cn(
+                  'rounded border p-1 flex items-center justify-center transition-all',
+                  value === opt.value
+                    ? 'border-primary bg-primary/10 ring-1 ring-primary text-primary'
+                    : 'border-border hover:border-muted-foreground text-foreground'
+                )}
+              >
+                <WingIcon position={opt.position} className="h-10 w-7" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
