@@ -327,6 +327,42 @@ export function WizardStepFloors() {
             </Dialog>
           </div>
 
+          {/* Floor type actions */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {state.floorTypes.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => {
+                  setApplyFloorTypeId(state.floorTypes[0]?.id || '');
+                  setApplyFloorTypeTargets(new Set());
+                  setApplyFloorTypeDialogOpen(true);
+                }}
+              >
+                <Download className="h-3.5 w-3.5" />
+                החל סוג קומה
+              </Button>
+            )}
+            {state.floorTypes.length > 0 && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                סוגי קומות:
+                {state.floorTypes.map(t => (
+                  <Badge key={t.id} variant="secondary" className="text-xs gap-1">
+                    {t.name} ({t.apartments.length} דירות)
+                    <button
+                      type="button"
+                      onClick={() => dispatch({ type: 'DELETE_FLOOR_TYPE', payload: t.id })}
+                      className="hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
           {floors.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground border rounded-lg">
               <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
