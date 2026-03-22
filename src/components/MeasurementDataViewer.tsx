@@ -773,6 +773,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         project: projectMetadata,
         selectedFloor,
         selectedApartment,
+        projectStatus,
       });
       toast.success('הקובץ הורד בהצלחה');
     } catch (err: any) {
