@@ -19,6 +19,7 @@ interface MeasurementRow {
   location_in_apartment: string | null;
   opening_no: string | null;
   contract_item: string | null;
+  blind_jamb_item: string | null;
   item_code: string | null;
   height: string | null;
   width: string | null;
@@ -67,28 +68,53 @@ interface ExportOptions {
   project: ProjectMetadata;
   selectedFloor?: string;
   selectedApartment?: string;
+  projectStatus?: string;
 }
 
-// Column widths from reference file (A-P)
-const COLUMN_WIDTHS = [
-  11.75, // A - מיקום בדירה
-  9.75,  // B - מס' פתח
-  9.5,   // C - פרט חוזה
-  8.625, // D - פרט יצור
-  16,    // E - גובה (wider for up to 8 digits)
-  21.625,// F - רוחב
-  8.375, // G - גובה מהריצוף
-  9.75,  // H - ממד כיס בצד
-  8.25,  // I - גליף
-  9.625, // J - עומק עד הפריקסט
-  13,    // K - מדרגה בשיש
-  8,     // L - מנואלה
-  9.625, // M - צד מנוע
-  13,    // N - הערות
-  11,    // O - כנף פנימית מבט פנים
-  11,    // P - ציר מבט פנים פתיחה פנימה
-  11,    // Q - ציר מבט פנים פתיחה החוצה
-];
+// Column definition for dynamic column system
+interface ColumnDef {
+  key: string;
+  header: string;
+  width: number;
+  isWingImage?: boolean;
+}
+
+// Build column definitions based on project status
+function getColumnDefs(projectStatus?: string): ColumnDef[] {
+  const cols: ColumnDef[] = [
+    { key: 'location', header: 'מיקום בדירה', width: 11.75 },
+    { key: 'opening_no', header: "מס'  פתח", width: 9.75 },
+    { key: 'contract_item', header: 'פרט חוזה', width: 9.5 },
+  ];
+
+  // Add פרט משקופים for blind_jambs and later stages
+  if (projectStatus !== 'pre_contract') {
+    cols.push({ key: 'blind_jamb_item', header: 'פרט משקופים', width: 9.5 });
+  }
+
+  // Add פרט ייצור for measurement and later stages
+  if (projectStatus !== 'pre_contract' && projectStatus !== 'blind_jambs') {
+    cols.push({ key: 'item_code', header: 'פרט יצור', width: 8.625 });
+  }
+
+  cols.push(
+    { key: 'height', header: 'גובה', width: 16 },
+    { key: 'width', header: 'רוחב', width: 21.625 },
+    { key: 'notes', header: 'גובה מהריצוף', width: 8.375 },
+    { key: 'mamad', header: 'ממד כיס בצד', width: 9.75 },
+    { key: 'glyph', header: 'גליף', width: 8.25 },
+    { key: 'depth', header: 'עומק עד הפריקסט', width: 9.625 },
+    { key: 'jamb_height', header: 'מדרגה בשיש', width: 13 },
+    { key: 'is_manual', header: 'מנואלה', width: 8 },
+    { key: 'engine_side', header: 'צד מנוע', width: 9.625 },
+    { key: 'field_notes', header: 'הערות', width: 13 },
+    { key: 'internal_wing', header: 'כנף פנימית מבט פנים', width: 11 },
+    { key: 'wing_position', header: 'ציר מבט פנים פתיחה פנימה', width: 11, isWingImage: true },
+    { key: 'wing_position_out', header: 'ציר מבט פנים פתיחה החוצה', width: 11, isWingImage: true },
+  );
+
+  return cols;
+}
 
 // Get floor label from row
 const getFloorLabel = (row: MeasurementRow | ItemRow): string | null => {
@@ -110,11 +136,11 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'location': return mr.location_in_apartment;
       case 'opening_no': return mr.opening_no;
       case 'contract_item': return mr.contract_item;
+      case 'blind_jamb_item': return (mr as any).blind_jamb_item || null;
       case 'item_code': return mr.item_code;
       case 'height': return mr.height;
       case 'width': return mr.width;
       case 'notes': return mr.notes;
-      case 'hinge_direction': return mr.hinge_direction ? `ציר ${mr.hinge_direction}` : null;
       case 'mamad': return mr.mamad;
       case 'field_notes': return mr.field_notes;
       case 'wall_thickness': return mr.wall_thickness || null;
@@ -123,9 +149,9 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'jamb_height': return mr.jamb_height;
       case 'is_manual': return mr.is_manual ? 'מנואלה' : null;
       case 'engine_side': return mr.engine_side;
-      case 'internal_wing': return (mr as any).internal_wing || null;
-      case 'wing_position': return (mr as any).wing_position || null;
-      case 'wing_position_out': return (mr as any).wing_position_out || null;
+      case 'internal_wing': return mr.internal_wing || null;
+      case 'wing_position': return mr.wing_position || null;
+      case 'wing_position_out': return mr.wing_position_out || null;
       default: return null;
     }
   } else {
@@ -134,11 +160,11 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
       case 'location': return ir.location;
       case 'opening_no': return ir.opening_no;
       case 'contract_item': return (ir as any).contract_item || null;
+      case 'blind_jamb_item': return null;
       case 'item_code': return ir.item_code;
       case 'height': return ir.height;
       case 'width': return ir.width;
       case 'notes': return ir.notes;
-      case 'hinge_direction': return (ir as any).hinge_direction ? `ציר ${(ir as any).hinge_direction}` : null;
       case 'mamad': return (ir as any).mamad || null;
       case 'field_notes': return ir.field_notes;
       case 'wall_thickness': return null;
@@ -155,6 +181,15 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
   }
 };
 
+// Parse value as number if it's a plain number, otherwise keep as string
+function parseNumericOrString(value: string | null): string | number {
+  if (!value) return '';
+  const trimmed = value.trim();
+  if (/[^\d.-]/.test(trimmed)) return trimmed;
+  const num = parseFloat(trimmed);
+  return isNaN(num) ? trimmed : num;
+}
+
 // Create a styled worksheet matching reference file structure
 function createWorksheet(
   workbook: ExcelJS.Workbook,
@@ -163,23 +198,26 @@ function createWorksheet(
   project: ProjectMetadata,
   floorLabel: string,
   apartmentLabel: string,
-  wingImages: Record<string, string>
+  wingImages: Record<string, string>,
+  columnDefs: ColumnDef[]
 ): void {
-  // Clean sheet name for Excel (max 31 chars, no special chars)
   const cleanName = sheetName.substring(0, 31).replace(/[\\/?*\[\]:]/g, '_');
   const ws = workbook.addWorksheet(cleanName, {
     views: [{ rightToLeft: true }],
     pageSetup: { orientation: 'landscape' }
   });
 
+  const colCount = columnDefs.length;
+  const lastColLetter = String.fromCharCode(64 + colCount);
+
   // Set column widths
-  ws.columns = COLUMN_WIDTHS.map((width, i) => ({
-    width,
-    key: String.fromCharCode(65 + i) // A, B, C, etc.
+  ws.columns = columnDefs.map((def, i) => ({
+    width: def.width,
+    key: String.fromCharCode(65 + i)
   }));
 
   // ROW 1: Title row
-  ws.mergeCells('A1:L1');
+  ws.mergeCells(`A1:${String.fromCharCode(64 + Math.min(colCount, 12))}1`);
   const ruleHe = project.measurement_rule === 'conventional' ? 'קונבנציונלי' : 'ברנוביץ';
   const titleCell = ws.getCell('A1');
   titleCell.value = `דף מידות לביצוע  -  ${ruleHe}  -   אלום קוסטיקה י.ש בע"מ`;
@@ -187,9 +225,10 @@ function createWorksheet(
   titleCell.font = { name: 'Arial', size: 11, bold: true };
   ws.getRow(1).height = 15.95;
 
-  // Date cell (N1:O1)
-  ws.mergeCells('N1:O1');
-  const dateCell = ws.getCell('N1');
+  // Date cell
+  const dateMergeStart = String.fromCharCode(64 + colCount - 1);
+  ws.mergeCells(`${dateMergeStart}1:${lastColLetter}1`);
+  const dateCell = ws.getCell(`${dateMergeStart}1`);
   dateCell.value = { formula: 'TODAY()' };
   dateCell.numFmt = 'mm-dd-yy';
   dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -198,12 +237,11 @@ function createWorksheet(
   ws.getRow(2).height = 8.25;
 
   // ROW 3: Metadata row
-  ws.mergeCells('A3:N3');
+  ws.mergeCells(`A3:${String.fromCharCode(64 + Math.min(colCount, 14))}3`);
   const metadataCell = ws.getCell('A3');
-  const contractor = ''; // Not stored in DB
   const site = project.name || '';
   const building = project.building_code || '';
-  metadataCell.value = `   לקוח/קבלן:   ${contractor}                   באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${apartmentLabel}                         `;
+  metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${apartmentLabel}                         `;
   metadataCell.alignment = { horizontal: 'center', vertical: 'middle' };
   metadataCell.font = { name: 'Arial', size: 11, bold: true };
   ws.getRow(3).height = 15.95;
@@ -211,35 +249,14 @@ function createWorksheet(
   // ROW 4: Empty spacer
   ws.getRow(4).height = 15;
 
-  // ROW 5: Header row with merged angle columns
-  ws.getRow(5).height = 66;
-  
-  // Simple headers A-J
-  const simpleHeaders: { col: string; value: string }[] = [
-    { col: 'A', value: 'מיקום בדירה' },
-    { col: 'B', value: "מס'  פתח" },
-    { col: 'C', value: 'פרט חוזה' },
-    { col: 'D', value: 'פרט יצור' },
-    { col: 'E', value: 'גובה' },
-    { col: 'F', value: 'רוחב' },
-    { col: 'G', value: 'גובה מהריצוף' },
-    { col: 'H', value: 'ממד כיס בצד' },
-    { col: 'I', value: 'גליף' },
-    { col: 'J', value: 'עומק עד הפריקסט' },
-    { col: 'K', value: 'מדרגה בשיש' },
-    { col: 'L', value: 'מנואלה' },
-    { col: 'M', value: 'צד מנוע' },
-    { col: 'N', value: 'הערות' },
-    { col: 'O', value: 'כנף פנימית מבט פנים' },
-    { col: 'P', value: 'ציר מבט פנים פתיחה פנימה' },
-    { col: 'Q', value: 'ציר מבט פנים פתיחה החוצה' },
-  ];
+  // ROW 5: Header row - HORIZONTAL text (no rotation)
+  ws.getRow(5).height = 40;
 
-  // Write header cells
-  for (const { col, value } of simpleHeaders) {
+  for (let i = 0; i < columnDefs.length; i++) {
+    const col = String.fromCharCode(65 + i);
     const cell = ws.getCell(`${col}5`);
-    cell.value = value;
-    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true, textRotation: 90 };
+    cell.value = columnDefs[i].header;
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
     cell.font = { name: 'Arial', size: 10, bold: true };
     cell.border = {
       top: { style: 'thin' },
@@ -258,38 +275,22 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 30; // Taller for images
+    ws.getRow(rowIndex).height = 30;
 
-    // Build cell values
-    const notesValue = getField(row, 'notes') || '';
-    const fieldNotesValue = getField(row, 'field_notes') || '';
-
-    const wingPosVal = getField(row, 'wing_position') || '';
-    const wingPosOutVal = getField(row, 'wing_position_out') || '';
-
-    const values: { col: string; value: string | number }[] = [
-      { col: 'A', value: getField(row, 'location') || '' },
-      { col: 'B', value: getField(row, 'opening_no') || '' },
-      { col: 'C', value: getField(row, 'contract_item') || '' },
-      { col: 'D', value: getField(row, 'item_code') || '' },
-      { col: 'E', value: parseNumericOrString(getField(row, 'height')) },
-      { col: 'F', value: parseNumericOrString(getField(row, 'width')) },
-      { col: 'G', value: notesValue },
-      { col: 'H', value: getField(row, 'mamad') || '' },
-      { col: 'I', value: getField(row, 'glyph') || '' },
-      { col: 'J', value: getField(row, 'depth') || '' },
-      { col: 'K', value: getField(row, 'jamb_height') || '' },
-      { col: 'L', value: getField(row, 'is_manual') || '' },
-      { col: 'M', value: getField(row, 'engine_side') || '' },
-      { col: 'N', value: fieldNotesValue },
-      { col: 'O', value: getField(row, 'internal_wing') || '' },
-      { col: 'P', value: '' },
-      { col: 'Q', value: '' },
-    ];
-
-    // Write values to cells
-    for (const { col, value } of values) {
+    for (let i = 0; i < columnDefs.length; i++) {
+      const def = columnDefs[i];
+      const col = String.fromCharCode(65 + i);
       const cell = ws.getCell(`${col}${rowIndex}`);
+
+      let value: string | number = '';
+      if (def.key === 'height' || def.key === 'width') {
+        value = parseNumericOrString(getField(row, def.key));
+      } else if (def.isWingImage) {
+        value = ''; // Wing images are embedded separately
+      } else {
+        value = getField(row, def.key) || '';
+      }
+
       cell.value = value;
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
       cell.font = { name: 'Arial', size: 14, bold: true };
@@ -301,36 +302,35 @@ function createWorksheet(
       };
     }
 
-    // Embed wing images in P and Q columns (ExcelJS uses 0-based col index)
-    const addWingImage = (val: string, col0: number) => {
+    // Embed wing images
+    for (let i = 0; i < columnDefs.length; i++) {
+      const def = columnDefs[i];
+      if (!def.isWingImage) continue;
+      const val = getField(row, def.key) || '';
       if (val && wingImages[val]) {
         const imageId = workbook.addImage({
           base64: wingImages[val],
           extension: 'png',
         });
         ws.addImage(imageId, {
-          tl: { col: col0 + 0.1, row: rowIndex - 1 + 0.05 },
+          tl: { col: i + 0.1, row: rowIndex - 1 + 0.05 },
           ext: { width: 28, height: 28 },
           editAs: 'oneCell',
         } as any);
       }
-    };
-    addWingImage(wingPosVal, 15);    // P = 0-based index 15
-    addWingImage(wingPosOutVal, 16); // Q = 0-based index 16
+    }
 
     rowIndex++;
   }
 
-  // Pad to ensure minimum 20 data rows (rows 6-25)
+  // Pad to ensure minimum 20 data rows
   const minDataRows = 20;
-  const dataRowsWritten = sortedRows.length;
-  const rowsToAdd = Math.max(0, minDataRows - dataRowsWritten);
+  const rowsToAdd = Math.max(0, minDataRows - sortedRows.length);
 
   for (let i = 0; i < rowsToAdd; i++) {
     ws.getRow(rowIndex).height = 18;
-
-    // Add empty cells with borders for columns A-O
-    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'].forEach(col => {
+    for (let c = 0; c < columnDefs.length; c++) {
+      const col = String.fromCharCode(65 + c);
       const cell = ws.getCell(`${col}${rowIndex}`);
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -341,27 +341,17 @@ function createWorksheet(
         left: { style: 'thin' },
         right: { style: 'thin' },
       };
-    });
-
+    }
     rowIndex++;
   }
 }
 
-// Parse value as number if it's a plain number, otherwise keep as string
-function parseNumericOrString(value: string | null): string | number {
-  if (!value) return '';
-  const trimmed = value.trim();
-  // If contains non-numeric chars like '+', keep as string
-  if (/[^\d.-]/.test(trimmed)) {
-    return trimmed;
-  }
-  const num = parseFloat(trimmed);
-  return isNaN(num) ? trimmed : num;
-}
-
 // Main export function
 export async function exportMeasurementToExcel(options: ExportOptions): Promise<void> {
-  const { rows, project, selectedFloor, selectedApartment } = options;
+  const { rows, project, selectedFloor, selectedApartment, projectStatus } = options;
+
+  // Build column definitions based on project status
+  const columnDefs = getColumnDefs(projectStatus);
 
   // Filter rows based on selection
   let filteredRows = rows;
@@ -379,21 +369,11 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
     apartmentLabel: string;
   }>();
 
-  // Track apartment labels for collision detection
-  const apartmentCounts = new Map<string, number>();
-  filteredRows.forEach(row => {
-    const apt = getApartmentLabel(row) || 'ללא';
-    apartmentCounts.set(apt, (apartmentCounts.get(apt) || 0) + 1);
-  });
-
-  // Check for collisions (same apartment label across different floors)
   const apartmentFloorMap = new Map<string, Set<string>>();
   filteredRows.forEach(row => {
     const apt = getApartmentLabel(row) || 'ללא';
     const floor = getFloorLabel(row) || '';
-    if (!apartmentFloorMap.has(apt)) {
-      apartmentFloorMap.set(apt, new Set());
-    }
+    if (!apartmentFloorMap.has(apt)) apartmentFloorMap.set(apt, new Set());
     apartmentFloorMap.get(apt)!.add(floor);
   });
 
@@ -403,7 +383,6 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
     const floor = getFloorLabel(row) || '';
     const apt = getApartmentLabel(row) || 'ללא';
     
-    // Sheet name logic: prefer simple apartment label if unique, otherwise include floor
     let sheetKey: string;
     if (hasCollisions && apartmentFloorMap.get(apt)!.size > 1) {
       sheetKey = `${apt}_${floor}`;
@@ -412,11 +391,7 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
     }
 
     if (!groupedBySheet.has(sheetKey)) {
-      groupedBySheet.set(sheetKey, {
-        rows: [],
-        floorLabel: floor,
-        apartmentLabel: apt
-      });
+      groupedBySheet.set(sheetKey, { rows: [], floorLabel: floor, apartmentLabel: apt });
     }
     groupedBySheet.get(sheetKey)!.rows.push(row);
   });
@@ -426,7 +401,6 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
   workbook.creator = 'Kostika System';
   workbook.created = new Date();
 
-  // Sort sheet keys for consistent output (numeric first, then alphabetic)
   const sortedSheetKeys = Array.from(groupedBySheet.keys()).sort((a, b) => {
     const aNum = parseInt(a) || Infinity;
     const bNum = parseInt(b) || Infinity;
@@ -434,13 +408,11 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
     return a.localeCompare(b, 'he');
   });
 
-  // Pre-load wing images
   const wingImages = getWingImages();
 
-  // Create worksheets
   for (const sheetKey of sortedSheetKeys) {
     const { rows: sheetRows, floorLabel, apartmentLabel } = groupedBySheet.get(sheetKey)!;
-    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages);
+    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages, columnDefs);
   }
 
   // Generate and download
