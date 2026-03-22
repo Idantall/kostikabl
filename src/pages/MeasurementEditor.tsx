@@ -435,6 +435,16 @@ const MeasurementEditor = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* גליף */}
+                    <div className="w-16">
+                      <label className="text-[11px] text-muted-foreground block text-center">גליף</label>
+                      <Input
+                        value={row.glyph || ''}
+                        onChange={(e) => updateRow(row.id, 'glyph', e.target.value || null)}
+                        className="h-10 text-lg font-medium px-2 text-center"
+                        dir="ltr"
+                      />
+                    </div>
                     {/* עובי קיר */}
                     <div className="w-16">
                       <label className="text-[11px] text-muted-foreground block text-center">עובי קיר</label>
