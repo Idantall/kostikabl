@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react';
-import { BankItem, WizardFloor, WizardBuilding, WizardDraft, ProjectType, createEmptyFloor, createEmptyApartment, createEmptyBuilding, cloneBuilding, WizardApartmentRow, createEmptyRow } from '@/lib/wizardTypes';
+import { BankItem, WizardFloor, WizardBuilding, WizardDraft, ProjectType, ApartmentType, FloorType, createEmptyFloor, createEmptyApartment, createEmptyBuilding, cloneBuilding, WizardApartmentRow, WizardApartment, createEmptyRow } from '@/lib/wizardTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
