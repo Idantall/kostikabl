@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRight, Plus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { useOfflineSync, getAllPendingData } from "@/hooks/useOfflineSync";
+import { useDebouncedSync } from "@/hooks/useDebouncedSync";
 import { ConnectionStatusBadge } from "@/components/ConnectionStatusBadge";
 
 interface MeasurementRow {
@@ -67,6 +68,7 @@ const MeasurementEditor = () => {
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   
   const { connectionStatus, pendingCount, lastError, queueUpdate, forceSync } = useOfflineSync(projectId);
+  const { debouncedQueueUpdate, flushAll } = useDebouncedSync(queueUpdate, 600);
 
   useEffect(() => {
     const checkUserAndFetch = async () => {
@@ -110,7 +112,13 @@ const MeasurementEditor = () => {
       return;
     }
 
-    setRows(rowsData || []);
+    // Merge any pending localStorage updates on top of DB data
+    const pendingMap = getAllPendingData(projectId);
+    const mergedRows = (rowsData || []).map((row: MeasurementRow) => {
+      const pendingData = pendingMap.get(row.id);
+      return pendingData ? { ...row, ...pendingData } : row;
+    });
+    setRows(mergedRows);
 
     // Extract unique floors and apartments
     const uniqueFloors = [...new Set((rowsData || []).map(r => r.floor_label).filter(Boolean))] as string[];
@@ -149,8 +157,8 @@ const MeasurementEditor = () => {
       row.id === id ? { ...row, [field]: value } : row
     ));
     
-    // Queue for offline-aware sync
-    queueUpdate(id, 'measurement_rows', { [field]: value });
+    // Queue for offline-aware sync (debounced to avoid race conditions)
+    debouncedQueueUpdate(id, 'measurement_rows', { [field]: value });
   };
 
   const addRow = async () => {
