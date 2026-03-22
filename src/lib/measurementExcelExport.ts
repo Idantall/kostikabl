@@ -1,4 +1,45 @@
 import ExcelJS from 'exceljs';
+import wingTL from '@/assets/wing_tl.png';
+import wingTR from '@/assets/wing_tr.png';
+import wingBL from '@/assets/wing_bl.png';
+import wingBR from '@/assets/wing_br.png';
+
+// Wing image map
+const WING_IMAGE_URLS: Record<string, string> = {
+  TL: wingTL,
+  TR: wingTR,
+  BL: wingBL,
+  BR: wingBR,
+};
+
+// Fetch image as base64 for ExcelJS embedding
+async function fetchImageAsBase64(url: string): Promise<string> {
+  const resp = await fetch(url);
+  const blob = await resp.blob();
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      // Strip data:image/png;base64, prefix
+      resolve(dataUrl.split(',')[1]);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Pre-load all wing images once
+let wingImagesCache: Record<string, string> | null = null;
+async function getWingImages(): Promise<Record<string, string>> {
+  if (wingImagesCache) return wingImagesCache;
+  const entries = await Promise.all(
+    Object.entries(WING_IMAGE_URLS).map(async ([key, url]) => {
+      const b64 = await fetchImageAsBase64(url);
+      return [key, b64] as [string, string];
+    })
+  );
+  wingImagesCache = Object.fromEntries(entries);
+  return wingImagesCache;
+}
 
 // Types for measurement data
 interface MeasurementRow {
