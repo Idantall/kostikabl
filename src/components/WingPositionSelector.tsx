@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 // Door swing diagrams matching architectural standards
 function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR' | 'TP'; className?: string }) {
@@ -41,28 +42,18 @@ function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'
           </>
         );
       case 'TP':
-        // Triple panel: left panel with swing, center tall panel, right panel with swing
         return (
           <>
-            {/* Outer frame */}
             <rect x="2" y="2" width="44" height="60" stroke="currentColor" strokeWidth="1.5" fill="none" />
-            {/* Left panel vertical divider */}
             <line x1="15" y1="2" x2="15" y2="62" stroke="currentColor" strokeWidth="1" />
-            {/* Right panel vertical divider */}
             <line x1="33" y1="2" x2="33" y2="62" stroke="currentColor" strokeWidth="1" />
-            {/* Left panel horizontal divider */}
             <line x1="2" y1="34" x2="15" y2="34" stroke="currentColor" strokeWidth="1" />
-            {/* Right panel horizontal divider */}
             <line x1="33" y1="34" x2="46" y2="34" stroke="currentColor" strokeWidth="1" />
-            {/* Left top triangle (swing) */}
             <line x1="2" y1="2" x2="15" y2="18" stroke="currentColor" strokeWidth="1" />
             <line x1="15" y1="2" x2="2" y2="18" stroke="currentColor" strokeWidth="1" />
-            {/* Right top triangle (swing) */}
             <line x1="33" y1="2" x2="46" y2="18" stroke="currentColor" strokeWidth="1" />
             <line x1="46" y1="2" x2="33" y2="18" stroke="currentColor" strokeWidth="1" />
-            {/* Left bottom swing line */}
             <line x1="2" y1="62" x2="15" y2="44" stroke="currentColor" strokeWidth="1" />
-            {/* Right bottom swing line */}
             <line x1="46" y1="62" x2="33" y2="44" stroke="currentColor" strokeWidth="1" />
           </>
         );
@@ -94,63 +85,52 @@ interface WingPositionSelectorProps {
 
 export function WingPositionSelector({ value, onChange, size = 'sm' }: WingPositionSelectorProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
   const iconSize = size === 'sm' ? 'h-8 w-6' : 'h-10 w-7';
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
   return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          'flex items-center gap-1 rounded border px-1.5 py-1 transition-all min-w-[40px] justify-center',
-          value
-            ? 'border-primary bg-primary/10 text-primary'
-            : 'border-input bg-background text-muted-foreground hover:border-muted-foreground'
-        )}
-      >
-        {value ? (
-          <WingIcon position={value} className={iconSize} />
-        ) : (
-          <span className="text-xs">—</span>
-        )}
-        <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
-      </button>
-
-      {open && (
-        <div className="absolute z-50 mt-1 rounded-md border bg-popover p-1 shadow-md">
-          <div className="grid grid-cols-2 gap-1">
-            {WING_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => {
-                  onChange(value === opt.value ? null : opt.value);
-                  setOpen(false);
-                }}
-                className={cn(
-                  'rounded border p-1 flex items-center justify-center transition-all',
-                  value === opt.value
-                    ? 'border-primary bg-primary/10 ring-1 ring-primary text-primary'
-                    : 'border-border hover:border-muted-foreground text-foreground',
-                  opt.value === 'TP' ? 'col-span-2' : ''
-                )}
-              >
-                <WingIcon position={opt.position} className="h-10 w-7" />
-              </button>
-            ))}
-          </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'flex items-center gap-1 rounded border px-1.5 py-1 transition-all min-w-[40px] justify-center',
+            value
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'border-input bg-background text-muted-foreground hover:border-muted-foreground'
+          )}
+        >
+          {value ? (
+            <WingIcon position={value} className={iconSize} />
+          ) : (
+            <span className="text-xs">—</span>
+          )}
+          <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-1" align="center" sideOffset={4}>
+        <div className="grid grid-cols-2 gap-1">
+          {WING_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                onChange(value === opt.value ? null : opt.value);
+                setOpen(false);
+              }}
+              className={cn(
+                'rounded border p-1 flex items-center justify-center transition-all',
+                value === opt.value
+                  ? 'border-primary bg-primary/10 ring-1 ring-primary text-primary'
+                  : 'border-border hover:border-muted-foreground text-foreground',
+                opt.value === 'TP' ? 'col-span-2' : ''
+              )}
+            >
+              <WingIcon position={opt.position} className="h-10 w-7" />
+            </button>
+          ))}
         </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
