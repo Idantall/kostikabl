@@ -368,6 +368,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       is_manual: getRowField(row, 'is_manual') === 'כן',
       internal_wing: getRowField(row, 'internal_wing'),
       wing_position: getRowField(row, 'wing_position'),
+      wing_position_out: getRowField(row, 'wing_position_out'),
     });
   };
 
