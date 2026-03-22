@@ -23,6 +23,7 @@ interface MeasurementRow {
   engine_side: string | null;
   internal_wing: string | null;
   wing_position: string | null;
+  wing_position_out: string | null;
 }
 
 interface ItemRow {
