@@ -448,7 +448,7 @@ const MeasurementEditor = () => {
                     </div>
                     {/* עומק */}
                     <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">עומק</label>
+                      <label className="text-[11px] text-muted-foreground block text-center">עומק עד הפריקסט</label>
                       <Input
                         value={(row as any).depth || ''}
                         onChange={(e) => updateRow(row.id, 'depth' as any, e.target.value || null)}
