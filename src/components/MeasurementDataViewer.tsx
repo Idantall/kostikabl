@@ -362,6 +362,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       depth: getRowField(row, 'depth') || '',
       is_manual: getRowField(row, 'is_manual') === 'כן',
       internal_wing: getRowField(row, 'internal_wing'),
+      wing_position: getRowField(row, 'wing_position'),
     });
   };
 
