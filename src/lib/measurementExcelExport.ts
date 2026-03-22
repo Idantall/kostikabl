@@ -157,7 +157,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
 };
 
 // Create a styled worksheet matching reference file structure
-async function createWorksheet(
+function createWorksheet(
   workbook: ExcelJS.Workbook,
   sheetName: string,
   sheetRows: (MeasurementRow | ItemRow)[],
