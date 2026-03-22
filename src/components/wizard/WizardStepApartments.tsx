@@ -341,22 +341,15 @@ export function WizardStepApartments() {
                             </Select>
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={14}>
-                            <Select value={row.angle1 || 'none'} onValueChange={v => handleUpdateRow(row.id, 'angle1', v === 'none' ? null : v)}>
-                              <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50 max-h-60">
-                                <SelectItem value="none">-</SelectItem>
-                                {ANGLE1_OPTIONS.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                                <SelectItem value="אחר">אחר</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <Input value={row.field_notes || ''} onChange={e => handleUpdateRow(row.id, 'field_notes', e.target.value || null)} className="h-9" dir="rtl" />
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={15}>
-                            <Select value={row.angle2 || 'none'} onValueChange={v => handleUpdateRow(row.id, 'angle2', v === 'none' ? null : v)}>
+                            <Select value={row.internal_wing || 'none'} onValueChange={v => handleUpdateRow(row.id, 'internal_wing', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50 max-h-60">
+                              <SelectContent className="bg-background z-50">
                                 <SelectItem value="none">-</SelectItem>
-                                {ANGLE2_OPTIONS.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                                <SelectItem value="אחר">אחר</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
                               </SelectContent>
                             </Select>
                           </TableCell>
