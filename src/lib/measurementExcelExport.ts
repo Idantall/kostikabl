@@ -221,7 +221,8 @@ function createWorksheet(
     { col: 'N', value: 'צד מנוע' },
     { col: 'O', value: 'הערות' },
     { col: 'P', value: 'כנף פנימית מבט פנים' },
-    { col: 'Q', value: 'מיקום כנף' },
+    { col: 'Q', value: 'ציר מבט פנים פתיחה פנימה' },
+    { col: 'R', value: 'ציר מבט פנים פתיחה החוצה' },
   ];
 
   // Write header cells
