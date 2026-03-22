@@ -342,8 +342,8 @@ async function createWorksheet(
           extension: 'png',
         });
         ws.addImage(imageId, {
-          tl: { col: colIndex - 1 + 0.15, row: rowIndex - 1 + 0.1 },
-          br: { col: colIndex - 1 + 0.85, row: rowIndex - 1 + 0.9 },
+          tl: { col: colIndex - 1 + 0.15, row: rowIndex - 1 + 0.1 } as any,
+          br: { col: colIndex - 1 + 0.85, row: rowIndex - 1 + 0.9 } as any,
         });
       }
     };
