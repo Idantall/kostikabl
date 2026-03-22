@@ -378,7 +378,7 @@ const MeasurementEditor = () => {
                       />
                     </div>
                     {/* גובה */}
-                    <div className="w-20">
+                    <div className="w-28">
                       <label className="text-[11px] text-muted-foreground block text-center">גובה</label>
                       <Input
                         value={row.height || ''}
