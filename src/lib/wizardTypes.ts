@@ -122,6 +122,7 @@ export const createEmptyRow = (openingNo: number): WizardApartmentRow => ({
   engine_side: null,
   field_notes: null,
   internal_wing: null,
+  wing_position: null,
 });
 
 // Helper to create empty apartment
