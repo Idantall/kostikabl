@@ -82,10 +82,13 @@ export function WizardStepApartments() {
     setEditingApartmentLabel('');
   };
 
+  const isPreContract = state.projectType === 'pre_contract';
+  const bankField: keyof WizardApartmentRow = isPreContract ? 'contract_item' : 'item_code';
+
   const handleUpdateRow = (rowId: string, field: keyof WizardApartmentRow, value: any) => {
     if (!currentFloor || !currentApartment) return;
     let updates: Partial<WizardApartmentRow> = { [field]: value };
-    if (field === 'item_code' && value) {
+    if (field === bankField && value) {
       const bankItem = bankItems.find(b => b.item_no === value);
       if (bankItem) {
         const row = currentApartment.rows.find(r => r.id === rowId);
