@@ -242,6 +242,49 @@ export function WizardStepApartments() {
             )}
           </div>
 
+          {/* Apartment type actions */}
+          {currentApartment && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => { setSaveTypeName(currentApartment.label); setSaveTypeDialogOpen(true); }}
+              >
+                <Save className="h-3.5 w-3.5" />
+                שמור כסוג דירה
+              </Button>
+              {state.apartmentTypes.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setApplyTypeDialogOpen(true)}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  החל סוג דירה
+                </Button>
+              )}
+              {state.apartmentTypes.length > 0 && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  סוגים שמורים:
+                  {state.apartmentTypes.map(t => (
+                    <Badge key={t.id} variant="secondary" className="text-xs gap-1">
+                      {t.name} ({t.rows.length})
+                      <button
+                        type="button"
+                        onClick={() => dispatch({ type: 'DELETE_APARTMENT_TYPE', payload: t.id })}
+                        className="hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Apartment table */}
           {currentApartment ? (
             <>
