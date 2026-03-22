@@ -441,21 +441,31 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   }
 }
 
-// Backward compatibility: convert old flat floors[] to buildings[]
-function migrateFloorsToBuildings(floors: any[]): WizardBuilding[] {
-  if (!floors || floors.length === 0) {
-    return [createEmptyBuilding('בניין 1')];
+// Backward compatibility: convert old formats to { buildings, apartmentTypes, floorTypes }
+function migrateFloorsData(raw: any): { buildings: WizardBuilding[]; apartmentTypes: ApartmentType[]; floorTypes: FloorType[] } {
+  // V2 format: wrapper object with __v key
+  if (raw && typeof raw === 'object' && !Array.isArray(raw) && raw.__v === 2) {
+    return {
+      buildings: raw.buildings || [createEmptyBuilding('בניין 1')],
+      apartmentTypes: raw.apartmentTypes || [],
+      floorTypes: raw.floorTypes || [],
+    };
   }
-  // Check if already in buildings format (has 'label' and 'floors' keys)
+  // Legacy array format
+  const floors = Array.isArray(raw) ? raw : [];
+  if (floors.length === 0) {
+    return { buildings: [createEmptyBuilding('בניין 1')], apartmentTypes: [], floorTypes: [] };
+  }
+  // Buildings format (has 'label' and 'floors' keys)
   if (floors[0] && 'floors' in floors[0] && 'label' in floors[0] && Array.isArray(floors[0].floors)) {
-    return floors as WizardBuilding[];
+    return { buildings: floors as WizardBuilding[], apartmentTypes: [], floorTypes: [] };
   }
-  // Old format: wrap in a single building
-  return [{
-    id: crypto.randomUUID(),
-    label: 'בניין 1',
-    floors: floors as WizardFloor[],
-  }];
+  // Old flat floors format
+  return {
+    buildings: [{ id: crypto.randomUUID(), label: 'בניין 1', floors: floors as WizardFloor[] }],
+    apartmentTypes: [],
+    floorTypes: [],
+  };
 }
 
 // Context
