@@ -186,6 +186,13 @@ export function WizardStepBank() {
       if (heightCol === -1) heightCol = 1;
       if (widthCol === -1) widthCol = 2;
 
+      let floorHeightCol = -1;
+      headerRow.forEach((cell, idx) => {
+        const val = String(cell || '').trim();
+        if (val.includes('מריצוף') || val.includes('מהריצוף')) floorHeightCol = idx;
+      });
+      if (floorHeightCol === -1) floorHeightCol = 3;
+
       const newItems: BankItem[] = [];
       for (let i = 1; i < rows.length; i++) {
         const row = rows[i] as any[];
@@ -194,6 +201,7 @@ export function WizardStepBank() {
         const itemNo = String(row[itemNoCol] || '').trim();
         const height = String(row[heightCol] || '').trim();
         const width = String(row[widthCol] || '').trim();
+        const floorHeight = String(row[floorHeightCol] || '').trim();
         
         if (itemNo) {
           newItems.push({
@@ -201,6 +209,7 @@ export function WizardStepBank() {
             item_no: itemNo,
             height,
             width,
+            floor_height: floorHeight,
           });
         }
       }
