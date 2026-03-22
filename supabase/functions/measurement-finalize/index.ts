@@ -306,8 +306,8 @@ Deno.serve(async (req) => {
         opening_no: row.opening_no || null,
         width: row.width || null,
         height: row.height || null,
-        notes: row.notes || null,
-        field_notes: row.field_notes || null,
+        notes: row.field_notes || null,
+        field_notes: row.notes || null,  // notes (height from floor) goes to field_notes on items
         side_rl: motorSide,
         motor_side: motorSide,
         required_codes: requiredCodes,
