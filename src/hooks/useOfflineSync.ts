@@ -11,10 +11,94 @@ interface PendingUpdate {
 
 const STORAGE_KEY = 'offline_pending_updates';
 const MAX_RETRIES = 5;
-const SYNC_INTERVAL = 3000; // 3 seconds
+const SYNC_INTERVAL = 3000;
 
 export type ConnectionStatus = 'online' | 'offline' | 'syncing' | 'error';
 
+// ── Pure helpers ──────────────────────────────────────────────
+function storageKeyFor(projectId: string) {
+  return `${STORAGE_KEY}_${projectId}`;
+}
+
+function readStorage(projectId: string): PendingUpdate[] {
+  try {
+    const stored = localStorage.getItem(storageKeyFor(projectId));
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStorage(projectId: string, updates: PendingUpdate[]) {
+  try {
+    localStorage.setItem(storageKeyFor(projectId), JSON.stringify(updates));
+  } catch (e) {
+    console.error('[OfflineSync] Failed to write localStorage:', e);
+  }
+}
+
+/** Merge a single update into an existing queue (mutates nothing, returns new array) */
+function mergeIntoQueue(
+  queue: PendingUpdate[],
+  id: string,
+  table: string,
+  data: Record<string, unknown>,
+): PendingUpdate[] {
+  const next = [...queue];
+  const idx = next.findIndex(p => p.id === id && p.table === table);
+  if (idx >= 0) {
+    next[idx] = {
+      ...next[idx],
+      data: { ...next[idx].data, ...data },
+      timestamp: Date.now(),
+    };
+  } else {
+    next.push({ id, table, data, timestamp: Date.now(), retries: 0 });
+  }
+  return next;
+}
+
+/** Merge two queues – items in `additions` override / extend items in `base` */
+function mergeQueues(base: PendingUpdate[], additions: PendingUpdate[]): PendingUpdate[] {
+  let merged = [...base];
+  for (const add of additions) {
+    const idx = merged.findIndex(p => p.id === add.id && p.table === add.table);
+    if (idx >= 0) {
+      // keep the newer timestamp / merged data
+      merged[idx] = {
+        ...merged[idx],
+        data: { ...merged[idx].data, ...add.data },
+        timestamp: Math.max(merged[idx].timestamp, add.timestamp),
+        retries: Math.min(merged[idx].retries, add.retries),
+      };
+    } else {
+      merged.push(add);
+    }
+  }
+  return merged;
+}
+
+// ── Exported helpers for MeasurementEditor ───────────────────
+/** Returns a Map<rowId, pendingFieldData> for all pending updates in a project */
+export function getAllPendingData(projectId: string | number): Map<string, Record<string, unknown>> {
+  const pending = readStorage(String(projectId));
+  const map = new Map<string, Record<string, unknown>>();
+  for (const p of pending) {
+    const existing = map.get(p.id);
+    map.set(p.id, existing ? { ...existing, ...p.data } : { ...p.data });
+  }
+  return map;
+}
+
+/** Returns pending field data for a single row, or undefined */
+export function getPendingDataForRow(
+  projectId: string | number,
+  rowId: string,
+): Record<string, unknown> | undefined {
+  return getAllPendingData(projectId).get(rowId);
+}
+
+// ── Hook ─────────────────────────────────────────────────────
 export function useOfflineSync(projectId: string | undefined) {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('online');
   const [pendingCount, setPendingCount] = useState(0);
@@ -22,133 +106,94 @@ export function useOfflineSync(projectId: string | undefined) {
   const [lastError, setLastError] = useState<string | null>(null);
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isSyncingRef = useRef(false);
-  
-  // Load pending updates from localStorage
+  /** When true, queueUpdate defers its localStorage write to avoid clobbering sync's final write */
+  const storageLockRef = useRef(false);
+
   const loadPendingUpdates = useCallback((): PendingUpdate[] => {
-    try {
-      const stored = localStorage.getItem(`${STORAGE_KEY}_${projectId}`);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+    if (!projectId) return [];
+    return readStorage(projectId);
   }, [projectId]);
 
-  // Save pending updates to localStorage
   const savePendingUpdates = useCallback((updates: PendingUpdate[]) => {
-    try {
-      localStorage.setItem(`${STORAGE_KEY}_${projectId}`, JSON.stringify(updates));
-      setPendingCount(updates.length);
-    } catch (e) {
-      console.error('Failed to save pending updates:', e);
+    if (!projectId) return;
+    writeStorage(projectId, updates);
+    setPendingCount(updates.length);
+  }, [projectId]);
+
+  // Queue an update – defers write when sync holds the lock
+  const queueUpdate = useCallback((id: string, table: string, data: Record<string, unknown>) => {
+    const doWrite = () => {
+      if (!projectId) return;
+      const pending = readStorage(projectId);
+      const next = mergeIntoQueue(pending, id, table, data);
+      writeStorage(projectId, next);
+      setPendingCount(next.length);
+    };
+
+    if (storageLockRef.current) {
+      // Defer to next microtask so sync's final write lands first
+      queueMicrotask(doWrite);
+    } else {
+      doWrite();
     }
   }, [projectId]);
 
-  // Queue an update for sync
-  const queueUpdate = useCallback((id: string, table: string, data: Record<string, unknown>) => {
-    const pending = loadPendingUpdates();
-    
-    // Merge with existing update for same id if exists
-    const existingIndex = pending.findIndex(p => p.id === id && p.table === table);
-    if (existingIndex >= 0) {
-      pending[existingIndex] = {
-        ...pending[existingIndex],
-        data: { ...pending[existingIndex].data, ...data },
-        timestamp: Date.now(),
-      };
-    } else {
-      pending.push({
-        id,
-        table,
-        data,
-        timestamp: Date.now(),
-        retries: 0,
-      });
-    }
-    
-    savePendingUpdates(pending);
-  }, [loadPendingUpdates, savePendingUpdates]);
-
-  // Check if we're online by pinging Supabase
-  // Returns: { online: boolean, authError: boolean }
   const checkConnection = useCallback(async (): Promise<{ online: boolean; authError: boolean }> => {
-    // First check browser's online status
-    if (!navigator.onLine) {
-      return { online: false, authError: false };
-    }
-    
-    try {
-      // Simple ping - just check if we can reach the API
-      const { error } = await supabase
-        .from('projects')
-        .select('id')
-        .limit(1);
+    if (!navigator.onLine) return { online: false, authError: false };
 
+    try {
+      const { error } = await supabase.from('projects').select('id').limit(1);
       if (error) {
         const status = (error as any)?.status;
         const message = String((error as any)?.message ?? '');
-        const looksLikeAuth =
-          status === 401 ||
-          status === 403 ||
-          /jwt|unauthorized|session/i.test(message);
-
+        const looksLikeAuth = status === 401 || status === 403 || /jwt|unauthorized|session/i.test(message);
         if (looksLikeAuth) {
-          // Auth error - we're online but session expired
-          // Don't force logout here, let the UI handle re-auth
-          console.warn('[OfflineSync] Auth error detected, session may have expired');
+          console.warn('[OfflineSync] Auth error detected');
           return { online: true, authError: true };
         }
-
-        // Other DB error - likely still online
-        console.warn('[OfflineSync] DB error but likely online:', message);
         return { online: true, authError: false };
       }
-
       return { online: true, authError: false };
-    } catch (e) {
-      // Network error
-      console.warn('[OfflineSync] Network error:', e);
+    } catch {
       return { online: false, authError: false };
     }
   }, []);
 
-  // Sync pending updates to server
   const syncPendingUpdates = useCallback(async () => {
     if (isSyncingRef.current || !projectId) return;
-    
-    const pending = loadPendingUpdates();
-    if (pending.length === 0) {
+
+    // Take a snapshot of what's currently pending
+    const snapshot = loadPendingUpdates();
+    if (snapshot.length === 0) {
       setConnectionStatus(prev => prev === 'syncing' ? 'online' : prev);
       return;
     }
 
     isSyncingRef.current = true;
     setConnectionStatus('syncing');
-    
+
     const { online, authError } = await checkConnection();
-    
     if (!online) {
       setConnectionStatus('offline');
       setLastError('אין חיבור לאינטרנט');
       isSyncingRef.current = false;
       return;
     }
-    
     if (authError) {
-      // Auth error - don't mark as offline, just show error
-      // Keep pending updates, they'll sync after re-login
       setConnectionStatus('error');
       setLastError('יש לרענן את העמוד או להתחבר מחדש');
       isSyncingRef.current = false;
       return;
     }
 
-    const remaining: PendingUpdate[] = [];
+    // Track which snapshot items we successfully synced (by index)
+    const syncedIds = new Set<string>();
+    const failed: PendingUpdate[] = [];
     let hasError = false;
     let successCount = 0;
 
-    for (const update of pending) {
+    for (const update of snapshot) {
       try {
-        // Use measurement_rows table specifically since that's what we're syncing
         const { error } = await supabase
           .from('measurement_rows')
           .update({ ...update.data, updated_at: new Date().toISOString() })
@@ -157,66 +202,78 @@ export function useOfflineSync(projectId: string | undefined) {
         if (error) {
           const status = (error as any)?.status;
           const message = String((error as any)?.message ?? '');
-          const looksLikeAuth =
-            status === 401 ||
-            status === 403 ||
-            /jwt|unauthorized|session/i.test(message);
+          const looksLikeAuth = status === 401 || status === 403 || /jwt|unauthorized|session/i.test(message);
 
           if (looksLikeAuth) {
-            // Auth error - keep all remaining pending updates for after re-login
-            remaining.push(update);
+            failed.push(update);
             hasError = true;
             setLastError('יש לרענן את העמוד או להתחבר מחדש');
-            // Stop processing more updates
             break;
           }
-
-          console.error('Sync error for', update.id, error);
           if (update.retries < MAX_RETRIES) {
-            remaining.push({ ...update, retries: update.retries + 1 });
-          } else {
-            // Max retries reached, log and drop
-            console.error('Max retries reached for update:', update.id);
+            failed.push({ ...update, retries: update.retries + 1 });
           }
           hasError = true;
         } else {
+          syncedIds.add(`${update.id}::${update.table}`);
           successCount++;
         }
-      } catch (e) {
-        console.error('Network error syncing', update.id, e);
-        remaining.push({ ...update, retries: update.retries + 1 });
+      } catch {
+        failed.push({ ...update, retries: update.retries + 1 });
         hasError = true;
       }
     }
 
-    savePendingUpdates(remaining);
-    
-    if (remaining.length === 0 && !hasError) {
+    // ── Merge-back: re-read localStorage to catch writes that happened during sync ──
+    storageLockRef.current = true;
+    const currentQueue = readStorage(projectId);
+
+    // Items in currentQueue that are NEW (not in our snapshot) or have a NEWER timestamp
+    const snapshotMap = new Map(snapshot.map(s => [`${s.id}::${s.table}`, s.timestamp]));
+    const newOrUpdated: PendingUpdate[] = [];
+    for (const item of currentQueue) {
+      const key = `${item.id}::${item.table}`;
+      const snapshotTs = snapshotMap.get(key);
+      if (snapshotTs === undefined) {
+        // Entirely new item added during sync
+        newOrUpdated.push(item);
+      } else if (item.timestamp > snapshotTs) {
+        // Same item but user typed more data during sync
+        newOrUpdated.push(item);
+      }
+      // else: item was in snapshot and wasn't updated → handled by syncedIds/failed
+    }
+
+    // Final queue = failed items merged with new/updated items
+    const finalQueue = mergeQueues(failed, newOrUpdated);
+    writeStorage(projectId, finalQueue);
+    setPendingCount(finalQueue.length);
+    storageLockRef.current = false;
+
+    if (finalQueue.length === 0 && !hasError) {
       setConnectionStatus('online');
       setLastSyncTime(new Date());
       setLastError(null);
       if (successCount > 0) {
-        console.log(`[OfflineSync] Successfully synced ${successCount} updates`);
+        console.log(`[OfflineSync] Synced ${successCount} updates`);
       }
     } else if (hasError) {
       setConnectionStatus('error');
       if (!lastError) {
-        setLastError(`${remaining.length} עדכונים ממתינים לסנכרון`);
+        setLastError(`${finalQueue.length} עדכונים ממתינים לסנכרון`);
       }
+    } else {
+      setConnectionStatus('online');
+      setLastSyncTime(new Date());
     }
 
     isSyncingRef.current = false;
-  }, [projectId, loadPendingUpdates, savePendingUpdates, checkConnection, lastError]);
+  }, [projectId, loadPendingUpdates, checkConnection, lastError]);
 
-  // Listen for online/offline events
+  // Online/offline listeners
   useEffect(() => {
-    const handleOnline = () => {
-      console.log('Browser went online');
-      syncPendingUpdates();
-    };
-
+    const handleOnline = () => syncPendingUpdates();
     const handleOffline = () => {
-      console.log('Browser went offline');
       setConnectionStatus('offline');
       setLastError('אין חיבור לאינטרנט');
     };
@@ -224,7 +281,6 @@ export function useOfflineSync(projectId: string | undefined) {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Initial status
     if (!navigator.onLine) {
       setConnectionStatus('offline');
       setLastError('אין חיבור לאינטרנט');
@@ -239,26 +295,16 @@ export function useOfflineSync(projectId: string | undefined) {
   // Periodic sync
   useEffect(() => {
     if (!projectId) return;
-
-    // Initial load of pending count
     setPendingCount(loadPendingUpdates().length);
 
-    // Start sync interval
-    syncIntervalRef.current = setInterval(() => {
-      syncPendingUpdates();
-    }, SYNC_INTERVAL);
-
-    // Initial sync
+    syncIntervalRef.current = setInterval(() => syncPendingUpdates(), SYNC_INTERVAL);
     syncPendingUpdates();
 
     return () => {
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current);
-      }
+      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
     };
   }, [projectId, loadPendingUpdates, syncPendingUpdates]);
 
-  // Force sync now
   const forceSync = useCallback(async () => {
     await syncPendingUpdates();
   }, [syncPendingUpdates]);
