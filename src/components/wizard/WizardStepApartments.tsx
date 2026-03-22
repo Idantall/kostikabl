@@ -456,6 +456,67 @@ export function WizardStepApartments() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Save apartment type dialog */}
+      <Dialog open={saveTypeDialogOpen} onOpenChange={setSaveTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>שמור כסוג דירה</DialogTitle>
+            <DialogDescription>שמור את מבנה הדירה הנוכחית כתבנית לשימוש חוזר</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={saveTypeName}
+              onChange={e => setSaveTypeName(e.target.value)}
+              placeholder="שם הסוג"
+              dir="rtl"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSaveTypeDialogOpen(false)}>ביטול</Button>
+            <Button onClick={() => {
+              if (!saveTypeName.trim()) { toast.error('יש להזין שם'); return; }
+              if (!currentApartment) return;
+              dispatch({ type: 'SAVE_APARTMENT_TYPE', payload: { name: saveTypeName.trim(), apartment: currentApartment } });
+              toast.success('סוג דירה נשמר');
+              setSaveTypeDialogOpen(false);
+            }}>שמור</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Apply apartment type dialog */}
+      <Dialog open={applyTypeDialogOpen} onOpenChange={setApplyTypeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>החל סוג דירה</DialogTitle>
+            <DialogDescription>בחר סוג דירה להחלה על הדירה הנוכחית. הנתונים הקיימים יוחלפו.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-2">
+            {state.apartmentTypes.map(t => (
+              <Button
+                key={t.id}
+                variant="outline"
+                className="w-full justify-start gap-2"
+                onClick={() => {
+                  if (!currentFloor || !currentApartment) return;
+                  if (currentApartment.rows.some(r => r.item_code)) {
+                    if (!confirm('לדירה זו יש נתונים קיימים. להחליף?')) return;
+                  }
+                  dispatch({ type: 'APPLY_APARTMENT_TYPE', payload: { typeId: t.id, floorId: currentFloor.id, apartmentId: currentApartment.id } });
+                  toast.success(`סוג "${t.name}" הוחל`);
+                  setApplyTypeDialogOpen(false);
+                }}
+              >
+                <Home className="h-4 w-4" />
+                {t.name}
+                <Badge variant="secondary" className="mr-auto">{t.rows.length} שורות</Badge>
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
