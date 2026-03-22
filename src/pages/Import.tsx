@@ -510,6 +510,8 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           depth: row.depth,
           is_manual: row.is_manual || false,
           engine_side: row.engine_side === 'ימין' ? 'R' : row.engine_side === 'שמאל' ? 'L' : row.engine_side || null,
+          field_notes: row.field_notes || null,
+          internal_wing: row.internal_wing || null,
         });
       });
     });

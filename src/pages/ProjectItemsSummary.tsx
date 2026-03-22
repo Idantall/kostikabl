@@ -673,7 +673,7 @@ const ProjectItemsSummary = () => {
         return val;
       };
 
-      const headers = "קומה,דירה,מס' פתח,מס' פרט,צד מנוע,גובה,רוחב,עומק,מיקום,פרט חוזה,כיוון ציר,ממד,מנואלה,הערות,הערות מהשטח";
+      const headers = "קומה,דירה,מס' פתח,פרט יצור,צד מנוע,גובה,רוחב,עומק עד הפריקסט,מיקום,פרט חוזה,ציר מבט מבפנים,ממד כיס בצד,גליף,מדרגה בשיש,מנואלה,גובה מהריצוף,הערות,כנף פנימית מבט פנים";
       
       // Sort items by floor, then apartment, then opening number
       const sortedItems = [...filteredItems].sort((a, b) => {
@@ -720,9 +720,12 @@ const ProjectItemsSummary = () => {
           escapeCSV(item.contract_item),
           escapeCSV(item.hinge_direction),
           escapeCSV(item.mamad),
+          '',  // glyph - not on items table
+          '',  // jamb_height - not on items table
           item.is_manual ? "כן" : "",
           escapeCSV(formatNotes(item.notes)),
           escapeCSV(item.field_notes),
+          '',  // internal_wing - not on items table
         ].join(',');
       });
 
