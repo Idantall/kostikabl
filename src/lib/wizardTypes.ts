@@ -17,16 +17,16 @@ export interface WizardApartmentRow {
   height_overridden: boolean;           // Track manual override
   width: string | null;
   width_overridden: boolean;
-  notes: string | null;
-  hinge_direction: string | null;       // L/R (כיוון ציר)
-  mamad: string | null;                 // ☒☐/☐☒/☒☐☒ (ממד)
+  notes: string | null;                 // גובה מהריצוף
+  hinge_direction: string | null;       // L/R (ציר מבט מבפנים)
+  mamad: string | null;                 // ☒☐/☐☒/☒☐☒ (ממד כיס בצד)
   glyph: string | null;
-  jamb_height: string | null;
-  depth: string | null;                 // עומק
+  jamb_height: string | null;           // מדרגה בשיש
+  depth: string | null;                 // עומק עד הפריקסט
   is_manual: boolean;                   // מנואלה
   engine_side: string | null;           // ימין/שמאל/null
-  angle1: string | null;                // זווית עליונה
-  angle2: string | null;                // זווית תחתונה
+  field_notes: string | null;           // הערות
+  internal_wing: string | null;         // כנף פנימית מבט פנים (L/R)
 }
 
 export interface WizardApartment {
