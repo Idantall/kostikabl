@@ -21,6 +21,7 @@ interface MeasurementRow {
   jamb_height: string | null;
   is_manual: boolean;
   engine_side: string | null;
+  internal_wing: string | null;
 }
 
 interface ItemRow {
