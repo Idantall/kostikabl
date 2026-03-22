@@ -386,6 +386,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       depth: "",
       is_manual: false,
       internal_wing: null,
+      wing_position: null,
     });
   };
 
