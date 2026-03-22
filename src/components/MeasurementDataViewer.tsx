@@ -883,11 +883,15 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                     <TableHead className="text-right text-xs font-medium w-16">מיקום</TableHead>
                     <TableHead className="text-right text-xs font-medium w-12">פתח</TableHead>
                     <TableHead className="text-right text-xs font-medium w-16">פרט חוזה</TableHead>
-                    <TableHead className="text-right text-xs font-medium w-20">פרט יצור</TableHead>
+                    {projectStatus !== 'pre_contract' && projectStatus !== 'blind_jambs' && (
+                      <TableHead className="text-right text-xs font-medium w-20">פרט יצור</TableHead>
+                    )}
                     <TableHead className="text-center text-xs font-medium w-20">גובה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">רוחב</TableHead>
                     <TableHead className="text-right text-xs font-medium min-w-[80px]">גובה מהריצוף</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-16">פרט משקופים</TableHead>
+                    {projectStatus !== 'pre_contract' && (
+                      <TableHead className="text-center text-xs font-medium w-16">פרט משקופים</TableHead>
+                    )}
                     <TableHead className="text-center text-xs font-medium w-20">ממד כיס בצד</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">גליף</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">עומק עד הפריקסט</TableHead>
@@ -973,6 +977,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                           )}
                         </TableCell>
                         {/* פרט יצור */}
+                        {projectStatus !== 'pre_contract' && projectStatus !== 'blind_jambs' && (
                         <TableCell className="text-right text-sm">
                           {isEditing ? (
                             <Input
@@ -984,6 +989,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'item_code') || '-'
                           )}
                         </TableCell>
+                        )}
                         {/* גובה */}
                         <TableCell className="text-center text-sm font-medium">
                           {isEditing ? (
@@ -1023,6 +1029,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                           )}
                         </TableCell>
                         {/* פרט משקופים */}
+                        {projectStatus !== 'pre_contract' && (
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
                             <Input
@@ -1034,6 +1041,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'blind_jamb_item') || '-'
                           )}
                         </TableCell>
+                        )}
                         {/* ממד כיס בצד */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
