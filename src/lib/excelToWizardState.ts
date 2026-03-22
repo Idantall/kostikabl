@@ -58,6 +58,7 @@ export function measurementRowsToBuildings(rows: MeasurementRow[]): WizardBuildi
         field_notes: row.field_notes,
         internal_wing: null,
         wing_position: null,
+        wing_position_out: null,
       }));
 
       return {
