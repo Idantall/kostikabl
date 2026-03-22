@@ -268,7 +268,7 @@ serve(async (req) => {
       console.log(`[labels-generate-start] Factory mode, Origin: ${clientOrigin}, User selected: ${userSelectedSubparts}`);
 
       for (const item of items) {
-        const itemType = item.item_type || item.notes || '';
+        const itemType = item.item_type || '';
         const singleLabel = isSingleLabelLoading(itemType);
         
         if (singleLabel) {
