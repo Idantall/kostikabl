@@ -40,6 +40,7 @@ interface MeasurementRow {
   wall_thickness?: string | null;
   depth: string | null;
   is_manual: boolean;
+  internal_wing: string | null;
   updated_at: string;
 }
 
