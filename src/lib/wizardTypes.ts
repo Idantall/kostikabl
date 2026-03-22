@@ -53,6 +53,20 @@ export interface WizardBuilding {
 
 export type ProjectType = 'pre_contract' | 'blind_jambs';
 
+// Saved apartment type template
+export interface ApartmentType {
+  id: string;
+  name: string;
+  rows: WizardApartmentRow[]; // template rows (IDs regenerated on apply)
+}
+
+// Saved floor type template
+export interface FloorType {
+  id: string;
+  name: string;
+  apartments: WizardApartment[]; // template apartments (IDs regenerated on apply)
+}
+
 export interface WizardDraft {
   id: string;
   name: string;
