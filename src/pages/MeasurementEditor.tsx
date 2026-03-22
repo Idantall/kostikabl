@@ -524,16 +524,7 @@ const MeasurementEditor = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    {/* הערות מהשטח */}
-                    <div className="flex-1 min-w-[140px]">
-                      <label className="text-[11px] text-muted-foreground block text-center">הערות מהשטח</label>
-                      <Input
-                        value={row.field_notes || ''}
-                        onChange={(e) => updateRow(row.id, 'field_notes', e.target.value || null)}
-                        className="h-10 text-base px-2"
-                        dir="rtl"
-                      />
-                    </div>
+                    
                     {/* Delete Button */}
                     <div className="w-10 flex items-end">
                       <Button

@@ -196,58 +196,20 @@ function createWorksheet(
     { col: 'A', value: 'מיקום בדירה' },
     { col: 'B', value: "מס'  פתח" },
     { col: 'C', value: 'פרט חוזה' },
-    { col: 'D', value: "מס'  פרט" },
+    { col: 'D', value: 'פרט יצור' },
     { col: 'E', value: 'גובה' },
     { col: 'F', value: 'רוחב' },
-    { col: 'G', value: 'הערות' },
-    { col: 'H', value: 'כיוון ציר' },
-    { col: 'I', value: 'ממד' },
+    { col: 'G', value: 'גובה מהריצוף' },
+    { col: 'H', value: 'ציר מבט מבפנים' },
+    { col: 'I', value: 'ממד כיס בצד' },
     { col: 'J', value: 'עובי קיר' },
-    { col: 'K', value: 'עומק' },
-    { col: 'L', value: 'גובה יואים' },
+    { col: 'K', value: 'עומק עד הפריקסט' },
+    { col: 'L', value: 'מדרגה בשיש' },
     { col: 'M', value: 'מנואלה' },
     { col: 'N', value: 'צד מנוע' },
+    { col: 'O', value: 'הערות' },
+    { col: 'P', value: 'כנף פנימית מבט פנים' },
   ];
-
-  simpleHeaders.forEach(({ col, value }) => {
-    const cell = ws.getCell(`${col}5`);
-    cell.value = value;
-    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-    cell.font = { name: 'Arial', size: 14, bold: true };
-    cell.border = {
-      top: { style: 'thin' },
-      bottom: { style: 'thin' },
-      left: { style: 'thin' },
-      right: { style: 'thin' },
-    };
-  });
-
-  // Merged angle headers
-  // O5:P5 - "זווית 18/120"
-  ws.mergeCells('O5:P5');
-  const angleCell1 = ws.getCell('O5');
-  angleCell1.value = 'זווית 18/120\n\n\nפנים              חוץ\n';
-  angleCell1.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
-  angleCell1.font = { name: 'Arial', size: 14, bold: true };
-  angleCell1.border = {
-    top: { style: 'thin' },
-    bottom: { style: 'thin' },
-    left: { style: 'thin' },
-    right: { style: 'thin' },
-  };
-
-  // Q5:S5 - "זווית פריקסט"
-  ws.mergeCells('Q5:S5');
-  const angleCell2 = ws.getCell('Q5');
-  angleCell2.value = 'זווית פריקסט\n\n\n     סוג              פנים             חוץ\n';
-  angleCell2.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
-  angleCell2.font = { name: 'Arial', size: 14, bold: true };
-  angleCell2.border = {
-    top: { style: 'thin' },
-    bottom: { style: 'thin' },
-    left: { style: 'thin' },
-    right: { style: 'thin' },
-  };
 
   // Sort rows by opening_no
   const sortedRows = [...sheetRows].sort((a, b) => {
