@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Plus, Trash2, Copy, Building2, Home, ChevronDown, ChevronUp, Pencil, Check, X } from 'lucide-react';
+import { WingPositionSelector, WingPositionValue } from '@/components/WingPositionSelector';
 import { toast } from 'sonner';
 import { useTableKeyboardNav } from '@/hooks/useTableKeyboardNav';
 
