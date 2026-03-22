@@ -245,10 +245,9 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-36">מיקום</TableHead>
                         <TableHead className="text-right w-20">פרט חוזה</TableHead>
                         <TableHead className="text-right w-32">פרט יצור</TableHead>
-                        <TableHead className="text-right w-20">גובה</TableHead>
+                        <TableHead className="text-right w-28">גובה</TableHead>
                         <TableHead className="text-right w-20">רוחב</TableHead>
                         <TableHead className="text-right w-28">גובה מהריצוף</TableHead>
-                        <TableHead className="text-right w-24">ציר מבט מבפנים</TableHead>
                         <TableHead className="text-right w-32">ממד כיס בצד</TableHead>
                         <TableHead className="text-right w-16">גליף</TableHead>
                         <TableHead className="text-right w-20">עומק עד הפריקסט</TableHead>
