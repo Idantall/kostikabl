@@ -1,4 +1,45 @@
 import ExcelJS from 'exceljs';
+import wingTL from '@/assets/wing_tl.png';
+import wingTR from '@/assets/wing_tr.png';
+import wingBL from '@/assets/wing_bl.png';
+import wingBR from '@/assets/wing_br.png';
+
+// Wing image map
+const WING_IMAGE_URLS: Record<string, string> = {
+  TL: wingTL,
+  TR: wingTR,
+  BL: wingBL,
+  BR: wingBR,
+};
+
+// Fetch image as base64 for ExcelJS embedding
+async function fetchImageAsBase64(url: string): Promise<string> {
+  const resp = await fetch(url);
+  const blob = await resp.blob();
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      // Strip data:image/png;base64, prefix
+      resolve(dataUrl.split(',')[1]);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Pre-load all wing images once
+let wingImagesCache: Record<string, string> | null = null;
+async function getWingImages(): Promise<Record<string, string>> {
+  if (wingImagesCache) return wingImagesCache;
+  const entries = await Promise.all(
+    Object.entries(WING_IMAGE_URLS).map(async ([key, url]) => {
+      const b64 = await fetchImageAsBase64(url);
+      return [key, b64] as [string, string];
+    })
+  );
+  wingImagesCache = Object.fromEntries(entries);
+  return wingImagesCache;
+}
 
 // Types for measurement data
 interface MeasurementRow {
@@ -146,14 +187,15 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
 };
 
 // Create a styled worksheet matching reference file structure
-function createWorksheet(
+async function createWorksheet(
   workbook: ExcelJS.Workbook,
   sheetName: string,
   sheetRows: (MeasurementRow | ItemRow)[],
   project: ProjectMetadata,
   floorLabel: string,
-  apartmentLabel: string
-): void {
+  apartmentLabel: string,
+  wingImages: Record<string, string>
+): Promise<void> {
   // Clean sheet name for Excel (max 31 chars, no special chars)
   const cleanName = sheetName.substring(0, 31).replace(/[\\/?*\[\]:]/g, '_');
   const ws = workbook.addWorksheet(cleanName, {
@@ -248,11 +290,14 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 18;
+    ws.getRow(rowIndex).height = 30; // Taller for images
 
     // Build cell values
     const notesValue = getField(row, 'notes') || '';
     const fieldNotesValue = getField(row, 'field_notes') || '';
+
+    const wingPosVal = getField(row, 'wing_position') || '';
+    const wingPosOutVal = getField(row, 'wing_position_out') || '';
 
     const values: { col: string; value: string | number }[] = [
       { col: 'A', value: getField(row, 'location') || '' },
@@ -271,8 +316,8 @@ function createWorksheet(
       { col: 'N', value: getField(row, 'engine_side') || '' },
       { col: 'O', value: fieldNotesValue },
       { col: 'P', value: getField(row, 'internal_wing') || '' },
-      { col: 'Q', value: getField(row, 'wing_position') || '' },
-      { col: 'R', value: getField(row, 'wing_position_out') || '' },
+      { col: 'Q', value: '' },
+      { col: 'R', value: '' },
     ];
 
     // Write values to cells
@@ -288,6 +333,22 @@ function createWorksheet(
         right: { style: 'thin' },
       };
     }
+
+    // Embed wing images in Q and R columns
+    const addWingImage = (val: string, colIndex: number) => {
+      if (val && wingImages[val]) {
+        const imageId = workbook.addImage({
+          base64: wingImages[val],
+          extension: 'png',
+        });
+        ws.addImage(imageId, {
+          tl: { col: colIndex - 1 + 0.15, row: rowIndex - 1 + 0.1 } as any,
+          br: { col: colIndex - 1 + 0.85, row: rowIndex - 1 + 0.9 } as any,
+        });
+      }
+    };
+    addWingImage(wingPosVal, 17);    // Q = column 17
+    addWingImage(wingPosOutVal, 18); // R = column 18
 
     rowIndex++;
   }
@@ -405,10 +466,13 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
     return a.localeCompare(b, 'he');
   });
 
+  // Pre-load wing images
+  const wingImages = await getWingImages();
+
   // Create worksheets
   for (const sheetKey of sortedSheetKeys) {
     const { rows: sheetRows, floorLabel, apartmentLabel } = groupedBySheet.get(sheetKey)!;
-    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel);
+    await createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages);
   }
 
   // Generate and download
