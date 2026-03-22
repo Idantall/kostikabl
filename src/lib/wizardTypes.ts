@@ -27,7 +27,8 @@ export interface WizardApartmentRow {
   engine_side: string | null;           // ימין/שמאל/null
   field_notes: string | null;           // הערות
   internal_wing: string | null;         // כנף פנימית מבט פנים (L/R)
-  wing_position: string | null;         // מיקום כנף (TL/TR/BL/BR)
+  wing_position: string | null;         // ציר מבט פנים פתיחה פנימה (TL/TR/BL/BR)
+  wing_position_out: string | null;     // ציר מבט פנים פתיחה החוצה (TL/TR/BL/BR)
 }
 
 export interface WizardApartment {
