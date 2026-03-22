@@ -596,6 +596,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
               depth: editValues.depth || null,
               is_manual: editValues.is_manual,
               internal_wing: editValues.internal_wing || null,
+              wing_position: editValues.wing_position || null,
             } as MeasurementRow;
           }
           return r;
