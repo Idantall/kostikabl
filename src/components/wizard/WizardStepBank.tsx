@@ -148,6 +148,7 @@ export function WizardStepBank() {
       item_no: item.item_no,
       height: item.height,
       width: item.width,
+      floor_height: '',
     }));
 
     dispatch({ type: 'SET_BANK_ITEMS', payload: newItems });
