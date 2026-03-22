@@ -314,6 +314,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'is_manual': return (row as any).is_manual ? 'כן' : null;
         case 'internal_wing': return null;
         case 'wing_position': return null;
+        case 'wing_position_out': return null;
         default: return null;
       }
     }
