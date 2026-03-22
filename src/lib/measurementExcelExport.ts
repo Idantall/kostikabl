@@ -1,44 +1,14 @@
 import ExcelJS from 'exceljs';
-import wingTL from '@/assets/wing_tl.png';
-import wingTR from '@/assets/wing_tr.png';
-import wingBL from '@/assets/wing_bl.png';
-import wingBR from '@/assets/wing_br.png';
+import { wingPositionToPngBase64 } from '@/components/WingPositionSelector';
 
-// Wing image map
-const WING_IMAGE_URLS: Record<string, string> = {
-  TL: wingTL,
-  TR: wingTR,
-  BL: wingBL,
-  BR: wingBR,
-};
-
-// Fetch image as base64 for ExcelJS embedding
-async function fetchImageAsBase64(url: string): Promise<string> {
-  const resp = await fetch(url);
-  const blob = await resp.blob();
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const dataUrl = reader.result as string;
-      // Strip data:image/png;base64, prefix
-      resolve(dataUrl.split(',')[1]);
-    };
-    reader.readAsDataURL(blob);
-  });
-}
-
-// Pre-load all wing images once
-let wingImagesCache: Record<string, string> | null = null;
-async function getWingImages(): Promise<Record<string, string>> {
-  if (wingImagesCache) return wingImagesCache;
-  const entries = await Promise.all(
-    Object.entries(WING_IMAGE_URLS).map(async ([key, url]) => {
-      const b64 = await fetchImageAsBase64(url);
-      return [key, b64] as [string, string];
-    })
-  );
-  wingImagesCache = Object.fromEntries(entries);
-  return wingImagesCache;
+// Generate wing images as base64 PNGs using canvas
+function getWingImages(): Record<string, string> {
+  const images: Record<string, string> = {};
+  for (const pos of ['TL', 'TR', 'BL', 'BR']) {
+    const b64 = wingPositionToPngBase64(pos);
+    if (b64) images[pos] = b64;
+  }
+  return images;
 }
 
 // Types for measurement data
@@ -187,7 +157,7 @@ const getField = (row: MeasurementRow | ItemRow, field: string): string | null =
 };
 
 // Create a styled worksheet matching reference file structure
-async function createWorksheet(
+function createWorksheet(
   workbook: ExcelJS.Workbook,
   sheetName: string,
   sheetRows: (MeasurementRow | ItemRow)[],
@@ -195,7 +165,7 @@ async function createWorksheet(
   floorLabel: string,
   apartmentLabel: string,
   wingImages: Record<string, string>
-): Promise<void> {
+): void {
   // Clean sheet name for Excel (max 31 chars, no special chars)
   const cleanName = sheetName.substring(0, 31).replace(/[\\/?*\[\]:]/g, '_');
   const ws = workbook.addWorksheet(cleanName, {
@@ -467,12 +437,12 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
   });
 
   // Pre-load wing images
-  const wingImages = await getWingImages();
+  const wingImages = getWingImages();
 
   // Create worksheets
   for (const sheetKey of sortedSheetKeys) {
     const { rows: sheetRows, floorLabel, apartmentLabel } = groupedBySheet.get(sheetKey)!;
-    await createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages);
+    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages);
   }
 
   // Generate and download
