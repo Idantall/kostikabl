@@ -494,7 +494,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
     }, 2000);
     
     return () => clearTimeout(timeoutId);
-  }, [state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath]);
+  }, [state.name, state.bankItems, state.buildings, state.projectType, state.contractPdfPath, state.apartmentTypes, state.floorTypes]);
 
   const saveDraft = useCallback(async () => {
     if (!state.draftId) {
