@@ -421,7 +421,7 @@ Deno.serve(async (req) => {
 
       if (!floorId || !aptId) continue;
 
-      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.notes);
+      const { itemType, requiredCodes } = deriveItemTypeAndCodes(row.item_code, row.field_notes);
       const motorSide = normalizeEngineSide(row.engine_side);
 
       itemInserts.push({
