@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Plus, Trash2, RotateCcw, Building2, Home, Pencil, Check, X } from 'lucide-react';
+import { WingPositionSelector, WingPositionValue } from '@/components/WingPositionSelector';
 import { toast } from 'sonner';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
