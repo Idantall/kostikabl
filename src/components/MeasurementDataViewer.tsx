@@ -734,6 +734,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         getRowField(row, 'engine_side') || '',
         (getRowField(row, 'field_notes') || '').replace(/,/g, ';'),
         getRowField(row, 'internal_wing') || '',
+        getRowField(row, 'wing_position') || '',
       ];
       csvRows.push(values.join(','));
     });
