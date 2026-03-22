@@ -367,6 +367,18 @@ const MeasurementEditor = () => {
                         dir="rtl"
                       />
                     </div>
+                    {/* פרט משקופים - only show for blind_jambs+ */}
+                    {project?.status !== 'pre_contract' && (
+                    <div className="w-20">
+                      <label className="text-[11px] text-muted-foreground block text-center">משקופים</label>
+                      <Input
+                        value={(row as any).blind_jamb_item || ''}
+                        onChange={(e) => updateRow(row.id, 'blind_jamb_item' as any, e.target.value || null)}
+                        className="h-10 text-lg font-medium px-2 text-center"
+                        dir="rtl"
+                      />
+                    </div>
+                    )}
                     {/* פרט יצור - only show for measurement stage */}
                     {project?.status !== 'pre_contract' && project?.status !== 'blind_jambs' && (
                     <div className="w-20">
