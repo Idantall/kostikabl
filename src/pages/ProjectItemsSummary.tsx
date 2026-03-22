@@ -720,9 +720,12 @@ const ProjectItemsSummary = () => {
           escapeCSV(item.contract_item),
           escapeCSV(item.hinge_direction),
           escapeCSV(item.mamad),
+          '',  // glyph - not on items table
+          '',  // jamb_height - not on items table
           item.is_manual ? "כן" : "",
           escapeCSV(formatNotes(item.notes)),
           escapeCSV(item.field_notes),
+          '',  // internal_wing - not on items table
         ].join(',');
       });
 

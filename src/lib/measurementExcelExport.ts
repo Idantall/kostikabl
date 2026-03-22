@@ -250,6 +250,20 @@ function createWorksheet(
       { col: 'P', value: getField(row, 'internal_wing') || '' },
     ];
 
+    // Write values to cells
+    for (const { col, value } of values) {
+      const cell = ws.getCell(`${col}${rowIndex}`);
+      cell.value = value;
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.font = { name: 'Arial', size: 14, bold: true };
+      cell.border = {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    }
+
     rowIndex++;
   }
 
