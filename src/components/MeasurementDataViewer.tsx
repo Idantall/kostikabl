@@ -1166,6 +1166,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                           ) : (
                             getRowField(row, 'wing_position') || '-'
                           )}
+                        </TableCell>
                         {editMode && (
                           <TableCell className="text-center">
                             {isEditing ? (
