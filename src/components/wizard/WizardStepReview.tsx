@@ -371,6 +371,7 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           field_notes: row.field_notes,
           internal_wing: row.internal_wing,
           wing_position: row.wing_position,
+          wing_position_out: row.wing_position_out,
         });
       });
     });

@@ -556,6 +556,12 @@ export function ImportStructureEditor({ buildings, onBuildingsChange, bankItems 
                               onChange={(v) => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'wing_position', v)}
                             />
                           </TableCell>
+                          <TableCell data-row={rowIdx} data-col={16}>
+                            <WingPositionSelector
+                              value={(row.wing_position_out as WingPositionValue) || null}
+                              onChange={(v) => handleUpdateRow(selectedFloorId, selectedApartmentId, row.id, 'wing_position_out', v)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleDeleteRow(selectedFloorId, selectedApartmentId, row.id)} disabled={selectedApt.rows.length <= 1}>
                               <Trash2 className="h-3 w-3 text-destructive" />
