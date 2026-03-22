@@ -85,6 +85,7 @@ export function WizardStepApartments() {
         const row = currentApartment.rows.find(r => r.id === rowId);
         if (row && !row.height_overridden) updates.height = bankItem.height;
         if (row && !row.width_overridden) updates.width = bankItem.width;
+        if (bankItem.floor_height) updates.notes = bankItem.floor_height;
       }
     }
     if (field === 'height') updates.height_overridden = true;
