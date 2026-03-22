@@ -1071,6 +1071,7 @@ export type Database = {
           wall_thickness: string | null
           width: string | null
           wing_position: string | null
+          wing_position_out: string | null
         }
         Insert: {
           apartment_label?: string | null
@@ -1098,6 +1099,7 @@ export type Database = {
           wall_thickness?: string | null
           width?: string | null
           wing_position?: string | null
+          wing_position_out?: string | null
         }
         Update: {
           apartment_label?: string | null
@@ -1125,6 +1127,7 @@ export type Database = {
           wall_thickness?: string | null
           width?: string | null
           wing_position?: string | null
+          wing_position_out?: string | null
         }
         Relationships: [
           {
