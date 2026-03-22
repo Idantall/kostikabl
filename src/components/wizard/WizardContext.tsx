@@ -568,8 +568,8 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
       
       if (error) throw error;
       
-      const rawFloors = (data.floors as unknown as any[]) || [];
-      const buildings = migrateFloorsToBuildings(rawFloors);
+      const rawFloors = data.floors as unknown as any;
+      const { buildings, apartmentTypes, floorTypes } = migrateFloorsData(rawFloors);
 
       dispatch({
         type: 'SET_DRAFT',
@@ -581,6 +581,8 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
           projectType: (data as any).project_type || 'blind_jambs',
           contractPdfPath: (data as any).contract_pdf_path || null,
           contractParseResult: (data as any).contract_parse_result || null,
+          apartmentTypes,
+          floorTypes,
         },
       });
     } catch (error: any) {
