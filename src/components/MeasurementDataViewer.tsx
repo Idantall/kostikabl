@@ -268,6 +268,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
       switch (field) {
         case 'id': return row.id;
         case 'opening_no': return row.opening_no;
+        case 'contract_item': return row.contract_item;
         case 'item_code': return row.item_code;
         case 'location': return row.location_in_apartment;
         case 'height': return row.height;
@@ -277,13 +278,19 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'field_notes': return row.field_notes;
         case 'glyph': return row.glyph;
         case 'jamb_height': return row.jamb_height;
+        case 'hinge_direction': return row.hinge_direction;
+        case 'mamad': return row.mamad;
+        case 'depth': return row.depth;
+        case 'is_manual': return row.is_manual ? 'כן' : null;
+        case 'internal_wing': return row.internal_wing;
         default: return null;
       }
     } else {
-      // ItemRow - glyph and jamb_height not available
+      // ItemRow
       switch (field) {
         case 'id': return String(row.id);
         case 'opening_no': return row.opening_no;
+        case 'contract_item': return (row as any).contract_item || null;
         case 'item_code': return row.item_code;
         case 'location': return row.location;
         case 'height': return row.height;
@@ -293,6 +300,11 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         case 'field_notes': return row.field_notes;
         case 'glyph': return null;
         case 'jamb_height': return null;
+        case 'hinge_direction': return (row as any).hinge_direction || null;
+        case 'mamad': return (row as any).mamad || null;
+        case 'depth': return (row as any).depth || null;
+        case 'is_manual': return (row as any).is_manual ? 'כן' : null;
+        case 'internal_wing': return null;
         default: return null;
       }
     }
