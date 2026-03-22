@@ -304,21 +304,22 @@ function createWorksheet(
       };
     }
 
-    // Embed wing images in Q and R columns
-    const addWingImage = (val: string, colIndex: number) => {
+    // Embed wing images in Q and R columns (ExcelJS uses 0-based col index)
+    const addWingImage = (val: string, col0: number) => {
       if (val && wingImages[val]) {
         const imageId = workbook.addImage({
           base64: wingImages[val],
           extension: 'png',
         });
         ws.addImage(imageId, {
-          tl: { col: colIndex - 1 + 0.15, row: rowIndex - 1 + 0.1 } as any,
-          br: { col: colIndex - 1 + 0.85, row: rowIndex - 1 + 0.9 } as any,
-        });
+          tl: { col: col0 + 0.1, row: rowIndex - 1 + 0.05 },
+          ext: { width: 28, height: 28 },
+          editAs: 'oneCell',
+        } as any);
       }
     };
-    addWingImage(wingPosVal, 17);    // Q = column 17
-    addWingImage(wingPosOutVal, 18); // R = column 18
+    addWingImage(wingPosVal, 16);    // Q = 0-based index 16
+    addWingImage(wingPosOutVal, 17); // R = 0-based index 17
 
     rowIndex++;
   }
