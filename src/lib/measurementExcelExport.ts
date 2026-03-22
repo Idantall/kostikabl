@@ -165,7 +165,7 @@ function createWorksheet(
   floorLabel: string,
   apartmentLabel: string,
   wingImages: Record<string, string>
-): Promise<void> {
+): void {
   // Clean sheet name for Excel (max 31 chars, no special chars)
   const cleanName = sheetName.substring(0, 31).replace(/[\\/?*\[\]:]/g, '_');
   const ws = workbook.addWorksheet(cleanName, {
