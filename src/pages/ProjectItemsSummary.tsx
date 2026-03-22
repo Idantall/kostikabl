@@ -450,7 +450,7 @@ const ProjectItemsSummary = () => {
       
       const normCode = normalizeItemCode(item.item_code);
       const normSide = normalizeSide(item.motor_side);
-      const specialDesig = extractSpecialDesignation(item.notes, item.item_type);
+      const specialDesig = extractSpecialDesignation(item.field_notes, item.item_type);
       const key = `${normCode}|||${normSide ?? "NULL"}|||${specialDesig ?? "NULL"}`;
       
       const openingNum = item.opening_no ? parseInt(item.opening_no, 10) : Infinity;
