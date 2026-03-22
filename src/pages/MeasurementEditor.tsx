@@ -112,7 +112,13 @@ const MeasurementEditor = () => {
       return;
     }
 
-    setRows(rowsData || []);
+    // Merge any pending localStorage updates on top of DB data
+    const pendingMap = getAllPendingData(projectId);
+    const mergedRows = (rowsData || []).map((row: MeasurementRow) => {
+      const pendingData = pendingMap.get(row.id);
+      return pendingData ? { ...row, ...pendingData } : row;
+    });
+    setRows(mergedRows);
 
     // Extract unique floors and apartments
     const uniqueFloors = [...new Set((rowsData || []).map(r => r.floor_label).filter(Boolean))] as string[];
