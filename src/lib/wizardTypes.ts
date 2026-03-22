@@ -93,43 +93,7 @@ export const LOCATION_OPTIONS = [
   'כיס כפול',
 ] as const;
 
-// Angle options for dropdowns
-export const ANGLE1_OPTIONS = [
-  '55 מברשת',
-  '95 מברשת',
-  '125 מברשת',
-  '140 מברשת',
-  '190 מברשת',
-  '60 מברשת',
-  '100 מברשת',
-  '95+55',
-  '125+55',
-  '140+55',
-  '190+55',
-  '55+55',
-] as const;
-
 // Mamad (pocket door) options with glyphs
-export const MAMAD_OPTIONS = [
-  { value: '☒☐', label: '☒☐ כיס שמאל' },
-  { value: '☐☒', label: '☐☒ כיס ימין' },
-  { value: '☒☐☒', label: '☒☐☒ כיס כפול' },
-] as const;
-
-export const ANGLE2_OPTIONS = [
-  '55 מברשת',
-  '95 מברשת',
-  '125 מברשת',
-  '140 מברשת',
-  '190 מברשת',
-  '60 מברשת',
-  '100 מברשת',
-  '95+55',
-  '125+55',
-  '140+55',
-  '190+55',
-  '55+55',
-] as const;
 
 // Helper to create empty apartment row
 export const createEmptyRow = (openingNo: number): WizardApartmentRow => ({
