@@ -385,6 +385,20 @@ export function WizardStepFloors() {
                           <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); handleToggleTypical(floor.id); }}>
                             {floor.isTypical ? 'בטל טיפוסית' : 'סמן כטיפוסית'}
                           </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-1"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSaveFloorTypeSourceId(floor.id);
+                              setSaveFloorTypeName(floor.label);
+                              setSaveFloorTypeDialogOpen(true);
+                            }}
+                          >
+                            <Save className="h-3.5 w-3.5" />
+                            שמור כסוג
+                          </Button>
                           <Button variant="ghost" size="icon" onClick={e => { e.stopPropagation(); handleDeleteFloor(floor.id); }} className="text-destructive hover:text-destructive">
                             <Trash2 className="h-4 w-4" />
                           </Button>
