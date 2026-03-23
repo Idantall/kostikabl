@@ -1115,8 +1115,8 @@ const ProjectDetail = () => {
                             <tr key={item.id} className="border-b hover:bg-muted/50">
                               <td className="p-2">{item.item_code}</td>
                               <td className="p-2">{item.item_type || '-'}</td>
-                              <td className="p-2">{item.floors?.floor_code || '-'}</td>
-                              <td className="p-2">{item.apartments?.apt_number || '-'}</td>
+                              <td className="p-2">{item.floors?.floor_code || item.floor_label || '-'}</td>
+                              <td className="p-2">{item.apartments?.apt_number || item.apartment_label || '-'}</td>
                               <td className="p-2">{item.location || item.opening_no || '-'}</td>
                               <td className="p-2">
                                 {item.width && item.height ? `${item.width}×${item.height}` : item.width || item.height || '-'}
