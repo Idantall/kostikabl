@@ -640,9 +640,22 @@ const ProjectItemsSummary = () => {
     });
   };
 
+  const handleTypeToggle = (typeName: string) => {
+    setSelectedTypes(prev => {
+      const next = new Set(prev);
+      if (next.has(typeName)) {
+        next.delete(typeName);
+      } else {
+        next.add(typeName);
+      }
+      return next;
+    });
+  };
+
   const clearFilters = () => {
     setSelectedFloors(new Set());
     setSelectedApartments(new Set());
+    setSelectedTypes(new Set());
   };
 
   const exportCSV = (mode: 'summary' | 'detailed' = 'summary') => {
