@@ -1180,7 +1180,7 @@ const ProjectItemsSummary = () => {
   // Calculate totals for display
   const totalItems = summaryRows.reduce((sum, row) => sum + row.qty, 0);
   const totalTypes = new Set(summaryRows.map(r => r.normalizedItemCode)).size;
-  const hasFilters = selectedFloors.size > 0 || selectedApartments.size > 0;
+  const hasFilters = selectedFloors.size > 0 || selectedApartments.size > 0 || selectedTypes.size > 0;
   const selectedCount = selectedRows.size;
   const selectedItemCount = getSelectedItemIds().length;
 
