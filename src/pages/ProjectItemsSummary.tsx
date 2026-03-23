@@ -332,7 +332,7 @@ const ProjectItemsSummary = () => {
       
       return {
         id: syntheticId,
-        item_code: r.item_code || '',
+        item_code: r.item_code || r.contract_item || '',
         motor_side: r.engine_side,
         width: r.width,
         height: r.height,
