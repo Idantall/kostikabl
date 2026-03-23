@@ -330,7 +330,8 @@ export function WizardStepFloors() {
                 className="gap-1.5"
                 onClick={() => {
                   setApplyFloorTypeId(state.floorTypes[0]?.id || '');
-                  setApplyFloorTypeTargets(new Set());
+                  setApplyFloorRangeFrom('');
+                  setApplyFloorRangeTo('');
                   setApplyFloorTypeDialogOpen(true);
                 }}
               >
