@@ -160,6 +160,7 @@ const ProjectItemsSummary = () => {
   // Filter state
   const [selectedFloors, setSelectedFloors] = useState<Set<number>>(new Set());
   const [selectedApartments, setSelectedApartments] = useState<Set<number>>(new Set());
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
   const [filterOpen, setFilterOpen] = useState(false);
 
   // Edit mode state
