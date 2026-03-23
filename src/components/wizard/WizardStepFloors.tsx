@@ -78,12 +78,6 @@ export function WizardStepFloors() {
     dispatch({ type: 'UPDATE_FLOOR', payload: { id: floorId, updates: { label } } });
   };
 
-  const handleToggleTypical = (floorId: string) => {
-    const floor = floors.find(f => f.id === floorId);
-    if (floor) {
-      dispatch({ type: 'UPDATE_FLOOR', payload: { id: floorId, updates: { isTypical: !floor.isTypical } } });
-    }
-  };
 
   const handleAddApartment = (floorId: string) => {
     let nextAptNum = 1;
