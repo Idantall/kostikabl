@@ -383,9 +383,7 @@ export function WizardStepFloors() {
                           {floor.sourceFloorTypeName && <Badge variant="secondary" className="text-xs">טיפוס {floor.sourceFloorTypeName}</Badge>}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); handleToggleTypical(floor.id); }}>
-                            {floor.isTypical ? 'בטל טיפוסית' : 'סמן כטיפוסית'}
-                          </Button>
+                          
                           <Button
                             variant="ghost"
                             size="sm"
