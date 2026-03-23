@@ -1312,6 +1312,31 @@ const ProjectItemsSummary = () => {
                 <CollapsibleContent>
                   <CardContent className="pt-0 px-3 sm:px-6">
                     <div className="space-y-4">
+                      {/* Type filter */}
+                      {floorTypes.size > 0 && (
+                        <div>
+                          <Label className="text-sm font-medium mb-2 block">טיפוסים</Label>
+                          <div className="flex flex-wrap gap-2 sm:gap-3">
+                            {[...floorTypes.keys()].sort((a, b) => a.localeCompare(b, 'he', { numeric: true })).map(typeName => (
+                              <div key={typeName} className="flex items-center gap-1.5 sm:gap-2">
+                                <Checkbox
+                                  id={`type-${typeName}`}
+                                  checked={selectedTypes.has(typeName)}
+                                  onCheckedChange={() => handleTypeToggle(typeName)}
+                                  className="h-4 w-4"
+                                />
+                                <label
+                                  htmlFor={`type-${typeName}`}
+                                  className="text-xs sm:text-sm cursor-pointer whitespace-nowrap"
+                                >
+                                  טיפוס {typeName}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <div>
                         <Label className="text-sm font-medium mb-2 block">קומות</Label>
                         <div className="flex flex-wrap gap-2 sm:gap-3">
