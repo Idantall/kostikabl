@@ -38,7 +38,8 @@ export function WizardStepFloors() {
   const [saveFloorTypeName, setSaveFloorTypeName] = useState('');
   const [applyFloorTypeDialogOpen, setApplyFloorTypeDialogOpen] = useState(false);
   const [applyFloorTypeId, setApplyFloorTypeId] = useState('');
-  const [applyFloorTypeTargets, setApplyFloorTypeTargets] = useState<Set<string>>(new Set());
+  const [applyFloorRangeFrom, setApplyFloorRangeFrom] = useState('');
+  const [applyFloorRangeTo, setApplyFloorRangeTo] = useState('');
 
   const handleStartEditApt = (floorId: string, aptId: string, label: string) => {
     setEditingApt({ floorId, aptId });
