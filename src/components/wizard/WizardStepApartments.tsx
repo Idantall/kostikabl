@@ -105,8 +105,9 @@ export function WizardStepApartments() {
   const handleResetToBank = (rowId: string) => {
     if (!currentFloor || !currentApartment) return;
     const row = currentApartment.rows.find(r => r.id === rowId);
-    if (!row || !row.item_code) return;
-    const bankItem = bankItems.find(b => b.item_no === row.item_code);
+    const bankKey = row ? (row[bankField] || row.item_code) : null;
+    if (!row || !bankKey) return;
+    const bankItem = bankItems.find(b => b.item_no === bankKey);
     if (!bankItem) return;
     const resetUpdates: Partial<WizardApartmentRow> = { height: bankItem.height, height_overridden: false, width: bankItem.width, width_overridden: false };
     if (bankItem.floor_height) resetUpdates.notes = bankItem.floor_height;
@@ -434,7 +435,7 @@ export function WizardStepApartments() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
-                              {(row.height_overridden || row.width_overridden) && row.item_code && (
+                              {(row.height_overridden || row.width_overridden) && (row.item_code || row.contract_item) && (
                                 <Button variant="ghost" size="icon" className="h-8 w-8" title="אפס לערכי הבנק" onClick={() => handleResetToBank(row.id)}>
                                   <RotateCcw className="h-3 w-3" />
                                 </Button>
@@ -524,7 +525,7 @@ export function WizardStepApartments() {
                 className="w-full justify-start gap-2"
                 onClick={() => {
                   if (!currentFloor || !currentApartment) return;
-                  if (currentApartment.rows.some(r => r.item_code)) {
+                  if (currentApartment.rows.some(r => r.item_code || r.contract_item)) {
                     if (!confirm('לדירה זו יש נתונים קיימים. להחליף?')) return;
                   }
                   dispatch({ type: 'APPLY_APARTMENT_TYPE', payload: { typeId: t.id, floorId: currentFloor.id, apartmentId: currentApartment.id } });

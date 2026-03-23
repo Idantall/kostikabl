@@ -44,7 +44,7 @@ export function WizardStepReview() {
     b.floors.forEach(floor => {
       floor.apartments.forEach(apt => {
         apt.rows.forEach(row => {
-          if (!row.item_code) incompleteRows++;
+          if (!row.item_code && !row.contract_item) incompleteRows++;
         });
       });
     });

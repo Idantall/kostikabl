@@ -580,7 +580,7 @@ export function WizardStepFloors() {
                   return;
                 }
                 const hasData = floors.some(f =>
-                  targetFloorIds.includes(f.id) && f.apartments.some(a => a.rows.some(r => r.item_code))
+                  targetFloorIds.includes(f.id) && f.apartments.some(a => a.rows.some(r => r.item_code || r.contract_item))
                 );
                 if (hasData) {
                   if (!confirm('חלק מהקומות הנבחרות מכילות נתונים. להחליף?')) return;
