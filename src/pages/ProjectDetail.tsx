@@ -92,6 +92,7 @@ const ProjectDetail = () => {
   const [installStatusFilter, setInstallStatusFilter] = useState<string>('all');
   const [downloadingReport, setDownloadingReport] = useState(false);
   const [loadIssuesMap, setLoadIssuesMap] = useState<Map<number, any>>(new Map());
+  const [measurementRows, setMeasurementRows] = useState<any[]>([]);
   const [showFinalizeDialog, setShowFinalizeDialog] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
   const [packedSectionsCount, setPackedSectionsCount] = useState(0);
