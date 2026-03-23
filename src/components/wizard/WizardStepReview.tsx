@@ -9,7 +9,7 @@ import { ArrowRight, CheckCircle2, AlertCircle, Building2, Home, Package, Loader
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import * as XLSX from 'xlsx';
+import { exportMeasurementToExcel } from '@/lib/measurementExcelExport';
 
 export function WizardStepReview() {
   const navigate = useNavigate();
@@ -53,33 +53,51 @@ export function WizardStepReview() {
 
   const handleBack = () => { dispatch({ type: 'SET_STEP', payload: 3 }); };
 
-  const handleExportExcel = () => {
-    const wb = XLSX.utils.book_new();
+  const handleExportExcel = async () => {
+    // Build measurement-style rows from wizard state for the styled export
+    const allRows: any[] = [];
     buildings.forEach(building => {
       building.floors.forEach(floor => {
         floor.apartments.forEach(apt => {
-          const prefix = isMultiBuilding ? `${building.label}_` : '';
-          const sheetName = `${prefix}${floor.label}_${apt.label}`.substring(0, 31);
-          const data = [
-            [`פרויקט: ${name}${isMultiBuilding ? ` - ${building.label}` : ''}`],
-            [`קומה: ${floor.label}  דירה: ${apt.label}`],
-            [],
-            ['מס\' פתח', 'מיקום בדירה', 'פרט חוזה', 'פרט משקופים', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ממד כיס בצד', 'עומק עד הפריקסט', 'גליף', 'מדרגה בשיש', 'מנואלה', 'צד מנוע', 'הערות', 'כנף פנימית מבט פנים', 'ציר מבט פנים פתיחה פנימה', 'ציר מבט פנים פתיחה החוצה'],
-            ...apt.rows.map(row => [
-              row.opening_no, row.location_in_apartment || '', row.contract_item || '',
-              '', row.item_code || '', row.height || '', row.width || '', row.notes || '',
-              row.mamad || '', row.depth || '',
-              row.glyph || '', row.jamb_height || '', row.is_manual ? 'מנואלה' : '',
-              row.engine_side || '', row.field_notes || '', row.internal_wing || '',
-              row.wing_position || '', row.wing_position_out || '',
-            ]),
-          ];
-          const ws = XLSX.utils.aoa_to_sheet(data);
-          XLSX.utils.book_append_sheet(wb, ws, sheetName);
+          apt.rows.forEach(row => {
+            allRows.push({
+              id: `wizard-${row.opening_no}`,
+              floor_label: isMultiBuilding
+                ? `${building.label} - ${floor.sourceFloorTypeName ? `${floor.label.replace('קומה ', '')} (טיפוס ${floor.sourceFloorTypeName})` : floor.label.replace('קומה ', '')}`
+                : floor.sourceFloorTypeName
+                  ? `${floor.label.replace('קומה ', '')} (טיפוס ${floor.sourceFloorTypeName})`
+                  : floor.label.replace('קומה ', ''),
+              apartment_label: apt.label.replace('דירה ', ''),
+              location_in_apartment: row.location_in_apartment || null,
+              opening_no: String(row.opening_no),
+              contract_item: row.contract_item || null,
+              blind_jamb_item: null,
+              item_code: row.item_code || null,
+              height: row.height || null,
+              width: row.width || null,
+              notes: row.notes || null,
+              hinge_direction: row.hinge_direction || null,
+              mamad: row.mamad || null,
+              field_notes: row.field_notes || null,
+              depth: row.depth || null,
+              glyph: row.glyph || null,
+              jamb_height: row.jamb_height || null,
+              is_manual: row.is_manual || false,
+              engine_side: row.engine_side === 'ימין' ? 'R' : row.engine_side === 'שמאל' ? 'L' : null,
+              internal_wing: row.internal_wing || null,
+              wing_position: row.wing_position || null,
+              wing_position_out: row.wing_position_out || null,
+            });
+          });
         });
       });
     });
-    XLSX.writeFile(wb, `${name || 'project'}.xlsx`);
+
+    await exportMeasurementToExcel({
+      rows: allRows,
+      project: { name: name || 'project' },
+      projectStatus: projectType === 'pre_contract' ? 'pre_contract' : 'blind_jambs',
+    });
     toast.success('הקובץ הורד');
   };
 
