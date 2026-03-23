@@ -105,8 +105,9 @@ export function WizardStepApartments() {
   const handleResetToBank = (rowId: string) => {
     if (!currentFloor || !currentApartment) return;
     const row = currentApartment.rows.find(r => r.id === rowId);
-    if (!row || !row.item_code) return;
-    const bankItem = bankItems.find(b => b.item_no === row.item_code);
+    const bankKey = row ? (row[bankField] || row.item_code) : null;
+    if (!row || !bankKey) return;
+    const bankItem = bankItems.find(b => b.item_no === bankKey);
     if (!bankItem) return;
     const resetUpdates: Partial<WizardApartmentRow> = { height: bankItem.height, height_overridden: false, width: bankItem.width, width_overridden: false };
     if (bankItem.floor_height) resetUpdates.notes = bankItem.floor_height;
