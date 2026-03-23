@@ -525,7 +525,7 @@ export function WizardStepApartments() {
                 className="w-full justify-start gap-2"
                 onClick={() => {
                   if (!currentFloor || !currentApartment) return;
-                  if (currentApartment.rows.some(r => r.item_code)) {
+                  if (currentApartment.rows.some(r => r.item_code || r.contract_item)) {
                     if (!confirm('לדירה זו יש נתונים קיימים. להחליף?')) return;
                   }
                   dispatch({ type: 'APPLY_APARTMENT_TYPE', payload: { typeId: t.id, floorId: currentFloor.id, apartmentId: currentApartment.id } });
