@@ -132,7 +132,7 @@ export function WizardStepApartments() {
     buildings.forEach(b => {
       b.floors.forEach(floor => {
         floor.apartments.forEach(apt => {
-          if (apt.rows.filter(r => r.item_code).length === 0) hasErrors = true;
+          if (apt.rows.filter(r => r.item_code || r.contract_item).length === 0) hasErrors = true;
         });
       });
     });
