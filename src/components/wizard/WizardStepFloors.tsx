@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, ArrowRight, Plus, Trash2, Copy, Building2, Home, ChevronDown, ChevronUp, Pencil, Check, X, Save, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Checkbox } from '@/components/ui/checkbox';
 
 export function WizardStepFloors() {
   const { state, dispatch, currentFloors } = useWizard();
@@ -39,7 +38,8 @@ export function WizardStepFloors() {
   const [saveFloorTypeName, setSaveFloorTypeName] = useState('');
   const [applyFloorTypeDialogOpen, setApplyFloorTypeDialogOpen] = useState(false);
   const [applyFloorTypeId, setApplyFloorTypeId] = useState('');
-  const [applyFloorTypeTargets, setApplyFloorTypeTargets] = useState<Set<string>>(new Set());
+  const [applyFloorRangeFrom, setApplyFloorRangeFrom] = useState('');
+  const [applyFloorRangeTo, setApplyFloorRangeTo] = useState('');
 
   const handleStartEditApt = (floorId: string, aptId: string, label: string) => {
     setEditingApt({ floorId, aptId });
@@ -78,12 +78,6 @@ export function WizardStepFloors() {
     dispatch({ type: 'UPDATE_FLOOR', payload: { id: floorId, updates: { label } } });
   };
 
-  const handleToggleTypical = (floorId: string) => {
-    const floor = floors.find(f => f.id === floorId);
-    if (floor) {
-      dispatch({ type: 'UPDATE_FLOOR', payload: { id: floorId, updates: { isTypical: !floor.isTypical } } });
-    }
-  };
 
   const handleAddApartment = (floorId: string) => {
     let nextAptNum = 1;
@@ -336,7 +330,8 @@ export function WizardStepFloors() {
                 className="gap-1.5"
                 onClick={() => {
                   setApplyFloorTypeId(state.floorTypes[0]?.id || '');
-                  setApplyFloorTypeTargets(new Set());
+                  setApplyFloorRangeFrom('');
+                  setApplyFloorRangeTo('');
                   setApplyFloorTypeDialogOpen(true);
                 }}
               >
@@ -378,14 +373,11 @@ export function WizardStepFloors() {
                         <div className="flex items-center gap-3">
                           {expandedFloors.has(floor.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                           <Input value={floor.label} onChange={e => handleUpdateFloorLabel(floor.id, e.target.value)} onClick={e => e.stopPropagation()} className="w-32 h-8" dir="rtl" />
-                          <Badge variant={floor.isTypical ? 'default' : 'outline'}>{floor.apartments.length} דירות</Badge>
-                          {floor.isTypical && <Badge variant="secondary">קומה טיפוסית</Badge>}
+                          <Badge variant="outline">{floor.apartments.length} דירות</Badge>
                           {floor.sourceFloorTypeName && <Badge variant="secondary" className="text-xs">טיפוס {floor.sourceFloorTypeName}</Badge>}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); handleToggleTypical(floor.id); }}>
-                            {floor.isTypical ? 'בטל טיפוסית' : 'סמן כטיפוסית'}
-                          </Button>
+                          
                           <Button
                             variant="ghost"
                             size="sm"
@@ -519,7 +511,7 @@ export function WizardStepFloors() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>החל סוג קומה</DialogTitle>
-            <DialogDescription>בחר סוג קומה וקומות יעד. הדירות הקיימות בקומות הנבחרות יוחלפו.</DialogDescription>
+            <DialogDescription>בחר סוג קומה וטווח קומות יעד. הדירות הקיימות בקומות הנבחרות יוחלפו.</DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
@@ -534,46 +526,70 @@ export function WizardStepFloors() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>קומות יעד</Label>
-              <div className="space-y-1.5 max-h-60 overflow-y-auto border rounded-md p-2">
-                {floors.map(floor => (
-                  <label key={floor.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded">
-                    <Checkbox
-                      checked={applyFloorTypeTargets.has(floor.id)}
-                      onCheckedChange={(checked) => {
-                        setApplyFloorTypeTargets(prev => {
-                          const next = new Set(prev);
-                          if (checked) next.add(floor.id);
-                          else next.delete(floor.id);
-                          return next;
-                        });
-                      }}
-                    />
-                    <span className="text-sm">{floor.label}</span>
-                    {floor.apartments.length > 0 && (
-                      <Badge variant="outline" className="text-xs mr-auto">{floor.apartments.length} דירות</Badge>
-                    )}
-                  </label>
-                ))}
+              <Label>טווח קומות</Label>
+              <div className="flex items-center gap-2" dir="ltr">
+                <Input
+                  type="number"
+                  placeholder="מ-"
+                  value={applyFloorRangeFrom}
+                  onChange={e => setApplyFloorRangeFrom(e.target.value)}
+                  className="w-24"
+                />
+                <span className="text-muted-foreground">—</span>
+                <Input
+                  type="number"
+                  placeholder="עד"
+                  value={applyFloorRangeTo}
+                  onChange={e => setApplyFloorRangeTo(e.target.value)}
+                  className="w-24"
+                />
               </div>
+              {applyFloorRangeFrom && applyFloorRangeTo && (() => {
+                const from = parseInt(applyFloorRangeFrom);
+                const to = parseInt(applyFloorRangeTo);
+                if (!isNaN(from) && !isNaN(to) && to >= from) {
+                  const matched = floors.filter(f => {
+                    const num = parseInt(f.label.replace(/[^\d-]/g, ''));
+                    return !isNaN(num) && num >= from && num <= to;
+                  });
+                  return <p className="text-xs text-muted-foreground">{matched.length} קומות נמצאו בטווח</p>;
+                }
+                return null;
+              })()}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setApplyFloorTypeDialogOpen(false)}>ביטול</Button>
             <Button
-              disabled={!applyFloorTypeId || applyFloorTypeTargets.size === 0}
+              disabled={!applyFloorTypeId || !applyFloorRangeFrom || !applyFloorRangeTo}
               onClick={() => {
+                const from = parseInt(applyFloorRangeFrom);
+                const to = parseInt(applyFloorRangeTo);
+                if (isNaN(from) || isNaN(to) || to < from) {
+                  toast.error('טווח קומות לא תקין');
+                  return;
+                }
+                const targetFloorIds = floors
+                  .filter(f => {
+                    const num = parseInt(f.label.replace(/[^\d-]/g, ''));
+                    return !isNaN(num) && num >= from && num <= to;
+                  })
+                  .map(f => f.id);
+                if (targetFloorIds.length === 0) {
+                  toast.error('לא נמצאו קומות בטווח המבוקש');
+                  return;
+                }
                 const hasData = floors.some(f =>
-                  applyFloorTypeTargets.has(f.id) && f.apartments.some(a => a.rows.some(r => r.item_code))
+                  targetFloorIds.includes(f.id) && f.apartments.some(a => a.rows.some(r => r.item_code))
                 );
                 if (hasData) {
                   if (!confirm('חלק מהקומות הנבחרות מכילות נתונים. להחליף?')) return;
                 }
                 dispatch({
                   type: 'APPLY_FLOOR_TYPE',
-                  payload: { typeId: applyFloorTypeId, targetFloorIds: Array.from(applyFloorTypeTargets) },
+                  payload: { typeId: applyFloorTypeId, targetFloorIds },
                 });
-                toast.success(`סוג קומה הוחל על ${applyFloorTypeTargets.size} קומות`);
+                toast.success(`סוג קומה הוחל על ${targetFloorIds.length} קומות`);
                 setApplyFloorTypeDialogOpen(false);
               }}
             >
