@@ -435,7 +435,7 @@ export function WizardStepApartments() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
-                              {(row.height_overridden || row.width_overridden) && row.item_code && (
+                              {(row.height_overridden || row.width_overridden) && (row.item_code || row.contract_item) && (
                                 <Button variant="ghost" size="icon" className="h-8 w-8" title="אפס לערכי הבנק" onClick={() => handleResetToBank(row.id)}>
                                   <RotateCcw className="h-3 w-3" />
                                 </Button>
