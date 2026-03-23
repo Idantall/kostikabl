@@ -9,7 +9,7 @@ import { ArrowRight, CheckCircle2, AlertCircle, Building2, Home, Package, Loader
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import * as XLSX from 'xlsx';
+import { exportMeasurementToExcel } from '@/lib/measurementExcelExport';
 
 export function WizardStepReview() {
   const navigate = useNavigate();
