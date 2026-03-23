@@ -448,6 +448,70 @@ const ProjectDetail = () => {
       } = await supabase.from('projects').select('*').eq('id', projectId).single();
       setProject(projectData);
 
+      // For pre-contract and blind_jambs, derive stats from measurement_rows
+      if (projectData?.status === 'pre_contract' || projectData?.status === 'blind_jambs') {
+        const { data: mRows, error: mErr } = await supabase
+          .from('measurement_rows')
+          .select('*')
+          .eq('project_id', projectId)
+          .order('floor_label')
+          .order('apartment_label')
+          .order('opening_no');
+        if (mErr) throw mErr;
+        const rows = mRows || [];
+        setMeasurementRows(rows);
+
+        // Derive unique floors
+        const floorLabels = [...new Set(rows.map(r => r.floor_label).filter(Boolean))];
+        const syntheticFloors = floorLabels.map((label, idx) => ({
+          floor_id: idx + 1,
+          floor_code: label,
+          project_id: projectId,
+          total_items: rows.filter(r => r.floor_label === label).length,
+          total_apartments: new Set(rows.filter(r => r.floor_label === label).map(r => r.apartment_label)).size,
+        }));
+        setFloors(syntheticFloors);
+
+        // Derive unique apartments
+        const aptSet = new Map<string, { floor_label: string; count: number }>();
+        rows.forEach(r => {
+          const key = `${r.floor_label}||${r.apartment_label}`;
+          if (!aptSet.has(key)) {
+            aptSet.set(key, { floor_label: r.floor_label, count: 0 });
+          }
+          aptSet.get(key)!.count++;
+        });
+        const syntheticApartments = Array.from(aptSet.entries()).map(([key, val], idx) => {
+          const [floorLabel, aptLabel] = key.split('||');
+          const floorIdx = syntheticFloors.findIndex(f => f.floor_code === floorLabel);
+          return {
+            apartment_id: idx + 1,
+            apt_number: aptLabel || '-',
+            floor_id: floorIdx >= 0 ? syntheticFloors[floorIdx].floor_id : 0,
+            project_id: projectId,
+            total_items: val.count,
+          };
+        });
+        setApartments(syntheticApartments);
+
+        // Derive items from measurement rows
+        const syntheticItems = rows.map((r, idx) => ({
+          id: idx + 1,
+          item_code: r.contract_item || r.item_code || '-',
+          item_type: null,
+          location: r.location_in_apartment || null,
+          opening_no: r.opening_no,
+          width: r.width,
+          height: r.height,
+          floor_label: r.floor_label,
+          apartment_label: r.apartment_label,
+          floor_id: syntheticFloors.find(f => f.floor_code === r.floor_label)?.floor_id || 0,
+          apt_id: syntheticApartments.find(a => a.apt_number === r.apartment_label && syntheticFloors.find(f => f.floor_id === a.floor_id)?.floor_code === r.floor_label)?.apartment_id || 0,
+        }));
+        setItems(syntheticItems);
+        return; // Skip the rest of fetchProjectData for pre-contract
+      }
+
       // Fetch floors with totals
       const {
         data: floorsData
