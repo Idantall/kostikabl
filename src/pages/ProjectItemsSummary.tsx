@@ -409,22 +409,65 @@ const ProjectItemsSummary = () => {
     setAllItems(items);
   };
 
-  // Filter apartments based on selected floors
+  // Extract unique floor types from floor codes (e.g., "9 (טיפוס 8-12)" -> "8-12")
+  const floorTypes = useMemo(() => {
+    const typeMap = new Map<string, number[]>(); // typeName -> floorIds
+    floors.forEach(floor => {
+      const match = floor.floor_code.match(/\(טיפוס\s+(.+?)\)/);
+      if (match) {
+        const typeName = match[1].trim();
+        if (!typeMap.has(typeName)) typeMap.set(typeName, []);
+        typeMap.get(typeName)!.push(floor.id);
+      }
+    });
+    return typeMap;
+  }, [floors]);
+
+  // Floors matching selected types
+  const typeFilteredFloorIds = useMemo(() => {
+    if (selectedTypes.size === 0) return null;
+    const ids = new Set<number>();
+    for (const typeName of selectedTypes) {
+      const floorIds = floorTypes.get(typeName);
+      if (floorIds) floorIds.forEach(id => ids.add(id));
+    }
+    return ids;
+  }, [selectedTypes, floorTypes]);
+
+  // Filter apartments based on selected floors (and type filter)
   const filteredApartments = useMemo(() => {
-    if (selectedFloors.size === 0) return apartments;
-    return apartments.filter(apt => selectedFloors.has(apt.floor_id));
-  }, [apartments, selectedFloors]);
+    let effectiveFloorIds: Set<number> | null = null;
+    if (selectedFloors.size > 0 && typeFilteredFloorIds) {
+      // Intersection
+      effectiveFloorIds = new Set([...selectedFloors].filter(id => typeFilteredFloorIds.has(id)));
+    } else if (selectedFloors.size > 0) {
+      effectiveFloorIds = selectedFloors;
+    } else if (typeFilteredFloorIds) {
+      effectiveFloorIds = typeFilteredFloorIds;
+    }
+    if (!effectiveFloorIds) return apartments;
+    return apartments.filter(apt => effectiveFloorIds!.has(apt.floor_id));
+  }, [apartments, selectedFloors, typeFilteredFloorIds]);
 
   // Filter items based on selection
   const filteredItems = useMemo(() => {
     if (selectedApartments.size > 0) {
       return allItems.filter(item => item.apt_id && selectedApartments.has(item.apt_id));
     }
-    if (selectedFloors.size > 0) {
-      return allItems.filter(item => item.floor_id && selectedFloors.has(item.floor_id));
+    // Combine floor + type filters
+    let effectiveFloorIds: Set<number> | null = null;
+    if (selectedFloors.size > 0 && typeFilteredFloorIds) {
+      effectiveFloorIds = new Set([...selectedFloors].filter(id => typeFilteredFloorIds.has(id)));
+    } else if (selectedFloors.size > 0) {
+      effectiveFloorIds = selectedFloors;
+    } else if (typeFilteredFloorIds) {
+      effectiveFloorIds = typeFilteredFloorIds;
+    }
+    if (effectiveFloorIds) {
+      return allItems.filter(item => item.floor_id && effectiveFloorIds!.has(item.floor_id));
     }
     return allItems;
-  }, [allItems, selectedFloors, selectedApartments]);
+  }, [allItems, selectedFloors, selectedApartments, typeFilteredFloorIds]);
 
   // Calculate summary rows from filtered items
   const summaryRows = useMemo(() => {
