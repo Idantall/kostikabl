@@ -212,14 +212,41 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
     setExporting(true);
     try {
-      // Build header row
-      const headers = ["מידות", "מספר פרט"];
-      for (const col of columnHeaders) {
-        headers.push(`${col.floorLabel} - ${col.label}`);
-      }
-      headers.push("סה״כ");
+      const colCount = 2 + columnHeaders.length + 1; // מידות + מספר פרט + apts + סה״כ
 
-      // Build data rows
+      // Row 1: floor group headers (merged), with מידות and מספר פרט spanning 2 rows
+      const row1: string[] = ["מידות", "מספר פרט"];
+      const merges: XLSX.Range[] = [
+        { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }, // מידות spans 2 rows
+        { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }, // מספר פרט spans 2 rows
+        { s: { r: 0, c: colCount - 1 }, e: { r: 1, c: colCount - 1 } }, // סה״כ spans 2 rows
+      ];
+
+      let aptColStart = 2;
+      for (const span of floorSpans) {
+        row1.push(span.label);
+        // Fill remaining cells in this floor group with empty strings
+        for (let i = 1; i < span.colspan; i++) {
+          row1.push("");
+        }
+        if (span.colspan > 1) {
+          merges.push({
+            s: { r: 0, c: aptColStart },
+            e: { r: 0, c: aptColStart + span.colspan - 1 },
+          });
+        }
+        aptColStart += span.colspan;
+      }
+      row1.push("סה״כ");
+
+      // Row 2: apartment numbers
+      const row2: string[] = ["", ""];
+      for (const col of columnHeaders) {
+        row2.push(col.label);
+      }
+      row2.push("");
+
+      // Data rows (starting at row index 2)
       const dataRows = filteredRows.map(row => {
         const rowData: (string | number)[] = [row.dimensions, row.itemCode];
         for (const col of columnHeaders) {
@@ -229,7 +256,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         return rowData;
       });
 
-      // Add totals row
+      // Totals row
       const totalsRow: (string | number)[] = ["", "סה״כ"];
       for (const col of columnHeaders) {
         totalsRow.push(columnTotals.get(col.aptId) || 0);
@@ -237,28 +264,26 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       totalsRow.push(grandTotal);
 
       // Create worksheet
-      const wsData = [headers, ...dataRows, totalsRow];
+      const wsData = [row1, row2, ...dataRows, totalsRow];
       const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      // Style: bold header row
-      const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
-      for (let col = range.s.c; col <= range.e.c; col++) {
-        const cellRef = XLSX.utils.encode_cell({ r: 0, c: col });
-        if (!ws[cellRef]) continue;
-        ws[cellRef].s = { font: { bold: true } };
-      }
+      ws["!merges"] = merges;
 
       // Set column widths
       ws["!cols"] = [
         { wch: 12 }, // מידות
         { wch: 12 }, // מספר פרט
-        ...columnHeaders.map(() => ({ wch: 10 })),
+        ...columnHeaders.map(() => ({ wch: 6 })),
         { wch: 8 }, // סה״כ
       ];
 
-      // Create workbook
+      // Create workbook with RTL
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "הקצאה");
+      if (wb.Workbook?.Sheets?.[0]) {
+        (wb.Workbook.Sheets[0] as any).Views = [{ RTL: true }];
+      } else {
+        wb.Workbook = { Sheets: [{ Views: [{ RTL: true }] } as any] };
+      }
 
       // Generate file
       const date = new Date().toISOString().split("T")[0];
@@ -365,6 +390,19 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     
     return spans;
   }, [columnHeaders, sortedFloors]);
+
+  // Identify the first apartment index of each floor group (for thick border)
+  const floorBoundaryIndices = useMemo(() => {
+    const indices = new Set<number>();
+    let prevFloorId: number | null = null;
+    for (let i = 0; i < columnHeaders.length; i++) {
+      if (columnHeaders[i].floorId !== prevFloorId) {
+        if (prevFloorId !== null) indices.add(i); // not the very first group
+        prevFloorId = columnHeaders[i].floorId;
+      }
+    }
+    return indices;
+  }, [columnHeaders]);
 
   // Print mode
   const handlePrint = useCallback(() => {
@@ -523,11 +561,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                     מספר פרט
                   </th>
                   {/* Floor group headers */}
-                  {floorSpans.map((span) => (
+                  {floorSpans.map((span, spanIdx) => (
                     <th
                       key={span.floorId}
                       colSpan={span.colspan}
-                      className="bg-primary/10 border-b border-l px-2 py-2 text-center font-semibold"
+                      className={`bg-primary/10 border-b border-l px-2 py-2 text-center font-semibold ${spanIdx > 0 ? 'border-l-[3px] border-l-gray-500' : ''}`}
                     >
                       {span.label}
                     </th>
@@ -543,10 +581,10 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                 </tr>
                 {/* Header Row 2: Apartment numbers */}
                 <tr>
-                  {columnHeaders.map((col) => (
+                  {columnHeaders.map((col, colIdx) => (
                     <th
                       key={col.aptId}
-                      className="bg-muted/70 border-b border-l px-1 py-1.5 text-center font-medium text-xs"
+                      className={`bg-muted/70 border-b border-l px-1 py-1.5 text-center font-medium text-xs ${floorBoundaryIndices.has(colIdx) ? 'border-l-[3px] border-l-gray-500' : ''}`}
                       style={{ minWidth: "50px" }}
                     >
                       {col.label}
@@ -591,12 +629,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                         {row.itemCode}
                       </td>
                       {/* Data cells */}
-                      {columnHeaders.map((col) => {
+                      {columnHeaders.map((col, colIdx) => {
                         const value = getCellValue(row.itemCode, col.aptId);
                         return (
                           <td
                             key={col.aptId}
-                            className="border-b border-l px-1 py-1.5 text-center tabular-nums"
+                            className={`border-b border-l px-1 py-1.5 text-center tabular-nums ${floorBoundaryIndices.has(colIdx) ? 'border-l-[3px] border-l-gray-500' : ''}`}
                           >
                             {value > 0 ? value : ""}
                           </td>
@@ -624,10 +662,10 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                     >
                       סה״כ
                     </td>
-                    {columnHeaders.map((col) => (
+                    {columnHeaders.map((col, colIdx) => (
                       <td
                         key={col.aptId}
-                        className="border-t-2 border-l px-1 py-2 text-center tabular-nums"
+                        className={`border-t-2 border-l px-1 py-2 text-center tabular-nums ${floorBoundaryIndices.has(colIdx) ? 'border-l-[3px] border-l-gray-500' : ''}`}
                       >
                         {columnTotals.get(col.aptId) || 0}
                       </td>
