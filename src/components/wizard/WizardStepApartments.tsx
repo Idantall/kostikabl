@@ -85,6 +85,7 @@ export function WizardStepApartments() {
   };
 
   const isPreContract = state.projectType === 'pre_contract';
+  const hasProductionItemColumn = !isPreContract;
   const bankField: keyof WizardApartmentRow = isPreContract ? 'contract_item' : 'item_code';
 
   const handleUpdateRow = (rowId: string, field: keyof WizardApartmentRow, value: any) => {

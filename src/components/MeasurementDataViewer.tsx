@@ -720,7 +720,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
   }
 
   const exportToCsv = () => {
-    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים', 'ציר מבט פנים פתיחה פנימה', 'ציר מבט פנים פתיחה החוצה'];
+    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'מנוע', 'כנף פנימית מבט פנים', 'ציר מבט פנים פתיחה פנימה', 'ציר מבט פנים פתיחה החוצה', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'הערות'];
     const csvRows = [headers.join(',')];
     
     rows.forEach(row => {
@@ -739,15 +739,15 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         (getRowField(row, 'notes') || '').replace(/,/g, ';'),
         getRowField(row, 'hinge_direction') || '',
         getRowField(row, 'mamad') || '',
+        getRowField(row, 'engine_side') || '',
+        getRowField(row, 'internal_wing') || '',
+        getRowField(row, 'wing_position') || '',
+        getRowField(row, 'wing_position_out') || '',
         getRowField(row, 'glyph') || '',
         getRowField(row, 'depth') || '',
         getRowField(row, 'jamb_height') || '',
         getRowField(row, 'is_manual') || '',
-        getRowField(row, 'engine_side') || '',
         (getRowField(row, 'field_notes') || '').replace(/,/g, ';'),
-        getRowField(row, 'internal_wing') || '',
-        getRowField(row, 'wing_position') || '',
-        getRowField(row, 'wing_position_out') || '',
       ];
       csvRows.push(values.join(','));
     });
