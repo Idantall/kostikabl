@@ -461,10 +461,47 @@ export function WizardStepApartments() {
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
 
-              <Button variant="outline" onClick={handleAddRow} className="gap-2" disabled={currentApartment.rows.length >= 30}>
-                <Plus className="h-4 w-4" />
-                הוסף שורה
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => handleAddRow(1)} className="gap-2" disabled={currentApartment.rows.length >= 35}>
+                  <Plus className="h-4 w-4" />
+                  הוסף פתח
+                </Button>
+                <Popover open={addRowPopoverOpen} onOpenChange={setAddRowPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" disabled={currentApartment.rows.length >= 35}>
+                      הוסף מספר פתחים
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 bg-background" align="start">
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">כמות פתחים להוספה</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max={35 - currentApartment.rows.length}
+                        value={addRowCount}
+                        onChange={e => setAddRowCount(e.target.value)}
+                        dir="ltr"
+                        className="h-9"
+                      />
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          const count = parseInt(addRowCount);
+                          if (isNaN(count) || count < 1) { toast.error('כמות לא תקינה'); return; }
+                          handleAddRow(count);
+                          setAddRowPopoverOpen(false);
+                          setAddRowCount('1');
+                          toast.success(`נוספו ${count} פתחים`);
+                        }}
+                      >
+                        הוסף
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
 
               <p className="text-xs text-muted-foreground">
                 * שורות עם רקע צהוב מציינות ערכים ששונו ידנית מהבנק
