@@ -893,15 +893,15 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                       <TableHead className="text-center text-xs font-medium w-16">פרט משקופים</TableHead>
                     )}
                     <TableHead className="text-center text-xs font-medium w-20">ממד כיס בצד</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">פתיחה פנימה</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">פתיחה החוצה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">גליף</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">עומק עד הפריקסט</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">מדרגה בשיש</TableHead>
                     <TableHead className="text-center text-xs font-medium w-14">מנואלה</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
                     <TableHead className="text-right text-xs font-medium min-w-[80px]">הערות</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-20">פתיחה פנימה</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-20">פתיחה החוצה</TableHead>
                     {editMode && (
                       <TableHead className="text-center text-xs font-medium w-20">פעולות</TableHead>
                     )}
