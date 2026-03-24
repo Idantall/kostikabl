@@ -222,7 +222,7 @@ function createWorksheet(
   const titleCell = ws.getCell('A1');
   titleCell.value = `דף מידות לביצוע  -  ${ruleHe}  -   אלום קוסטיקה י.ש בע"מ`;
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
-  titleCell.font = { name: 'Arial', size: 11, bold: true };
+  titleCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(1).height = 15.95;
 
   // Date cell
