@@ -366,6 +366,19 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     return spans;
   }, [columnHeaders, sortedFloors]);
 
+  // Identify the first apartment index of each floor group (for thick border)
+  const floorBoundaryIndices = useMemo(() => {
+    const indices = new Set<number>();
+    let prevFloorId: number | null = null;
+    for (let i = 0; i < columnHeaders.length; i++) {
+      if (columnHeaders[i].floorId !== prevFloorId) {
+        if (prevFloorId !== null) indices.add(i); // not the very first group
+        prevFloorId = columnHeaders[i].floorId;
+      }
+    }
+    return indices;
+  }, [columnHeaders]);
+
   // Print mode
   const handlePrint = useCallback(() => {
     // Inject print styles if not already present
