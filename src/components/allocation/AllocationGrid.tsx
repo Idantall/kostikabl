@@ -604,12 +604,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                         {row.itemCode}
                       </td>
                       {/* Data cells */}
-                      {columnHeaders.map((col) => {
+                      {columnHeaders.map((col, colIdx) => {
                         const value = getCellValue(row.itemCode, col.aptId);
                         return (
                           <td
                             key={col.aptId}
-                            className="border-b border-l px-1 py-1.5 text-center tabular-nums"
+                            className={`border-b border-l px-1 py-1.5 text-center tabular-nums ${floorBoundaryIndices.has(colIdx) ? 'border-l-[3px] border-l-gray-500' : ''}`}
                           >
                             {value > 0 ? value : ""}
                           </td>
