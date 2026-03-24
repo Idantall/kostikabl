@@ -335,13 +335,7 @@ function createWorksheet(
       const cell = ws.getCell(`${col}${rowIndex}`);
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.font = { name: 'Arial', size: 14, bold: true };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
+      cell.font = { name: 'Calibri', size: 11, bold: false };
     }
     rowIndex++;
   }
