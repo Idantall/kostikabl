@@ -275,7 +275,7 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 30;
+    ws.getRow(rowIndex).height = 18;
 
     for (let i = 0; i < columnDefs.length; i++) {
       const def = columnDefs[i];
@@ -292,14 +292,15 @@ function createWorksheet(
       }
 
       cell.value = value;
+      // Match reference styling per column
+      if (def.key === 'opening_no') {
+        cell.font = { name: 'Calibri', size: 9, bold: false };
+      } else if (def.key === 'item_code' || def.key === 'contract_item' || def.key === 'blind_jamb_item') {
+        cell.font = { name: 'Calibri', size: 11, bold: true };
+      } else {
+        cell.font = { name: 'Calibri', size: 11, bold: false };
+      }
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.font = { name: 'Arial', size: 14, bold: true };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
     }
 
     // Embed wing images
