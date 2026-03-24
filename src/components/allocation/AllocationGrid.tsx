@@ -280,9 +280,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "הקצאה");
       if (wb.Workbook?.Sheets?.[0]) {
-        wb.Workbook.Sheets[0].Views = [{ RTL: true }];
+        (wb.Workbook.Sheets[0] as any).Views = [{ RTL: true }];
       } else {
-        wb.Workbook = { Sheets: [{ Views: [{ RTL: true }] }] };
+        wb.Workbook = { Sheets: [{ Views: [{ RTL: true }] } as any] };
       }
 
       // Generate file
