@@ -60,7 +60,7 @@ type WizardAction =
   | { type: 'UPDATE_APARTMENT'; payload: { floorId: string; apartmentId: string; label: string } }
   | { type: 'DELETE_APARTMENT'; payload: { floorId: string; apartmentId: string } }
   | { type: 'UPDATE_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string; rowId: string; updates: Partial<WizardApartmentRow> } }
-  | { type: 'ADD_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string } }
+  | { type: 'ADD_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string; count?: number } }
   | { type: 'DELETE_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string; rowId: string } }
   | { type: 'SET_SAVING'; payload: boolean }
   | { type: 'SET_LAST_SAVED'; payload: Date }
@@ -278,7 +278,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       );
     
     case 'ADD_APARTMENT_ROW': {
-      const count = (action.payload as any).count || 1;
+      const count = action.payload.count || 1;
       return updateCurrentBuildingFloors(state, floors =>
         floors.map(floor =>
           floor.id === action.payload.floorId
@@ -335,9 +335,11 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
           id: crypto.randomUUID(),
           label: floorLabel,
           isTypical: false,
+          sourceFloorTypeName: sourceFloor.sourceFloorTypeName || null,
           apartments: sourceFloor.apartments.map(apt => ({
             id: crypto.randomUUID(),
             label: `דירה ${nextAptNum++}`,
+            sourceApartmentTypeName: apt.sourceApartmentTypeName || null,
             rows: apt.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
           })),
         };
