@@ -63,11 +63,44 @@ export function WizardStepFloors() {
     });
   };
 
+  // Multi-floor creation
+  const [multiFloorDialogOpen, setMultiFloorDialogOpen] = useState(false);
+  const [multiFloorFrom, setMultiFloorFrom] = useState('');
+  const [multiFloorTo, setMultiFloorTo] = useState('');
+
   const handleAddFloor = () => {
     const nextFloorNum = floors.length + 1;
     const newFloor = createEmptyFloor(`קומה ${nextFloorNum}`);
     dispatch({ type: 'ADD_FLOOR', payload: newFloor });
     setExpandedFloors(prev => new Set(prev).add(newFloor.id));
+  };
+
+  const handleAddMultipleFloors = () => {
+    const from = parseInt(multiFloorFrom);
+    const to = parseInt(multiFloorTo);
+    if (isNaN(from) || isNaN(to) || to < from) {
+      toast.error('טווח לא תקין');
+      return;
+    }
+    if (to - from + 1 > 50) {
+      toast.error('ניתן ליצור עד 50 קומות בבת אחת');
+      return;
+    }
+    const newIds: string[] = [];
+    for (let i = from; i <= to; i++) {
+      const newFloor = createEmptyFloor(`קומה ${i}`);
+      dispatch({ type: 'ADD_FLOOR', payload: newFloor });
+      newIds.push(newFloor.id);
+    }
+    setExpandedFloors(prev => {
+      const next = new Set(prev);
+      newIds.forEach(id => next.add(id));
+      return next;
+    });
+    toast.success(`נוצרו ${to - from + 1} קומות`);
+    setMultiFloorDialogOpen(false);
+    setMultiFloorFrom('');
+    setMultiFloorTo('');
   };
 
   const handleDeleteFloor = (floorId: string) => {
@@ -279,6 +312,59 @@ export function WizardStepFloors() {
               <Plus className="h-4 w-4" />
               הוסף קומה
             </Button>
+
+            <Dialog open={multiFloorDialogOpen} onOpenChange={setMultiFloorDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2" onClick={() => {
+                  setMultiFloorFrom(suggestStartLabel());
+                  setMultiFloorTo('');
+                }}>
+                  <Plus className="h-4 w-4" />
+                  הוסף קומות מרובות
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>הוספת קומות מרובות</DialogTitle>
+                  <DialogDescription>הגדר טווח מספרי קומות ליצירה</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="flex items-center gap-3" dir="ltr">
+                    <div className="space-y-1">
+                      <Label>מקומה</Label>
+                      <Input
+                        type="number"
+                        value={multiFloorFrom}
+                        onChange={e => setMultiFloorFrom(e.target.value)}
+                        className="w-24"
+                      />
+                    </div>
+                    <span className="text-muted-foreground mt-6">—</span>
+                    <div className="space-y-1">
+                      <Label>עד קומה</Label>
+                      <Input
+                        type="number"
+                        value={multiFloorTo}
+                        onChange={e => setMultiFloorTo(e.target.value)}
+                        className="w-24"
+                      />
+                    </div>
+                  </div>
+                  {multiFloorFrom && multiFloorTo && (() => {
+                    const f = parseInt(multiFloorFrom);
+                    const t = parseInt(multiFloorTo);
+                    if (!isNaN(f) && !isNaN(t) && t >= f) {
+                      return <p className="text-sm text-muted-foreground">{t - f + 1} קומות ייווצרו</p>;
+                    }
+                    return null;
+                  })()}
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setMultiFloorDialogOpen(false)}>ביטול</Button>
+                  <Button onClick={handleAddMultipleFloors}>צור קומות</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             
             <Dialog open={cloneDialogOpen} onOpenChange={setCloneDialogOpen}>
               <DialogTrigger asChild>

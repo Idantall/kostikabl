@@ -13,6 +13,8 @@ import { ArrowLeft, ArrowRight, Plus, Trash2, RotateCcw, Building2, Home, Pencil
 import { WingPositionSelector, WingPositionValue } from '@/components/WingPositionSelector';
 import { toast } from 'sonner';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
 
 export function WizardStepApartments() {
   const { state, dispatch, currentFloors } = useWizard();
@@ -115,9 +117,17 @@ export function WizardStepApartments() {
     toast.success('הערכים אופסו לפי הבנק');
   };
 
-  const handleAddRow = () => {
+  const [addRowCount, setAddRowCount] = useState('1');
+  const [addRowPopoverOpen, setAddRowPopoverOpen] = useState(false);
+  
+  // Custom location management
+  const [customLocations, setCustomLocations] = useState<string[]>([]);
+  const [newCustomLocation, setNewCustomLocation] = useState('');
+  const allLocations = [...LOCATION_OPTIONS, ...customLocations];
+
+  const handleAddRow = (count: number = 1) => {
     if (!currentFloor || !currentApartment) return;
-    dispatch({ type: 'ADD_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id } });
+    dispatch({ type: 'ADD_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, count } } as any);
   };
 
   const handleDeleteRow = (rowId: string) => {
@@ -332,7 +342,47 @@ export function WizardStepApartments() {
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50 max-h-80 overflow-y-auto">
                                 <SelectItem value="none">-</SelectItem>
-                                {LOCATION_OPTIONS.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                                {allLocations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                                <div className="border-t mt-1 pt-1 px-2 pb-1">
+                                  <div className="flex items-center gap-1">
+                                    <Input
+                                      value={newCustomLocation}
+                                      onChange={e => setNewCustomLocation(e.target.value)}
+                                      placeholder="הוסף מיקום חדש..."
+                                      className="h-7 text-xs"
+                                      dir="rtl"
+                                      onKeyDown={e => {
+                                        e.stopPropagation();
+                                        if (e.key === 'Enter' && newCustomLocation.trim()) {
+                                          const loc = newCustomLocation.trim();
+                                          if (!allLocations.includes(loc)) {
+                                            setCustomLocations(prev => [...prev, loc]);
+                                          }
+                                          handleUpdateRow(row.id, 'location_in_apartment', loc);
+                                          setNewCustomLocation('');
+                                        }
+                                      }}
+                                    />
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-7 w-7 shrink-0"
+                                      onMouseDown={e => {
+                                        e.preventDefault();
+                                        if (newCustomLocation.trim()) {
+                                          const loc = newCustomLocation.trim();
+                                          if (!allLocations.includes(loc)) {
+                                            setCustomLocations(prev => [...prev, loc]);
+                                          }
+                                          handleUpdateRow(row.id, 'location_in_apartment', loc);
+                                          setNewCustomLocation('');
+                                        }
+                                      }}
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
                               </SelectContent>
                             </Select>
                           </TableCell>
@@ -453,10 +503,47 @@ export function WizardStepApartments() {
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
 
-              <Button variant="outline" onClick={handleAddRow} className="gap-2" disabled={currentApartment.rows.length >= 30}>
-                <Plus className="h-4 w-4" />
-                הוסף שורה
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => handleAddRow(1)} className="gap-2" disabled={currentApartment.rows.length >= 35}>
+                  <Plus className="h-4 w-4" />
+                  הוסף פתח
+                </Button>
+                <Popover open={addRowPopoverOpen} onOpenChange={setAddRowPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" disabled={currentApartment.rows.length >= 35}>
+                      הוסף מספר פתחים
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 bg-background" align="start">
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">כמות פתחים להוספה</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max={35 - currentApartment.rows.length}
+                        value={addRowCount}
+                        onChange={e => setAddRowCount(e.target.value)}
+                        dir="ltr"
+                        className="h-9"
+                      />
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          const count = parseInt(addRowCount);
+                          if (isNaN(count) || count < 1) { toast.error('כמות לא תקינה'); return; }
+                          handleAddRow(count);
+                          setAddRowPopoverOpen(false);
+                          setAddRowCount('1');
+                          toast.success(`נוספו ${count} פתחים`);
+                        }}
+                      >
+                        הוסף
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
 
               <p className="text-xs text-muted-foreground">
                 * שורות עם רקע צהוב מציינות ערכים ששונו ידנית מהבנק

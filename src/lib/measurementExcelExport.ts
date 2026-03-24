@@ -222,7 +222,7 @@ function createWorksheet(
   const titleCell = ws.getCell('A1');
   titleCell.value = `דף מידות לביצוע  -  ${ruleHe}  -   אלום קוסטיקה י.ש בע"מ`;
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
-  titleCell.font = { name: 'Arial', size: 11, bold: true };
+  titleCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(1).height = 15.95;
 
   // Date cell
@@ -243,21 +243,21 @@ function createWorksheet(
   const building = project.building_code || '';
   metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${apartmentLabel}                         `;
   metadataCell.alignment = { horizontal: 'center', vertical: 'middle' };
-  metadataCell.font = { name: 'Arial', size: 11, bold: true };
+  metadataCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(3).height = 15.95;
 
   // ROW 4: Empty spacer
   ws.getRow(4).height = 15;
 
   // ROW 5: Header row - HORIZONTAL text (no rotation)
-  ws.getRow(5).height = 40;
+  ws.getRow(5).height = 30;
 
   for (let i = 0; i < columnDefs.length; i++) {
     const col = String.fromCharCode(65 + i);
     const cell = ws.getCell(`${col}5`);
     cell.value = columnDefs[i].header;
-    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-    cell.font = { name: 'Arial', size: 10, bold: true };
+    cell.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
+    cell.font = { name: 'Calibri', size: 11, bold: false };
     cell.border = {
       top: { style: 'thin' },
       bottom: { style: 'thin' },
@@ -275,7 +275,7 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 30;
+    ws.getRow(rowIndex).height = 18;
 
     for (let i = 0; i < columnDefs.length; i++) {
       const def = columnDefs[i];
@@ -292,14 +292,15 @@ function createWorksheet(
       }
 
       cell.value = value;
+      // Match reference styling per column
+      if (def.key === 'opening_no') {
+        cell.font = { name: 'Calibri', size: 9, bold: false };
+      } else if (def.key === 'item_code' || def.key === 'contract_item' || def.key === 'blind_jamb_item') {
+        cell.font = { name: 'Calibri', size: 11, bold: true };
+      } else {
+        cell.font = { name: 'Calibri', size: 11, bold: false };
+      }
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.font = { name: 'Arial', size: 14, bold: true };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
     }
 
     // Embed wing images
@@ -334,13 +335,7 @@ function createWorksheet(
       const cell = ws.getCell(`${col}${rowIndex}`);
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      cell.font = { name: 'Arial', size: 14, bold: true };
-      cell.border = {
-        top: { style: 'thin' },
-        bottom: { style: 'thin' },
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-      };
+      cell.font = { name: 'Calibri', size: 11, bold: false };
     }
     rowIndex++;
   }
