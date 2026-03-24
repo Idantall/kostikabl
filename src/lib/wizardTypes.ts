@@ -36,6 +36,7 @@ export interface WizardApartment {
   id: string;
   label: string;                        // "דירה 1"
   rows: WizardApartmentRow[];
+  sourceApartmentTypeName?: string | null; // Name of apartment type applied
 }
 
 export interface WizardFloor {

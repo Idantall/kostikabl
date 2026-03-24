@@ -391,7 +391,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
                 ...floor,
                 apartments: floor.apartments.map(apt =>
                   apt.id === action.payload.apartmentId
-                    ? { ...apt, rows: newRows }
+                    ? { ...apt, rows: newRows, sourceApartmentTypeName: aptType.name }
                     : apt
                 ),
               }
@@ -411,7 +411,11 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
           rows: apt.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
         })),
       };
-      return { ...state, floorTypes: [...state.floorTypes, newType] };
+      // Also mark the source floor with this type name so it won't be overwritten
+      const stateWithType = { ...state, floorTypes: [...state.floorTypes, newType] };
+      return updateCurrentBuildingFloors(stateWithType, floors =>
+        floors.map(f => f.id === floor.id ? { ...f, sourceFloorTypeName: name } : f)
+      );
     }
 
     case 'DELETE_FLOOR_TYPE':
@@ -424,12 +428,15 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       return updateCurrentBuildingFloors(state, floors =>
         floors.map(floor => {
           if (!action.payload.targetFloorIds.includes(floor.id)) return floor;
+          // Skip floors that already have this type applied (don't overwrite source)
+          if (floor.sourceFloorTypeName === floorType.name) return floor;
           return {
             ...floor,
             sourceFloorTypeName: floorType.name,
             apartments: floorType.apartments.map(apt => ({
               id: crypto.randomUUID(),
               label: `דירה ${nextAptNum++}`,
+              sourceApartmentTypeName: apt.sourceApartmentTypeName || null,
               rows: apt.rows.map((row, idx) => ({
                 ...row,
                 id: crypto.randomUUID(),

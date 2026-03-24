@@ -513,6 +513,7 @@ export function WizardStepFloors() {
                                 <>
                                   <span className="text-sm font-medium">{apt.label}</span>
                                   <span className="text-xs text-muted-foreground">({apt.rows.length} שורות)</span>
+                                  {apt.sourceApartmentTypeName && <Badge variant="secondary" className="text-[10px] px-1 py-0">טיפוס {apt.sourceApartmentTypeName}</Badge>}
                                   <Button
                                     variant="ghost"
                                     size="icon"
