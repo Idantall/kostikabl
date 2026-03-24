@@ -115,9 +115,17 @@ export function WizardStepApartments() {
     toast.success('הערכים אופסו לפי הבנק');
   };
 
-  const handleAddRow = () => {
+  const [addRowCount, setAddRowCount] = useState('1');
+  const [addRowPopoverOpen, setAddRowPopoverOpen] = useState(false);
+  
+  // Custom location management
+  const [customLocations, setCustomLocations] = useState<string[]>([]);
+  const [newCustomLocation, setNewCustomLocation] = useState('');
+  const allLocations = [...LOCATION_OPTIONS, ...customLocations];
+
+  const handleAddRow = (count: number = 1) => {
     if (!currentFloor || !currentApartment) return;
-    dispatch({ type: 'ADD_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id } });
+    dispatch({ type: 'ADD_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, count } } as any);
   };
 
   const handleDeleteRow = (rowId: string) => {
