@@ -127,7 +127,7 @@ export function WizardStepApartments() {
 
   const handleAddRow = (count: number = 1) => {
     if (!currentFloor || !currentApartment) return;
-    dispatch({ type: 'ADD_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, count } } as any);
+    dispatch({ type: 'ADD_APARTMENT_ROW', payload: { floorId: currentFloor.id, apartmentId: currentApartment.id, count } });
   };
 
   const handleDeleteRow = (rowId: string) => {

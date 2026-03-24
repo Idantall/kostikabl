@@ -335,9 +335,11 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
           id: crypto.randomUUID(),
           label: floorLabel,
           isTypical: false,
+          sourceFloorTypeName: sourceFloor.sourceFloorTypeName || null,
           apartments: sourceFloor.apartments.map(apt => ({
             id: crypto.randomUUID(),
             label: `דירה ${nextAptNum++}`,
+            sourceApartmentTypeName: apt.sourceApartmentTypeName || null,
             rows: apt.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
           })),
         };

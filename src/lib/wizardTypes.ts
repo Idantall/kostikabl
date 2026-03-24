@@ -174,9 +174,11 @@ export const cloneBuilding = (source: WizardBuilding, newLabel: string, globalAp
     id: crypto.randomUUID(),
     label: floor.label,
     isTypical: false,
+    sourceFloorTypeName: floor.sourceFloorTypeName || null,
     apartments: floor.apartments.map(apt => ({
       id: crypto.randomUUID(),
       label: `דירה ${globalAptCounter.value++}`,
+      sourceApartmentTypeName: apt.sourceApartmentTypeName || null,
       rows: apt.rows.map(row => ({
         ...row,
         id: crypto.randomUUID(),
