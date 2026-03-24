@@ -63,11 +63,44 @@ export function WizardStepFloors() {
     });
   };
 
+  // Multi-floor creation
+  const [multiFloorDialogOpen, setMultiFloorDialogOpen] = useState(false);
+  const [multiFloorFrom, setMultiFloorFrom] = useState('');
+  const [multiFloorTo, setMultiFloorTo] = useState('');
+
   const handleAddFloor = () => {
     const nextFloorNum = floors.length + 1;
     const newFloor = createEmptyFloor(`קומה ${nextFloorNum}`);
     dispatch({ type: 'ADD_FLOOR', payload: newFloor });
     setExpandedFloors(prev => new Set(prev).add(newFloor.id));
+  };
+
+  const handleAddMultipleFloors = () => {
+    const from = parseInt(multiFloorFrom);
+    const to = parseInt(multiFloorTo);
+    if (isNaN(from) || isNaN(to) || to < from) {
+      toast.error('טווח לא תקין');
+      return;
+    }
+    if (to - from + 1 > 50) {
+      toast.error('ניתן ליצור עד 50 קומות בבת אחת');
+      return;
+    }
+    const newIds: string[] = [];
+    for (let i = from; i <= to; i++) {
+      const newFloor = createEmptyFloor(`קומה ${i}`);
+      dispatch({ type: 'ADD_FLOOR', payload: newFloor });
+      newIds.push(newFloor.id);
+    }
+    setExpandedFloors(prev => {
+      const next = new Set(prev);
+      newIds.forEach(id => next.add(id));
+      return next;
+    });
+    toast.success(`נוצרו ${to - from + 1} קומות`);
+    setMultiFloorDialogOpen(false);
+    setMultiFloorFrom('');
+    setMultiFloorTo('');
   };
 
   const handleDeleteFloor = (floorId: string) => {
