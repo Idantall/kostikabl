@@ -67,7 +67,9 @@ export function WizardStepReview() {
                 : floor.sourceFloorTypeName
                   ? `${floor.label.replace('קומה ', '')} (טיפוס ${floor.sourceFloorTypeName})`
                   : floor.label.replace('קומה ', ''),
-              apartment_label: apt.label.replace('דירה ', ''),
+              apartment_label: apt.sourceApartmentTypeName
+                ? `${apt.label.replace('דירה ', '')} (טיפוס ${apt.sourceApartmentTypeName})`
+                : apt.label.replace('דירה ', ''),
               location_in_apartment: row.location_in_apartment || null,
               opening_no: String(row.opening_no),
               contract_item: row.contract_item || null,
