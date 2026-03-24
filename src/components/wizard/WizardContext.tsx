@@ -428,12 +428,15 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       return updateCurrentBuildingFloors(state, floors =>
         floors.map(floor => {
           if (!action.payload.targetFloorIds.includes(floor.id)) return floor;
+          // Skip floors that already have this type applied (don't overwrite source)
+          if (floor.sourceFloorTypeName === floorType.name) return floor;
           return {
             ...floor,
             sourceFloorTypeName: floorType.name,
             apartments: floorType.apartments.map(apt => ({
               id: crypto.randomUUID(),
               label: `דירה ${nextAptNum++}`,
+              sourceApartmentTypeName: apt.sourceApartmentTypeName || null,
               rows: apt.rows.map((row, idx) => ({
                 ...row,
                 id: crypto.randomUUID(),
