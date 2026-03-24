@@ -536,11 +536,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                     מספר פרט
                   </th>
                   {/* Floor group headers */}
-                  {floorSpans.map((span) => (
+                  {floorSpans.map((span, spanIdx) => (
                     <th
                       key={span.floorId}
                       colSpan={span.colspan}
-                      className="bg-primary/10 border-b border-l px-2 py-2 text-center font-semibold"
+                      className={`bg-primary/10 border-b border-l px-2 py-2 text-center font-semibold ${spanIdx > 0 ? 'border-l-[3px] border-l-gray-500' : ''}`}
                     >
                       {span.label}
                     </th>
