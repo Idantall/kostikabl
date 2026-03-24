@@ -321,15 +321,15 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-20">רוחב</TableHead>
                         <TableHead className="text-right w-28">גובה מהריצוף</TableHead>
                         <TableHead className="text-right w-32">ממד כיס בצד</TableHead>
+                        <TableHead className="text-right w-20">מנוע</TableHead>
+                        <TableHead className="text-right w-24">כנף פנימית</TableHead>
+                        <TableHead className="text-right w-24">פתיחה פנימה</TableHead>
+                        <TableHead className="text-right w-24">פתיחה החוצה</TableHead>
                         <TableHead className="text-right w-16">גליף</TableHead>
                         <TableHead className="text-right w-20">עומק עד הפריקסט</TableHead>
                         <TableHead className="text-right w-24">מדרגה בשיש</TableHead>
                         <TableHead className="text-right w-16">מנואלה</TableHead>
-                        <TableHead className="text-right w-20">מנוע</TableHead>
                         <TableHead className="text-right w-28">הערות</TableHead>
-                        <TableHead className="text-right w-24">כנף פנימית</TableHead>
-                        <TableHead className="text-right w-24">פתיחה פנימה</TableHead>
-                        <TableHead className="text-right w-24">פתיחה החוצה</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -436,19 +436,7 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={9}>
-                            <Input value={row.glyph || ''} onChange={e => handleUpdateRow(row.id, 'glyph', e.target.value)} className="h-9 w-full min-w-[50px]" dir="ltr" />
-                          </TableCell>
-                          <TableCell data-row={rowIdx} data-col={10}>
-                            <Input value={row.depth || ''} onChange={e => handleUpdateRow(row.id, 'depth', e.target.value || null)} className="h-9" inputMode="tel" dir="ltr" />
-                          </TableCell>
-                          <TableCell data-row={rowIdx} data-col={11}>
-                            <Input value={row.jamb_height || ''} onChange={e => handleUpdateRow(row.id, 'jamb_height', e.target.value)} className="h-9" dir="ltr" />
-                          </TableCell>
-                          <TableCell className="text-center" data-row={rowIdx} data-col={12}>
-                            <input type="checkbox" checked={row.is_manual || false} onChange={e => handleUpdateRow(row.id, 'is_manual', e.target.checked)} className="h-5 w-5 rounded border-border" />
-                          </TableCell>
-                          <TableCell data-row={rowIdx} data-col={13}>
+                          <TableCell data-row={rowIdx} data-col={8}>
                             <Select value={row.engine_side || 'none'} onValueChange={v => handleUpdateRow(row.id, 'engine_side', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50">
@@ -458,10 +446,7 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={14}>
-                            <Input value={row.field_notes || ''} onChange={e => handleUpdateRow(row.id, 'field_notes', e.target.value || null)} className="h-9" dir="rtl" />
-                          </TableCell>
-                          <TableCell data-row={rowIdx} data-col={15}>
+                          <TableCell data-row={rowIdx} data-col={9}>
                             <Select value={row.internal_wing || 'none'} onValueChange={v => handleUpdateRow(row.id, 'internal_wing', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50">
@@ -471,17 +456,32 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={16}>
+                          <TableCell data-row={rowIdx} data-col={10}>
                             <WingPositionSelector
                               value={(row.wing_position as WingPositionValue) || null}
                               onChange={(v) => handleUpdateRow(row.id, 'wing_position', v)}
                             />
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={17}>
+                          <TableCell data-row={rowIdx} data-col={11}>
                             <WingPositionSelector
                               value={(row.wing_position_out as WingPositionValue) || null}
                               onChange={(v) => handleUpdateRow(row.id, 'wing_position_out', v)}
                             />
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={12}>
+                            <Input value={row.glyph || ''} onChange={e => handleUpdateRow(row.id, 'glyph', e.target.value)} className="h-9 w-full min-w-[50px]" dir="ltr" />
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={13}>
+                            <Input value={row.depth || ''} onChange={e => handleUpdateRow(row.id, 'depth', e.target.value || null)} className="h-9" inputMode="tel" dir="ltr" />
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={14}>
+                            <Input value={row.jamb_height || ''} onChange={e => handleUpdateRow(row.id, 'jamb_height', e.target.value)} className="h-9" dir="ltr" />
+                          </TableCell>
+                          <TableCell className="text-center" data-row={rowIdx} data-col={15}>
+                            <input type="checkbox" checked={row.is_manual || false} onChange={e => handleUpdateRow(row.id, 'is_manual', e.target.checked)} className="h-5 w-5 rounded border-border" />
+                          </TableCell>
+                          <TableCell data-row={rowIdx} data-col={16}>
+                            <Input value={row.field_notes || ''} onChange={e => handleUpdateRow(row.id, 'field_notes', e.target.value || null)} className="h-9" dir="rtl" />
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">

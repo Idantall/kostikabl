@@ -102,15 +102,15 @@ function getColumnDefs(projectStatus?: string): ColumnDef[] {
     { key: 'width', header: 'רוחב', width: 21.625 },
     { key: 'notes', header: 'גובה מהריצוף', width: 8.375 },
     { key: 'mamad', header: 'ממד כיס בצד', width: 9.75 },
+    { key: 'engine_side', header: 'צד מנוע', width: 9.625 },
+    { key: 'internal_wing', header: 'כנף פנימית מבט פנים', width: 11 },
+    { key: 'wing_position', header: 'ציר מבט פנים פתיחה פנימה', width: 11, isWingImage: true },
+    { key: 'wing_position_out', header: 'ציר מבט פנים פתיחה החוצה', width: 11, isWingImage: true },
     { key: 'glyph', header: 'גליף', width: 8.25 },
     { key: 'depth', header: 'עומק עד הפריקסט', width: 9.625 },
     { key: 'jamb_height', header: 'מדרגה בשיש', width: 13 },
     { key: 'is_manual', header: 'מנואלה', width: 8 },
-    { key: 'engine_side', header: 'צד מנוע', width: 9.625 },
     { key: 'field_notes', header: 'הערות', width: 13 },
-    { key: 'internal_wing', header: 'כנף פנימית מבט פנים', width: 11 },
-    { key: 'wing_position', header: 'ציר מבט פנים פתיחה פנימה', width: 11, isWingImage: true },
-    { key: 'wing_position_out', header: 'ציר מבט פנים פתיחה החוצה', width: 11, isWingImage: true },
   );
 
   return cols;
