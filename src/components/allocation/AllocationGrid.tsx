@@ -556,10 +556,10 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                 </tr>
                 {/* Header Row 2: Apartment numbers */}
                 <tr>
-                  {columnHeaders.map((col) => (
+                  {columnHeaders.map((col, colIdx) => (
                     <th
                       key={col.aptId}
-                      className="bg-muted/70 border-b border-l px-1 py-1.5 text-center font-medium text-xs"
+                      className={`bg-muted/70 border-b border-l px-1 py-1.5 text-center font-medium text-xs ${floorBoundaryIndices.has(colIdx) ? 'border-l-[3px] border-l-gray-500' : ''}`}
                       style={{ minWidth: "50px" }}
                     >
                       {col.label}
