@@ -391,7 +391,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
                 ...floor,
                 apartments: floor.apartments.map(apt =>
                   apt.id === action.payload.apartmentId
-                    ? { ...apt, rows: newRows }
+                    ? { ...apt, rows: newRows, sourceApartmentTypeName: aptType.name }
                     : apt
                 ),
               }
