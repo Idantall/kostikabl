@@ -13,6 +13,8 @@ import { ArrowLeft, ArrowRight, Plus, Trash2, RotateCcw, Building2, Home, Pencil
 import { WingPositionSelector, WingPositionValue } from '@/components/WingPositionSelector';
 import { toast } from 'sonner';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
 
 export function WizardStepApartments() {
   const { state, dispatch, currentFloors } = useWizard();
