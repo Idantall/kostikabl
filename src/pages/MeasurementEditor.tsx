@@ -443,6 +443,58 @@ const MeasurementEditor = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* צד מנוע */}
+                    <div className="w-16">
+                      <label className="text-[11px] text-muted-foreground block text-center">מנוע</label>
+                      <Select
+                        value={row.engine_side || 'none'}
+                        onValueChange={(value) => updateRow(row.id, 'engine_side', value === 'none' ? null : value)}
+                      >
+                        <SelectTrigger className="h-10 text-base px-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">-</SelectItem>
+                          <SelectItem value="L">L</SelectItem>
+                          <SelectItem value="R">R</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* כנף פנימית מבט פנים */}
+                    <div className="w-20">
+                      <label className="text-[11px] text-muted-foreground block text-center">כנף פנימית</label>
+                      <Select
+                        value={(row as any).internal_wing || 'none'}
+                        onValueChange={(value) => updateRow(row.id, 'internal_wing' as any, value === 'none' ? null : value)}
+                      >
+                        <SelectTrigger className="h-10 text-base px-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">-</SelectItem>
+                          <SelectItem value="R">ימין</SelectItem>
+                          <SelectItem value="L">שמאל</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* ציר מבט פנים פתיחה פנימה */}
+                    <div className="w-24">
+                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה פנימה</label>
+                      <WingPositionSelector
+                        value={(row.wing_position as WingPositionValue) || null}
+                        onChange={(v) => updateRow(row.id, 'wing_position' as any, v)}
+                        size="sm"
+                      />
+                    </div>
+                    {/* ציר מבט פנים פתיחה החוצה */}
+                    <div className="w-24">
+                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה החוצה</label>
+                      <WingPositionSelector
+                        value={(row.wing_position_out as WingPositionValue) || null}
+                        onChange={(v) => updateRow(row.id, 'wing_position_out' as any, v)}
+                        size="sm"
+                      />
+                    </div>
                     {/* גליף */}
                     <div className="w-16">
                       <label className="text-[11px] text-muted-foreground block text-center">גליף</label>
@@ -498,23 +550,6 @@ const MeasurementEditor = () => {
                         />
                       </div>
                     </div>
-                    {/* צד מנוע */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">מנוע</label>
-                      <Select
-                        value={row.engine_side || 'none'}
-                        onValueChange={(value) => updateRow(row.id, 'engine_side', value === 'none' ? null : value)}
-                      >
-                        <SelectTrigger className="h-10 text-base px-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="L">L</SelectItem>
-                          <SelectItem value="R">R</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                     {/* הערות */}
                     <div className="w-28">
                       <label className="text-[11px] text-muted-foreground block text-center">הערות</label>
@@ -523,41 +558,6 @@ const MeasurementEditor = () => {
                         onChange={(e) => updateRow(row.id, 'field_notes', e.target.value || null)}
                         className="h-10 text-base px-2"
                         dir="rtl"
-                      />
-                    </div>
-                    {/* כנף פנימית מבט פנים */}
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">כנף פנימית</label>
-                      <Select
-                        value={(row as any).internal_wing || 'none'}
-                        onValueChange={(value) => updateRow(row.id, 'internal_wing' as any, value === 'none' ? null : value)}
-                      >
-                        <SelectTrigger className="h-10 text-base px-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="R">ימין</SelectItem>
-                          <SelectItem value="L">שמאל</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* ציר מבט פנים פתיחה פנימה */}
-                    <div className="w-24">
-                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה פנימה</label>
-                      <WingPositionSelector
-                        value={(row.wing_position as WingPositionValue) || null}
-                        onChange={(v) => updateRow(row.id, 'wing_position' as any, v)}
-                        size="sm"
-                      />
-                    </div>
-                    {/* ציר מבט פנים פתיחה החוצה */}
-                    <div className="w-24">
-                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה החוצה</label>
-                      <WingPositionSelector
-                        value={(row.wing_position_out as WingPositionValue) || null}
-                        onChange={(v) => updateRow(row.id, 'wing_position_out' as any, v)}
-                        size="sm"
                       />
                     </div>
                     

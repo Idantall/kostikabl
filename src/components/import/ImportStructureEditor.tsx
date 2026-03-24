@@ -460,14 +460,14 @@ export function ImportStructureEditor({ buildings, onBuildingsChange, bankItems 
                         <TableHead className="text-right w-24">גובה מהריצוף</TableHead>
                         <TableHead className="text-right w-18">ציר מבט מבפנים</TableHead>
                         <TableHead className="text-right w-28">ממד כיס בצד</TableHead>
-                        <TableHead className="text-right w-16">גליף</TableHead>
-                        <TableHead className="text-right w-18">עומק עד הפריקסט</TableHead>
-                        <TableHead className="text-right w-20">מדרגה בשיש</TableHead>
                         <TableHead className="text-right w-18">מנוע</TableHead>
-                        <TableHead className="text-right w-24">הערות</TableHead>
                         <TableHead className="text-right w-20">כנף פנימית</TableHead>
                         <TableHead className="text-right w-24">פתיחה פנימה</TableHead>
                         <TableHead className="text-right w-24">פתיחה החוצה</TableHead>
+                        <TableHead className="text-right w-16">גליף</TableHead>
+                        <TableHead className="text-right w-18">עומק עד הפריקסט</TableHead>
+                        <TableHead className="text-right w-20">מדרגה בשיש</TableHead>
+                        <TableHead className="text-right w-24">הערות</TableHead>
                         <TableHead className="w-10"></TableHead>
                       </TableRow>
                     </TableHeader>

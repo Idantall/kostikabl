@@ -387,7 +387,6 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          {isPreContract ? (
                             <TableCell data-row={rowIdx} data-col={2}>
                               <Select value={row.contract_item || 'none'} onValueChange={v => handleUpdateRow(row.id, 'contract_item', v === 'none' ? null : v)}>
                                 <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
@@ -397,11 +396,7 @@ export function WizardStepApartments() {
                                 </SelectContent>
                               </Select>
                             </TableCell>
-                          ) : (
-                            <>
-                              <TableCell data-row={rowIdx} data-col={2}>
-                                <Input value={row.contract_item || ''} onChange={e => handleUpdateRow(row.id, 'contract_item', e.target.value || null)} className="h-9" dir="rtl" />
-                              </TableCell>
+                            {!isPreContract && (
                               <TableCell data-row={rowIdx} data-col={3}>
                                 <Select value={row.item_code || 'none'} onValueChange={v => handleUpdateRow(row.id, 'item_code', v === 'none' ? null : v)}>
                                   <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
@@ -411,24 +406,23 @@ export function WizardStepApartments() {
                                   </SelectContent>
                                 </Select>
                               </TableCell>
-                            </>
-                          )}
-                          <TableCell data-row={rowIdx} data-col={4}>
+                            )}
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 4 : 3}>
                             <div className="relative">
                               <Input value={row.height || ''} onChange={e => handleUpdateRow(row.id, 'height', e.target.value)} className={`h-9 w-full min-w-[80px] ${row.height_overridden ? 'bg-yellow-50 dark:bg-yellow-950/30' : 'bg-primary/5'}`} dir="ltr" />
                               {row.height_overridden && <Badge variant="outline" className="absolute -top-2 -right-2 text-[10px] px-1 py-0">שונה</Badge>}
                             </div>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={5}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 5 : 4}>
                             <div className="relative">
                               <Input value={row.width || ''} onChange={e => handleUpdateRow(row.id, 'width', e.target.value)} className={`h-9 w-full min-w-[60px] ${row.width_overridden ? 'bg-yellow-50 dark:bg-yellow-950/30' : 'bg-primary/5'}`} dir="ltr" />
                               {row.width_overridden && <Badge variant="outline" className="absolute -top-2 -right-2 text-[10px] px-1 py-0">שונה</Badge>}
                             </div>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={6}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 6 : 5}>
                             <Input value={row.notes || ''} onChange={e => handleUpdateRow(row.id, 'notes', e.target.value)} className="h-9" dir="rtl" />
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={7}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 7 : 6}>
                             <Select value={row.mamad || 'none'} onValueChange={v => handleUpdateRow(row.id, 'mamad', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50">
@@ -437,7 +431,7 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={8}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 8 : 7}>
                             <Select value={row.engine_side || 'none'} onValueChange={v => handleUpdateRow(row.id, 'engine_side', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50">
@@ -447,7 +441,7 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={9}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 9 : 8}>
                             <Select value={row.internal_wing || 'none'} onValueChange={v => handleUpdateRow(row.id, 'internal_wing', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50">
@@ -457,31 +451,31 @@ export function WizardStepApartments() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={10}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 10 : 9}>
                             <WingPositionSelector
                               value={(row.wing_position as WingPositionValue) || null}
                               onChange={(v) => handleUpdateRow(row.id, 'wing_position', v)}
                             />
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={11}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 11 : 10}>
                             <WingPositionSelector
                               value={(row.wing_position_out as WingPositionValue) || null}
                               onChange={(v) => handleUpdateRow(row.id, 'wing_position_out', v)}
                             />
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={12}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 12 : 11}>
                             <Input value={row.glyph || ''} onChange={e => handleUpdateRow(row.id, 'glyph', e.target.value)} className="h-9 w-full min-w-[50px]" dir="ltr" />
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={13}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 13 : 12}>
                             <Input value={row.depth || ''} onChange={e => handleUpdateRow(row.id, 'depth', e.target.value || null)} className="h-9" inputMode="tel" dir="ltr" />
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={14}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 14 : 13}>
                             <Input value={row.jamb_height || ''} onChange={e => handleUpdateRow(row.id, 'jamb_height', e.target.value)} className="h-9" dir="ltr" />
                           </TableCell>
-                          <TableCell className="text-center" data-row={rowIdx} data-col={15}>
+                          <TableCell className="text-center" data-row={rowIdx} data-col={hasProductionItemColumn ? 15 : 14}>
                             <input type="checkbox" checked={row.is_manual || false} onChange={e => handleUpdateRow(row.id, 'is_manual', e.target.checked)} className="h-5 w-5 rounded border-border" />
                           </TableCell>
-                          <TableCell data-row={rowIdx} data-col={16}>
+                          <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 16 : 15}>
                             <Input value={row.field_notes || ''} onChange={e => handleUpdateRow(row.id, 'field_notes', e.target.value || null)} className="h-9" dir="rtl" />
                           </TableCell>
                           <TableCell>

@@ -1063,6 +1063,73 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'mamad') || '-'
                           )}
                         </TableCell>
+                        {/* מנוע */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.engine_side || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ 
+                                ...prev, 
+                                engine_side: val === "none" ? null : val 
+                              }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-16">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="L">L</SelectItem>
+                                <SelectItem value="R">R</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'engine_side') || '-'
+                          )}
+                        </TableCell>
+                        {/* כנף פנימית */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.internal_wing || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, internal_wing: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-14">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'internal_wing') || '-'
+                          )}
+                        </TableCell>
+                        {/* מיקום כנף */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.wing_position || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position: e.target.value || null }))}
+                              className="h-7 text-xs w-14"
+                            />
+                          ) : (
+                            getRowField(row, 'wing_position') || '-'
+                          )}
+                        </TableCell>
+                        {/* ציר מבט פנים פתיחה החוצה */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.wing_position_out || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position_out: e.target.value || null }))}
+                              className="h-7 text-xs w-14"
+                            />
+                          ) : (
+                            getRowField(row, 'wing_position_out') || '-'
+                          )}
+                        </TableCell>
                         {/* גליף */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
@@ -1115,29 +1182,6 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'is_manual') || '-'
                           )}
                         </TableCell>
-                        {/* מנוע */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Select
-                              value={editValues.engine_side || "none"}
-                              onValueChange={(val) => setEditValues(prev => ({ 
-                                ...prev, 
-                                engine_side: val === "none" ? null : val 
-                              }))}
-                            >
-                              <SelectTrigger className="h-7 text-sm w-16">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">—</SelectItem>
-                                <SelectItem value="L">L</SelectItem>
-                                <SelectItem value="R">R</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            getRowField(row, 'engine_side') || '-'
-                          )}
-                        </TableCell>
                         {/* הערות */}
                         <TableCell className="text-right text-xs text-muted-foreground">
                           {isEditing ? (
@@ -1148,50 +1192,6 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             />
                           ) : (
                             getRowField(row, 'field_notes') || '-'
-                          )}
-                        </TableCell>
-                        {/* כנף פנימית */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Select
-                              value={editValues.internal_wing || "none"}
-                              onValueChange={(val) => setEditValues(prev => ({ ...prev, internal_wing: val === "none" ? null : val }))}
-                            >
-                              <SelectTrigger className="h-7 text-sm w-14">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">—</SelectItem>
-                                <SelectItem value="R">ימין</SelectItem>
-                                <SelectItem value="L">שמאל</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            getRowField(row, 'internal_wing') || '-'
-                          )}
-                        </TableCell>
-                        {/* מיקום כנף */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Input
-                              value={editValues.wing_position || ''}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position: e.target.value || null }))}
-                              className="h-7 text-xs w-14"
-                            />
-                          ) : (
-                            getRowField(row, 'wing_position') || '-'
-                          )}
-                        </TableCell>
-                        {/* ציר מבט פנים פתיחה החוצה */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Input
-                              value={editValues.wing_position_out || ''}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position_out: e.target.value || null }))}
-                              className="h-7 text-xs w-14"
-                            />
-                          ) : (
-                            getRowField(row, 'wing_position_out') || '-'
                           )}
                         </TableCell>
                         {editMode && (
