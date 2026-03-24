@@ -60,7 +60,7 @@ type WizardAction =
   | { type: 'UPDATE_APARTMENT'; payload: { floorId: string; apartmentId: string; label: string } }
   | { type: 'DELETE_APARTMENT'; payload: { floorId: string; apartmentId: string } }
   | { type: 'UPDATE_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string; rowId: string; updates: Partial<WizardApartmentRow> } }
-  | { type: 'ADD_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string } }
+  | { type: 'ADD_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string; count?: number } }
   | { type: 'DELETE_APARTMENT_ROW'; payload: { floorId: string; apartmentId: string; rowId: string } }
   | { type: 'SET_SAVING'; payload: boolean }
   | { type: 'SET_LAST_SAVED'; payload: Date }
