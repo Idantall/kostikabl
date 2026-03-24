@@ -411,7 +411,11 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
           rows: apt.rows.map(row => ({ ...row, id: crypto.randomUUID() })),
         })),
       };
-      return { ...state, floorTypes: [...state.floorTypes, newType] };
+      // Also mark the source floor with this type name so it won't be overwritten
+      const stateWithType = { ...state, floorTypes: [...state.floorTypes, newType] };
+      return updateCurrentBuildingFloors(stateWithType, floors =>
+        floors.map(f => f.id === floor.id ? { ...f, sourceFloorTypeName: name } : f)
+      );
     }
 
     case 'DELETE_FLOOR_TYPE':
