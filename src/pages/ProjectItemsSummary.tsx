@@ -726,7 +726,7 @@ const ProjectItemsSummary = () => {
         return val;
       };
 
-      const headers = "קומה,דירה,מס' פתח,פרט יצור,צד מנוע,גובה,רוחב,עומק עד הפריקסט,מיקום,פרט חוזה,ציר מבט מבפנים,ממד כיס בצד,גליף,מדרגה בשיש,מנואלה,גובה מהריצוף,הערות,כנף פנימית מבט פנים";
+      const headers = "קומה,דירה,מס' פתח,פרט יצור,גובה,רוחב,מיקום,פרט חוזה,ציר מבט מבפנים,ממד כיס בצד,צד מנוע,כנף פנימית מבט פנים,ציר מבט פנים פתיחה פנימה,ציר מבט פנים פתיחה החוצה,עומק עד הפריקסט,גליף,מדרגה בשיש,מנואלה,גובה מהריצוף,הערות";
       
       // Sort items by floor, then apartment, then opening number
       const sortedItems = [...filteredItems].sort((a, b) => {
@@ -765,20 +765,22 @@ const ProjectItemsSummary = () => {
           escapeCSV(aptLabel),
           escapeCSV(item.opening_no),
           escapeCSV(item.item_code),
-          escapeCSV(sideDisplay),
           escapeCSV(item.height),
           escapeCSV(item.width),
-          escapeCSV(item.depth),
           escapeCSV(item.location),
           escapeCSV(item.contract_item),
           escapeCSV(item.hinge_direction),
           escapeCSV(item.mamad),
+          escapeCSV(sideDisplay),
+          '',  // internal_wing - not on items table
+          '',  // wing_position - not on items table
+          '',  // wing_position_out - not on items table
+          escapeCSV(item.depth),
           '',  // glyph - not on items table
           '',  // jamb_height - not on items table
           item.is_manual ? "כן" : "",
           escapeCSV(formatNotes(item.notes)),
           escapeCSV(item.field_notes),
-          '',  // internal_wing - not on items table
         ].join(',');
       });
 

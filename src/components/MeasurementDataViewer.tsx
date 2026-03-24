@@ -720,7 +720,7 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
   }
 
   const exportToCsv = () => {
-    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'מנוע', 'הערות', 'כנף פנימית מבט פנים', 'ציר מבט פנים פתיחה פנימה', 'ציר מבט פנים פתיחה החוצה'];
+    const headers = ['קומה', 'דירה', 'מיקום', 'פתח', 'פרט חוזה', 'פרט יצור', 'גובה', 'רוחב', 'גובה מהריצוף', 'ציר מבט מבפנים', 'ממד כיס בצד', 'מנוע', 'כנף פנימית מבט פנים', 'ציר מבט פנים פתיחה פנימה', 'ציר מבט פנים פתיחה החוצה', 'גליף', 'עומק עד הפריקסט', 'מדרגה בשיש', 'מנואלה', 'הערות'];
     const csvRows = [headers.join(',')];
     
     rows.forEach(row => {
@@ -739,15 +739,15 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
         (getRowField(row, 'notes') || '').replace(/,/g, ';'),
         getRowField(row, 'hinge_direction') || '',
         getRowField(row, 'mamad') || '',
+        getRowField(row, 'engine_side') || '',
+        getRowField(row, 'internal_wing') || '',
+        getRowField(row, 'wing_position') || '',
+        getRowField(row, 'wing_position_out') || '',
         getRowField(row, 'glyph') || '',
         getRowField(row, 'depth') || '',
         getRowField(row, 'jamb_height') || '',
         getRowField(row, 'is_manual') || '',
-        getRowField(row, 'engine_side') || '',
         (getRowField(row, 'field_notes') || '').replace(/,/g, ';'),
-        getRowField(row, 'internal_wing') || '',
-        getRowField(row, 'wing_position') || '',
-        getRowField(row, 'wing_position_out') || '',
       ];
       csvRows.push(values.join(','));
     });
@@ -893,15 +893,15 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                       <TableHead className="text-center text-xs font-medium w-16">פרט משקופים</TableHead>
                     )}
                     <TableHead className="text-center text-xs font-medium w-20">ממד כיס בצד</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">פתיחה פנימה</TableHead>
+                    <TableHead className="text-center text-xs font-medium w-20">פתיחה החוצה</TableHead>
                     <TableHead className="text-center text-xs font-medium w-16">גליף</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">עומק עד הפריקסט</TableHead>
                     <TableHead className="text-center text-xs font-medium w-20">מדרגה בשיש</TableHead>
                     <TableHead className="text-center text-xs font-medium w-14">מנואלה</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-16">מנוע</TableHead>
                     <TableHead className="text-right text-xs font-medium min-w-[80px]">הערות</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-16">כנף פנימית</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-20">פתיחה פנימה</TableHead>
-                    <TableHead className="text-center text-xs font-medium w-20">פתיחה החוצה</TableHead>
                     {editMode && (
                       <TableHead className="text-center text-xs font-medium w-20">פעולות</TableHead>
                     )}
@@ -1063,6 +1063,73 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'mamad') || '-'
                           )}
                         </TableCell>
+                        {/* מנוע */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.engine_side || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ 
+                                ...prev, 
+                                engine_side: val === "none" ? null : val 
+                              }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-16">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="L">L</SelectItem>
+                                <SelectItem value="R">R</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'engine_side') || '-'
+                          )}
+                        </TableCell>
+                        {/* כנף פנימית */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Select
+                              value={editValues.internal_wing || "none"}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, internal_wing: val === "none" ? null : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-14">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">—</SelectItem>
+                                <SelectItem value="R">ימין</SelectItem>
+                                <SelectItem value="L">שמאל</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            getRowField(row, 'internal_wing') || '-'
+                          )}
+                        </TableCell>
+                        {/* מיקום כנף */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.wing_position || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position: e.target.value || null }))}
+                              className="h-7 text-xs w-14"
+                            />
+                          ) : (
+                            getRowField(row, 'wing_position') || '-'
+                          )}
+                        </TableCell>
+                        {/* ציר מבט פנים פתיחה החוצה */}
+                        <TableCell className="text-center text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editValues.wing_position_out || ''}
+                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position_out: e.target.value || null }))}
+                              className="h-7 text-xs w-14"
+                            />
+                          ) : (
+                            getRowField(row, 'wing_position_out') || '-'
+                          )}
+                        </TableCell>
                         {/* גליף */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
@@ -1115,29 +1182,6 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             getRowField(row, 'is_manual') || '-'
                           )}
                         </TableCell>
-                        {/* מנוע */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Select
-                              value={editValues.engine_side || "none"}
-                              onValueChange={(val) => setEditValues(prev => ({ 
-                                ...prev, 
-                                engine_side: val === "none" ? null : val 
-                              }))}
-                            >
-                              <SelectTrigger className="h-7 text-sm w-16">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">—</SelectItem>
-                                <SelectItem value="L">L</SelectItem>
-                                <SelectItem value="R">R</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            getRowField(row, 'engine_side') || '-'
-                          )}
-                        </TableCell>
                         {/* הערות */}
                         <TableCell className="text-right text-xs text-muted-foreground">
                           {isEditing ? (
@@ -1148,50 +1192,6 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                             />
                           ) : (
                             getRowField(row, 'field_notes') || '-'
-                          )}
-                        </TableCell>
-                        {/* כנף פנימית */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Select
-                              value={editValues.internal_wing || "none"}
-                              onValueChange={(val) => setEditValues(prev => ({ ...prev, internal_wing: val === "none" ? null : val }))}
-                            >
-                              <SelectTrigger className="h-7 text-sm w-14">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">—</SelectItem>
-                                <SelectItem value="R">ימין</SelectItem>
-                                <SelectItem value="L">שמאל</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            getRowField(row, 'internal_wing') || '-'
-                          )}
-                        </TableCell>
-                        {/* מיקום כנף */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Input
-                              value={editValues.wing_position || ''}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position: e.target.value || null }))}
-                              className="h-7 text-xs w-14"
-                            />
-                          ) : (
-                            getRowField(row, 'wing_position') || '-'
-                          )}
-                        </TableCell>
-                        {/* ציר מבט פנים פתיחה החוצה */}
-                        <TableCell className="text-center text-sm">
-                          {isEditing ? (
-                            <Input
-                              value={editValues.wing_position_out || ''}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, wing_position_out: e.target.value || null }))}
-                              className="h-7 text-xs w-14"
-                            />
-                          ) : (
-                            getRowField(row, 'wing_position_out') || '-'
                           )}
                         </TableCell>
                         {editMode && (
