@@ -250,14 +250,14 @@ function createWorksheet(
   ws.getRow(4).height = 15;
 
   // ROW 5: Header row - HORIZONTAL text (no rotation)
-  ws.getRow(5).height = 40;
+  ws.getRow(5).height = 30;
 
   for (let i = 0; i < columnDefs.length; i++) {
     const col = String.fromCharCode(65 + i);
     const cell = ws.getCell(`${col}5`);
     cell.value = columnDefs[i].header;
-    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-    cell.font = { name: 'Arial', size: 10, bold: true };
+    cell.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
+    cell.font = { name: 'Calibri', size: 11, bold: false };
     cell.border = {
       top: { style: 'thin' },
       bottom: { style: 'thin' },
