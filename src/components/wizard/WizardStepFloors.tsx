@@ -312,6 +312,59 @@ export function WizardStepFloors() {
               <Plus className="h-4 w-4" />
               הוסף קומה
             </Button>
+
+            <Dialog open={multiFloorDialogOpen} onOpenChange={setMultiFloorDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2" onClick={() => {
+                  setMultiFloorFrom(suggestStartLabel());
+                  setMultiFloorTo('');
+                }}>
+                  <Plus className="h-4 w-4" />
+                  הוסף קומות מרובות
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>הוספת קומות מרובות</DialogTitle>
+                  <DialogDescription>הגדר טווח מספרי קומות ליצירה</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="flex items-center gap-3" dir="ltr">
+                    <div className="space-y-1">
+                      <Label>מקומה</Label>
+                      <Input
+                        type="number"
+                        value={multiFloorFrom}
+                        onChange={e => setMultiFloorFrom(e.target.value)}
+                        className="w-24"
+                      />
+                    </div>
+                    <span className="text-muted-foreground mt-6">—</span>
+                    <div className="space-y-1">
+                      <Label>עד קומה</Label>
+                      <Input
+                        type="number"
+                        value={multiFloorTo}
+                        onChange={e => setMultiFloorTo(e.target.value)}
+                        className="w-24"
+                      />
+                    </div>
+                  </div>
+                  {multiFloorFrom && multiFloorTo && (() => {
+                    const f = parseInt(multiFloorFrom);
+                    const t = parseInt(multiFloorTo);
+                    if (!isNaN(f) && !isNaN(t) && t >= f) {
+                      return <p className="text-sm text-muted-foreground">{t - f + 1} קומות ייווצרו</p>;
+                    }
+                    return null;
+                  })()}
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setMultiFloorDialogOpen(false)}>ביטול</Button>
+                  <Button onClick={handleAddMultipleFloors}>צור קומות</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             
             <Dialog open={cloneDialogOpen} onOpenChange={setCloneDialogOpen}>
               <DialogTrigger asChild>

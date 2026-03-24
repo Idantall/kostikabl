@@ -243,7 +243,7 @@ function createWorksheet(
   const building = project.building_code || '';
   metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${apartmentLabel}                         `;
   metadataCell.alignment = { horizontal: 'center', vertical: 'middle' };
-  metadataCell.font = { name: 'Arial', size: 11, bold: true };
+  metadataCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(3).height = 15.95;
 
   // ROW 4: Empty spacer

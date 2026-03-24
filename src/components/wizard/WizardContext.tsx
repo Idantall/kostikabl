@@ -277,7 +277,8 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         )
       );
     
-    case 'ADD_APARTMENT_ROW':
+    case 'ADD_APARTMENT_ROW': {
+      const count = (action.payload as any).count || 1;
       return updateCurrentBuildingFloors(state, floors =>
         floors.map(floor =>
           floor.id === action.payload.floorId
@@ -285,11 +286,16 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
                 ...floor,
                 apartments: floor.apartments.map(apt => {
                   if (apt.id === action.payload.apartmentId) {
-                    const nextOpeningNo = apt.rows.length > 0
-                      ? Math.min(Math.max(...apt.rows.map(r => r.opening_no)) + 1, 20)
-                      : 1;
-                    if (nextOpeningNo > 20 || apt.rows.length >= 20) return apt;
-                    return { ...apt, rows: [...apt.rows, createEmptyRow(nextOpeningNo)] };
+                    const maxLimit = 35;
+                    let currentRows = [...apt.rows];
+                    for (let i = 0; i < count; i++) {
+                      if (currentRows.length >= maxLimit) break;
+                      const nextOpeningNo = currentRows.length > 0
+                        ? Math.max(...currentRows.map(r => r.opening_no)) + 1
+                        : 1;
+                      currentRows = [...currentRows, createEmptyRow(nextOpeningNo)];
+                    }
+                    return { ...apt, rows: currentRows };
                   }
                   return apt;
                 }),
@@ -297,6 +303,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
             : floor
         )
       );
+    }
     
     case 'DELETE_APARTMENT_ROW':
       return updateCurrentBuildingFloors(state, floors =>

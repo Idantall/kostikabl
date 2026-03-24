@@ -342,7 +342,47 @@ export function WizardStepApartments() {
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
                               <SelectContent className="bg-background z-50 max-h-80 overflow-y-auto">
                                 <SelectItem value="none">-</SelectItem>
-                                {LOCATION_OPTIONS.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                                {allLocations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                                <div className="border-t mt-1 pt-1 px-2 pb-1">
+                                  <div className="flex items-center gap-1">
+                                    <Input
+                                      value={newCustomLocation}
+                                      onChange={e => setNewCustomLocation(e.target.value)}
+                                      placeholder="הוסף מיקום חדש..."
+                                      className="h-7 text-xs"
+                                      dir="rtl"
+                                      onKeyDown={e => {
+                                        e.stopPropagation();
+                                        if (e.key === 'Enter' && newCustomLocation.trim()) {
+                                          const loc = newCustomLocation.trim();
+                                          if (!allLocations.includes(loc)) {
+                                            setCustomLocations(prev => [...prev, loc]);
+                                          }
+                                          handleUpdateRow(row.id, 'location_in_apartment', loc);
+                                          setNewCustomLocation('');
+                                        }
+                                      }}
+                                    />
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-7 w-7 shrink-0"
+                                      onMouseDown={e => {
+                                        e.preventDefault();
+                                        if (newCustomLocation.trim()) {
+                                          const loc = newCustomLocation.trim();
+                                          if (!allLocations.includes(loc)) {
+                                            setCustomLocations(prev => [...prev, loc]);
+                                          }
+                                          handleUpdateRow(row.id, 'location_in_apartment', loc);
+                                          setNewCustomLocation('');
+                                        }
+                                      }}
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
                               </SelectContent>
                             </Select>
                           </TableCell>
