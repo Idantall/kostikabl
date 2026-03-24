@@ -278,7 +278,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       );
     
     case 'ADD_APARTMENT_ROW': {
-      const count = (action.payload as any).count || 1;
+      const count = action.payload.count || 1;
       return updateCurrentBuildingFloors(state, floors =>
         floors.map(floor =>
           floor.id === action.payload.floorId
