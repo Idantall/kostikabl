@@ -493,8 +493,12 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
       apt.rows.forEach((row: any) => {
         rows.push({
           project_id: projectId,
-          floor_label: floor.label.replace('קומה ', ''),
-          apartment_label: apt.label.replace('דירה ', ''),
+          floor_label: (floor as any).sourceFloorTypeName
+            ? `${floor.label.replace('קומה ', '')} (טיפוס ${(floor as any).sourceFloorTypeName})`
+            : floor.label.replace('קומה ', ''),
+          apartment_label: (apt as any).sourceApartmentTypeName
+            ? `${apt.label.replace('דירה ', '')} (טיפוס ${(apt as any).sourceApartmentTypeName})`
+            : apt.label.replace('דירה ', ''),
           sheet_name: `${floor.label}_${apt.label}`,
           location_in_apartment: row.location_in_apartment,
           opening_no: String(row.opening_no),
@@ -512,6 +516,8 @@ async function insertMeasurementRows(projectId: number, floors: any[]) {
           engine_side: row.engine_side === 'ימין' ? 'R' : row.engine_side === 'שמאל' ? 'L' : row.engine_side || null,
           field_notes: row.field_notes || null,
           internal_wing: row.internal_wing || null,
+          wing_position: row.wing_position || null,
+          wing_position_out: row.wing_position_out || null,
         });
       });
     });
