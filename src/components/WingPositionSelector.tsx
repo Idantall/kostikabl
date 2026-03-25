@@ -44,17 +44,20 @@ function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'
       case 'TP':
         return (
           <>
+            {/* Outer frame */}
             <rect x="2" y="2" width="44" height="60" stroke="currentColor" strokeWidth="1.5" fill="none" />
-            <line x1="15" y1="2" x2="15" y2="62" stroke="currentColor" strokeWidth="1" />
-            <line x1="33" y1="2" x2="33" y2="62" stroke="currentColor" strokeWidth="1" />
-            <line x1="2" y1="34" x2="15" y2="34" stroke="currentColor" strokeWidth="1" />
-            <line x1="33" y1="34" x2="46" y2="34" stroke="currentColor" strokeWidth="1" />
-            <line x1="2" y1="2" x2="15" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="15" y1="2" x2="2" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="33" y1="2" x2="46" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="46" y1="2" x2="33" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="2" y1="62" x2="15" y2="44" stroke="currentColor" strokeWidth="1" />
-            <line x1="46" y1="62" x2="33" y2="44" stroke="currentColor" strokeWidth="1" />
+            {/* Vertical dividers for 3 panels */}
+            <line x1="16" y1="2" x2="16" y2="62" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="2" x2="32" y2="62" stroke="currentColor" strokeWidth="1" />
+            {/* Horizontal dividers in side panels */}
+            <line x1="2" y1="38" x2="16" y2="38" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="38" x2="46" y2="38" stroke="currentColor" strokeWidth="1" />
+            {/* Left upper panel: V pointing right */}
+            <line x1="2" y1="2" x2="16" y2="20" stroke="currentColor" strokeWidth="1" />
+            <line x1="2" y1="38" x2="16" y2="20" stroke="currentColor" strokeWidth="1" />
+            {/* Right upper panel: V pointing left */}
+            <line x1="46" y1="2" x2="32" y2="20" stroke="currentColor" strokeWidth="1" />
+            <line x1="46" y1="38" x2="32" y2="20" stroke="currentColor" strokeWidth="1" />
           </>
         );
     }
