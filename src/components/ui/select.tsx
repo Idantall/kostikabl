@@ -41,6 +41,7 @@ const SelectTrigger = React.forwardRef<
         className,
       )}
       onKeyDown={handleKeyDown}
+      onWheel={handleWheel}
       {...props}
     >
       {children}

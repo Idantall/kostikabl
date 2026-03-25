@@ -665,7 +665,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                     {columnHeaders.map((col, colIdx) => (
                       <td
                         key={col.aptId}
-                        className={`border-t-2 border-l px-1 py-2 text-center tabular-nums ${floorBoundaryIndices.has(colIdx) ? 'border-l-[3px] border-l-gray-500' : ''}`}
+                        className={`border-t-2 border-l px-1 py-2 text-center tabular-nums ${floorBoundaryIndices.has(colIdx) ? 'border-r-[3px] border-r-gray-500' : ''}`}
                       >
                         {columnTotals.get(col.aptId) || 0}
                       </td>
