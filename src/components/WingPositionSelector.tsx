@@ -189,22 +189,20 @@ export function wingPositionToPngBase64(position: string): string | null {
       break;
     case 'TP':
       ctx.lineWidth = 1;
+      // Outer frame
       ctx.strokeRect(2, 2, 44, 60);
       // Vertical dividers
-      ctx.beginPath(); ctx.moveTo(15, 2); ctx.lineTo(15, 62); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(33, 2); ctx.lineTo(33, 62); ctx.stroke();
-      // Horizontal dividers
-      ctx.beginPath(); ctx.moveTo(2, 34); ctx.lineTo(15, 34); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(33, 34); ctx.lineTo(46, 34); ctx.stroke();
-      // Left top X
-      ctx.beginPath(); ctx.moveTo(2, 2); ctx.lineTo(15, 18); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(15, 2); ctx.lineTo(2, 18); ctx.stroke();
-      // Right top X
-      ctx.beginPath(); ctx.moveTo(33, 2); ctx.lineTo(46, 18); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(46, 2); ctx.lineTo(33, 18); ctx.stroke();
-      // Bottom swing lines
-      ctx.beginPath(); ctx.moveTo(2, 62); ctx.lineTo(15, 44); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(46, 62); ctx.lineTo(33, 44); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(16, 2); ctx.lineTo(16, 62); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(32, 2); ctx.lineTo(32, 62); ctx.stroke();
+      // Horizontal dividers in side panels
+      ctx.beginPath(); ctx.moveTo(2, 38); ctx.lineTo(16, 38); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(32, 38); ctx.lineTo(46, 38); ctx.stroke();
+      // Left upper: V pointing right
+      ctx.beginPath(); ctx.moveTo(2, 2); ctx.lineTo(16, 20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(2, 38); ctx.lineTo(16, 20); ctx.stroke();
+      // Right upper: V pointing left
+      ctx.beginPath(); ctx.moveTo(46, 2); ctx.lineTo(32, 20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(46, 38); ctx.lineTo(32, 20); ctx.stroke();
       break;
   }
 
