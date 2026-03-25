@@ -341,7 +341,7 @@ export function WizardStepApartments() {
                           <TableCell data-row={rowIdx} data-col={1}>
                             <Select value={row.location_in_apartment || 'none'} onValueChange={v => handleUpdateRow(row.id, 'location_in_apartment', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50 max-h-80 overflow-y-auto">
+                              <SelectContent keyboardOnlyNavigation className="bg-background z-50 max-h-80 overflow-y-auto">
                                 <SelectItem value="none">-</SelectItem>
                                 {allLocations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
                                 <div className="border-t mt-1 pt-1 px-2 pb-1">
@@ -390,7 +390,7 @@ export function WizardStepApartments() {
                             <TableCell data-row={rowIdx} data-col={2}>
                               <Select value={row.contract_item || 'none'} onValueChange={v => handleUpdateRow(row.id, 'contract_item', v === 'none' ? null : v)}>
                                 <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                                <SelectContent className="bg-background z-50 max-h-60">
+                                <SelectContent keyboardOnlyNavigation className="bg-background z-50 max-h-60">
                                   <SelectItem value="none">-</SelectItem>
                                   {bankItems.map(item => <SelectItem key={item.id} value={item.item_no}>{item.item_no}</SelectItem>)}
                                 </SelectContent>
@@ -400,7 +400,7 @@ export function WizardStepApartments() {
                               <TableCell data-row={rowIdx} data-col={3}>
                                 <Select value={row.item_code || 'none'} onValueChange={v => handleUpdateRow(row.id, 'item_code', v === 'none' ? null : v)}>
                                   <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                                  <SelectContent className="bg-background z-50 max-h-60">
+                                  <SelectContent keyboardOnlyNavigation className="bg-background z-50 max-h-60">
                                     <SelectItem value="none">-</SelectItem>
                                     {bankItems.map(item => <SelectItem key={item.id} value={item.item_no}>{item.item_no}</SelectItem>)}
                                   </SelectContent>
@@ -425,7 +425,7 @@ export function WizardStepApartments() {
                           <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 7 : 6}>
                             <Select value={row.mamad || 'none'} onValueChange={v => handleUpdateRow(row.id, 'mamad', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50">
+                              <SelectContent keyboardOnlyNavigation className="bg-background z-50">
                                 <SelectItem value="none">-</SelectItem>
                                 {MAMAD_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                               </SelectContent>
@@ -434,7 +434,7 @@ export function WizardStepApartments() {
                           <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 8 : 7}>
                             <Select value={row.engine_side || 'none'} onValueChange={v => handleUpdateRow(row.id, 'engine_side', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50">
+                              <SelectContent keyboardOnlyNavigation className="bg-background z-50">
                                 <SelectItem value="none">-</SelectItem>
                                 <SelectItem value="ימין">ימין</SelectItem>
                                 <SelectItem value="שמאל">שמאל</SelectItem>
@@ -444,7 +444,7 @@ export function WizardStepApartments() {
                           <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 9 : 8}>
                             <Select value={row.internal_wing || 'none'} onValueChange={v => handleUpdateRow(row.id, 'internal_wing', v === 'none' ? null : v)}>
                               <SelectTrigger className="h-9 bg-background"><SelectValue placeholder="-" /></SelectTrigger>
-                              <SelectContent className="bg-background z-50">
+                              <SelectContent keyboardOnlyNavigation className="bg-background z-50">
                                 <SelectItem value="none">-</SelectItem>
                                 <SelectItem value="R">ימין</SelectItem>
                                 <SelectItem value="L">שמאל</SelectItem>
