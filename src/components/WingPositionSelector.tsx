@@ -44,17 +44,20 @@ function WingIcon({ position, className }: { position: 'TL' | 'TR' | 'BL' | 'BR'
       case 'TP':
         return (
           <>
+            {/* Outer frame */}
             <rect x="2" y="2" width="44" height="60" stroke="currentColor" strokeWidth="1.5" fill="none" />
-            <line x1="15" y1="2" x2="15" y2="62" stroke="currentColor" strokeWidth="1" />
-            <line x1="33" y1="2" x2="33" y2="62" stroke="currentColor" strokeWidth="1" />
-            <line x1="2" y1="34" x2="15" y2="34" stroke="currentColor" strokeWidth="1" />
-            <line x1="33" y1="34" x2="46" y2="34" stroke="currentColor" strokeWidth="1" />
-            <line x1="2" y1="2" x2="15" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="15" y1="2" x2="2" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="33" y1="2" x2="46" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="46" y1="2" x2="33" y2="18" stroke="currentColor" strokeWidth="1" />
-            <line x1="2" y1="62" x2="15" y2="44" stroke="currentColor" strokeWidth="1" />
-            <line x1="46" y1="62" x2="33" y2="44" stroke="currentColor" strokeWidth="1" />
+            {/* Vertical dividers for 3 panels */}
+            <line x1="16" y1="2" x2="16" y2="62" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="2" x2="32" y2="62" stroke="currentColor" strokeWidth="1" />
+            {/* Horizontal dividers in side panels */}
+            <line x1="2" y1="38" x2="16" y2="38" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="38" x2="46" y2="38" stroke="currentColor" strokeWidth="1" />
+            {/* Left upper panel: V pointing right */}
+            <line x1="2" y1="2" x2="16" y2="20" stroke="currentColor" strokeWidth="1" />
+            <line x1="2" y1="38" x2="16" y2="20" stroke="currentColor" strokeWidth="1" />
+            {/* Right upper panel: V pointing left */}
+            <line x1="46" y1="2" x2="32" y2="20" stroke="currentColor" strokeWidth="1" />
+            <line x1="46" y1="38" x2="32" y2="20" stroke="currentColor" strokeWidth="1" />
           </>
         );
     }
@@ -186,22 +189,20 @@ export function wingPositionToPngBase64(position: string): string | null {
       break;
     case 'TP':
       ctx.lineWidth = 1;
+      // Outer frame
       ctx.strokeRect(2, 2, 44, 60);
       // Vertical dividers
-      ctx.beginPath(); ctx.moveTo(15, 2); ctx.lineTo(15, 62); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(33, 2); ctx.lineTo(33, 62); ctx.stroke();
-      // Horizontal dividers
-      ctx.beginPath(); ctx.moveTo(2, 34); ctx.lineTo(15, 34); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(33, 34); ctx.lineTo(46, 34); ctx.stroke();
-      // Left top X
-      ctx.beginPath(); ctx.moveTo(2, 2); ctx.lineTo(15, 18); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(15, 2); ctx.lineTo(2, 18); ctx.stroke();
-      // Right top X
-      ctx.beginPath(); ctx.moveTo(33, 2); ctx.lineTo(46, 18); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(46, 2); ctx.lineTo(33, 18); ctx.stroke();
-      // Bottom swing lines
-      ctx.beginPath(); ctx.moveTo(2, 62); ctx.lineTo(15, 44); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(46, 62); ctx.lineTo(33, 44); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(16, 2); ctx.lineTo(16, 62); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(32, 2); ctx.lineTo(32, 62); ctx.stroke();
+      // Horizontal dividers in side panels
+      ctx.beginPath(); ctx.moveTo(2, 38); ctx.lineTo(16, 38); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(32, 38); ctx.lineTo(46, 38); ctx.stroke();
+      // Left upper: V pointing right
+      ctx.beginPath(); ctx.moveTo(2, 2); ctx.lineTo(16, 20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(2, 38); ctx.lineTo(16, 20); ctx.stroke();
+      // Right upper: V pointing left
+      ctx.beginPath(); ctx.moveTo(46, 2); ctx.lineTo(32, 20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(46, 38); ctx.lineTo(32, 20); ctx.stroke();
       break;
   }
 
