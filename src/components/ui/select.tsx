@@ -14,24 +14,19 @@ const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => {
-  const handleKeyDown = React.useCallback(
-    (e: React.KeyboardEvent) => {
-      // Block arrow keys and scroll from changing value when dropdown is closed
-      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-        e.preventDefault();
-      }
-    },
-    []
-  );
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const handleWheel = React.useCallback(
-    (e: React.WheelEvent) => {
-      // Prevent mouse wheel from changing the select value
+  // Attach a native wheel listener with { passive: false } so we can preventDefault
+  React.useEffect(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
       e.stopPropagation();
-      (e.target as HTMLElement)?.blur?.();
-    },
-    []
-  );
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
 
   return (
     <SelectPrimitive.Trigger
