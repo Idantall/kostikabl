@@ -24,6 +24,15 @@ const SelectTrigger = React.forwardRef<
     []
   );
 
+  const handleWheel = React.useCallback(
+    (e: React.WheelEvent) => {
+      // Prevent mouse wheel from changing the select value
+      e.stopPropagation();
+      (e.target as HTMLElement)?.blur?.();
+    },
+    []
+  );
+
   return (
     <SelectPrimitive.Trigger
       ref={ref}
