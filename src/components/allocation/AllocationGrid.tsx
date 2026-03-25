@@ -634,7 +634,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
                         return (
                           <td
                             key={col.aptId}
-                            className={`border-b border-l px-1 py-1.5 text-center tabular-nums ${floorBoundaryIndices.has(colIdx) ? 'border-l-[3px] border-l-gray-500' : ''}`}
+                            className={`border-b border-l px-1 py-1.5 text-center tabular-nums ${floorBoundaryIndices.has(colIdx) ? 'border-r-[3px] border-r-gray-500' : ''}`}
                           >
                             {value > 0 ? value : ""}
                           </td>
