@@ -82,35 +82,35 @@ interface ColumnDef {
 // Build column definitions based on project status
 function getColumnDefs(projectStatus?: string): ColumnDef[] {
   const cols: ColumnDef[] = [
-    { key: 'location', header: 'מיקום בדירה', width: 11.75 },
-    { key: 'opening_no', header: "מס'  פתח", width: 9.75 },
-    { key: 'contract_item', header: 'פרט חוזה', width: 9.5 },
+    { key: 'location', header: 'מיקום בדירה', width: 7.5 },
+    { key: 'opening_no', header: "מס'  פתח", width: 5 },
+    { key: 'contract_item', header: 'פרט חוזה', width: 6 },
   ];
 
   // Add פרט משקופים for blind_jambs and later stages
   if (projectStatus !== 'pre_contract') {
-    cols.push({ key: 'blind_jamb_item', header: 'פרט משקופים', width: 9.5 });
+    cols.push({ key: 'blind_jamb_item', header: 'פרט משקופים', width: 6 });
   }
 
   // Add פרט ייצור for measurement and later stages
   if (projectStatus !== 'pre_contract' && projectStatus !== 'blind_jambs') {
-    cols.push({ key: 'item_code', header: 'פרט יצור', width: 8.625 });
+    cols.push({ key: 'item_code', header: 'פרט יצור', width: 6 });
   }
 
   cols.push(
-    { key: 'height', header: 'גובה', width: 16 },
-    { key: 'width', header: 'רוחב', width: 21.625 },
-    { key: 'notes', header: 'גובה מהריצוף', width: 8.375 },
-    { key: 'mamad', header: 'ממד כיס בצד', width: 9.75 },
-    { key: 'engine_side', header: 'צד מנוע', width: 9.625 },
-    { key: 'internal_wing', header: 'כנף פנימית מבט פנים', width: 11 },
-    { key: 'wing_position', header: 'ציר מבט פנים פתיחה פנימה', width: 11, isWingImage: true },
-    { key: 'wing_position_out', header: 'ציר מבט פנים פתיחה החוצה', width: 11, isWingImage: true },
-    { key: 'glyph', header: 'גליף', width: 8.25 },
-    { key: 'depth', header: 'עומק עד הפריקסט', width: 9.625 },
-    { key: 'jamb_height', header: 'מדרגה בשיש', width: 13 },
-    { key: 'is_manual', header: 'מנואלה', width: 8 },
-    { key: 'field_notes', header: 'הערות', width: 13 },
+    { key: 'height', header: 'גובה', width: 9 },
+    { key: 'width', header: 'רוחב', width: 9 },
+    { key: 'notes', header: 'גובה מהריצוף', width: 6.5 },
+    { key: 'mamad', header: 'ממד כיס בצד', width: 6.5 },
+    { key: 'engine_side', header: 'צד מנוע', width: 5.5 },
+    { key: 'internal_wing', header: 'כנף פנימית מבט פנים', width: 7 },
+    { key: 'wing_position', header: 'ציר מבט פנים פתיחה פנימה', width: 7, isWingImage: true },
+    { key: 'wing_position_out', header: 'ציר מבט פנים פתיחה החוצה', width: 7, isWingImage: true },
+    { key: 'glyph', header: 'גליף', width: 5 },
+    { key: 'depth', header: 'עומק עד הפריקסט', width: 6.5 },
+    { key: 'jamb_height', header: 'מדרגה בשיש', width: 6.5 },
+    { key: 'is_manual', header: 'מנואלה', width: 6 },
+    { key: 'field_notes', header: 'הערות', width: 28 },
   );
 
   return cols;
@@ -262,18 +262,20 @@ function createWorksheet(
   // ROW 5: Header row - HORIZONTAL text (no rotation)
   ws.getRow(5).height = 30;
 
+  const mediumBorder: Partial<ExcelJS.Borders> = {
+    top: { style: 'medium' },
+    bottom: { style: 'medium' },
+    left: { style: 'medium' },
+    right: { style: 'medium' },
+  };
+
   for (let i = 0; i < columnDefs.length; i++) {
     const col = String.fromCharCode(65 + i);
     const cell = ws.getCell(`${col}5`);
     cell.value = columnDefs[i].header;
     cell.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
     cell.font = { name: 'Calibri', size: 11, bold: false };
-    cell.border = {
-      top: { style: 'thin' },
-      bottom: { style: 'thin' },
-      left: { style: 'thin' },
-      right: { style: 'thin' },
-    };
+    cell.border = mediumBorder;
   }
 
   const sortedRows = [...sheetRows].sort((a, b) => {
@@ -311,6 +313,7 @@ function createWorksheet(
         cell.font = { name: 'Calibri', size: 11, bold: false };
       }
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = mediumBorder;
     }
 
     // Embed wing images
@@ -346,6 +349,7 @@ function createWorksheet(
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
       cell.font = { name: 'Calibri', size: 11, bold: false };
+      cell.border = mediumBorder;
     }
     rowIndex++;
   }
