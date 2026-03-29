@@ -384,10 +384,29 @@ const MeasurementEditor = () => {
               </SelectContent>
             </Select>
 
-            <Button variant="outline" size="sm" onClick={addRow} className="gap-1" disabled={connectionStatus === 'offline'}>
-              <Plus className="h-4 w-4" />
-              שורה חדשה
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1" disabled={connectionStatus === 'offline'}>
+                  <Plus className="h-4 w-4" />
+                  תוספות
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => setAddFloorOpen(true)}>
+                  <Building2 className="h-4 w-4 ml-2" />
+                  הוסף קומה
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setNewAptFloor(selectedFloor !== 'all' ? selectedFloor : floors[0] || ''); setAddApartmentOpen(true); }}>
+                  <Home className="h-4 w-4 ml-2" />
+                  הוסף דירה
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={addRow}>
+                  <FileText className="h-4 w-4 ml-2" />
+                  הוסף שורה
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <span className="text-sm text-muted-foreground mr-auto">
               {filteredRows.length} שורות
