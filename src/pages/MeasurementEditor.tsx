@@ -72,6 +72,8 @@ const MeasurementEditor = () => {
   const [apartments, setApartments] = useState<string[]>([]);
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
   const [selectedApartment, setSelectedApartment] = useState<string>('all');
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 50;
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   const [addFloorOpen, setAddFloorOpen] = useState(false);
   const [addApartmentOpen, setAddApartmentOpen] = useState(false);
@@ -187,15 +189,21 @@ const MeasurementEditor = () => {
     const uniqueFloors = [...new Set((rowsData || []).map(r => r.floor_label).filter(Boolean))] as string[];
     const uniqueApartments = [...new Set((rowsData || []).map(r => r.apartment_label).filter(Boolean))] as string[];
     // Floor sorting: קרקע/לובי come first (as floor 0), then numeric order
-    setFloors(uniqueFloors.sort((a, b) => {
+    const sortedFloors = uniqueFloors.sort((a, b) => {
       const getOrder = (label: string) => {
         const lower = label.toLowerCase();
         if (lower.includes('קרקע') || lower.includes('לובי') || lower.includes('lobby') || lower.includes('ground')) return 0;
         return parseInt(label) || 999;
       };
       return getOrder(a) - getOrder(b);
-    }));
+    });
+    setFloors(sortedFloors);
     setApartments(uniqueApartments.sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
+    
+    // Auto-select first floor when there are many rows to prevent rendering 1000+ cards
+    if ((rowsData || []).length > 50 && sortedFloors.length > 0) {
+      setSelectedFloor(sortedFloors[0]);
+    }
   };
 
   const filteredRows = rows
@@ -209,6 +217,9 @@ const MeasurementEditor = () => {
       const bNum = parseInt(b.opening_no || '999999', 10);
       return aNum - bNum;
     });
+
+  const totalPages = Math.ceil(filteredRows.length / PAGE_SIZE);
+  const paginatedRows = filteredRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const filteredApartments = selectedFloor === 'all' 
     ? apartments 
@@ -486,7 +497,7 @@ const MeasurementEditor = () => {
       <div className="sticky top-[57px] z-10 bg-muted/80 backdrop-blur-sm border-b">
         <div className="container mx-auto px-3 py-3">
           <div className="flex flex-wrap gap-2 items-center">
-            <Select value={selectedFloor} onValueChange={(v) => { setSelectedFloor(v); setSelectedApartment('all'); }}>
+            <Select value={selectedFloor} onValueChange={(v) => { setSelectedFloor(v); setSelectedApartment('all'); setPage(0); }}>
               <SelectTrigger className="w-[120px]">
                 <SelectValue placeholder="קומה" />
               </SelectTrigger>
@@ -498,7 +509,7 @@ const MeasurementEditor = () => {
               </SelectContent>
             </Select>
 
-            <Select value={selectedApartment} onValueChange={setSelectedApartment}>
+            <Select value={selectedApartment} onValueChange={(v) => { setSelectedApartment(v); setPage(0); }}>
               <SelectTrigger className="w-[120px]">
                 <SelectValue placeholder="דירה" />
               </SelectTrigger>
@@ -555,8 +566,8 @@ const MeasurementEditor = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
-            {filteredRows.map((row) => (
+           <div className="space-y-3">
+            {paginatedRows.map((row) => (
               <Card key={row.id} className="overflow-hidden">
                 <CardContent className="p-3">
                   <div className="text-xs text-muted-foreground mb-2">
@@ -809,6 +820,30 @@ const MeasurementEditor = () => {
                 </CardContent>
               </Card>
             ))}
+            {/* Pagination controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 py-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                >
+                  הקודם
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  עמוד {page + 1} מתוך {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                >
+                  הבא
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </main>
