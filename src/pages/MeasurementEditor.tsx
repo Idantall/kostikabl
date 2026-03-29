@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, Plus, Loader2, Trash2, ChevronDown, Building2, Home, FileText, Package } from "lucide-react";
-import { WingPositionSelector, WingPositionValue } from "@/components/WingPositionSelector";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -16,51 +15,12 @@ import { useOfflineSync, getAllPendingData } from "@/hooks/useOfflineSync";
 import { useDebouncedSync } from "@/hooks/useDebouncedSync";
 import { ConnectionStatusBadge } from "@/components/ConnectionStatusBadge";
 import { BankEditorDialog, BankItem } from "@/components/measurement/BankEditorDialog";
+import { MeasurementRowCard, MeasurementRowData } from "@/components/measurement/MeasurementRowCard";
 
-interface MeasurementRow {
-  id: string;
+interface MeasurementRow extends MeasurementRowData {
   project_id: number;
-  floor_label: string | null;
-  apartment_label: string | null;
   sheet_name: string | null;
-  location_in_apartment: string | null;
-  opening_no: string | null;
-  contract_item: string | null;
-  item_code: string | null;
-  height: string | null;
-  width: string | null;
-  notes: string | null;
-  field_notes: string | null;
-  wall_thickness: string | null;
-  glyph: string | null;
-  jamb_height: string | null;
-  engine_side: string | null;
-  hinge_direction: string | null;
-  mamad: string | null;
-  depth: string | null;
-  is_manual: boolean;
-  internal_wing: string | null;
-  wing_position: string | null;
-  wing_position_out: string | null;
 }
-
-// Helper to extract user notes (excluding angle patterns from legacy data)
-const getUserNotes = (notes: string | null): string => {
-  if (!notes) return '';
-  return notes
-    .replace(/זווית1:[^;]*;?/g, '')
-    .replace(/זווית2:[^;]*;?/g, '')
-    .trim();
-};
-
-// Helper to preserve angle patterns when user edits notes (legacy compatibility)
-const mergeUserNotes = (newUserNotes: string, existingNotes: string | null): string | null => {
-  const angle1Match = existingNotes?.match(/זווית1:[^;]*/)?.[0] || '';
-  const angle2Match = existingNotes?.match(/זווית2:[^;]*/)?.[0] || '';
-  
-  const parts = [angle1Match, angle2Match, newUserNotes.trim()].filter(Boolean);
-  return parts.length > 0 ? parts.join(';') : null;
-};
 
 const MeasurementEditor = () => {
   const navigate = useNavigate();
@@ -225,15 +185,19 @@ const MeasurementEditor = () => {
     ? apartments 
     : [...new Set(rows.filter(r => r.floor_label === selectedFloor).map(r => r.apartment_label).filter(Boolean))] as string[];
 
-  const updateRow = (id: string, field: keyof MeasurementRow, value: string | null) => {
-    // Update local state immediately
-    setRows(prev => prev.map(row => 
-      row.id === id ? { ...row, [field]: value } : row
-    ));
-    
-    // Queue for offline-aware sync (debounced to avoid race conditions)
+  const updateRow = useCallback((id: string, field: keyof MeasurementRow, value: string | boolean | null) => {
+    setRows(prev => {
+      const index = prev.findIndex(row => row.id === id);
+      if (index === -1) return prev;
+      const current = prev[index];
+      if ((current as any)[field] === value) return prev;
+      const next = [...prev];
+      next[index] = { ...current, [field]: value };
+      return next;
+    });
+
     debouncedQueueUpdate(id, 'measurement_rows', { [field]: value });
-  };
+  }, [debouncedQueueUpdate]);
 
   const addRow = async () => {
     if (!projectId) return;
@@ -565,260 +529,17 @@ const MeasurementEditor = () => {
               אין שורות להצגה
             </CardContent>
           </Card>
-        ) : (
+         ) : (
            <div className="space-y-3">
             {paginatedRows.map((row) => (
-              <Card key={row.id} className="overflow-hidden">
-                <CardContent className="p-3">
-                  <div className="text-xs text-muted-foreground mb-2">
-                    קומה {row.floor_label || '—'} | דירה {row.apartment_label || '—'}
-                  </div>
-                  <div className="flex gap-2 items-end flex-wrap">
-                    {/* מיקום */}
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">מיקום</label>
-                      <Input
-                        value={row.location_in_apartment || ''}
-                        onChange={(e) => updateRow(row.id, 'location_in_apartment', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        dir="rtl"
-                      />
-                    </div>
-                    {/* פתח */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">פתח</label>
-                      <Input
-                        value={row.opening_no || ''}
-                        onChange={(e) => updateRow(row.id, 'opening_no', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        dir="rtl"
-                      />
-                    </div>
-                    {/* פרט חוזה */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">חוזה</label>
-                      <Input
-                        value={(row as any).contract_item || ''}
-                        onChange={(e) => updateRow(row.id, 'contract_item' as any, e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        dir="rtl"
-                      />
-                    </div>
-                    {/* פרט משקופים - only show for blind_jambs+ */}
-                    {project?.status !== 'pre_contract' && (
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">משקופים</label>
-                      <Input
-                        value={(row as any).blind_jamb_item || ''}
-                        onChange={(e) => updateRow(row.id, 'blind_jamb_item' as any, e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        dir="rtl"
-                      />
-                    </div>
-                    )}
-                    {/* פרט יצור - only show for measurement stage */}
-                    {project?.status !== 'pre_contract' && project?.status !== 'blind_jambs' && (
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">פרט יצור</label>
-                      <Input
-                        value={row.item_code || ''}
-                        onChange={(e) => updateRow(row.id, 'item_code', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        dir="rtl"
-                      />
-                    </div>
-                    )}
-                    {/* גובה */}
-                    <div className="w-28">
-                      <label className="text-[11px] text-muted-foreground block text-center">גובה</label>
-                      <Input
-                        value={row.height || ''}
-                        onChange={(e) => updateRow(row.id, 'height', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center bg-primary/5"
-                        inputMode="tel"
-                        pattern="[0-9+.]*"
-                        dir="ltr"
-                      />
-                    </div>
-                    {/* רוחב */}
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">רוחב</label>
-                      <Input
-                        value={row.width || ''}
-                        onChange={(e) => updateRow(row.id, 'width', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center bg-primary/5"
-                        inputMode="tel"
-                        pattern="[0-9+.]*"
-                        dir="ltr"
-                      />
-                    </div>
-                    {/* הערות */}
-                    <div className="w-28">
-                      <label className="text-[11px] text-muted-foreground block text-center">גובה מהריצוף</label>
-                      <Input
-                        value={getUserNotes(row.notes)}
-                        onChange={(e) => updateRow(row.id, 'notes', mergeUserNotes(e.target.value, row.notes))}
-                        className="h-10 text-base px-2"
-                        dir="rtl"
-                      />
-                    </div>
-                    {/* ממד */}
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">ממד כיס בצד</label>
-                      <Select
-                        value={(row as any).mamad || 'none'}
-                        onValueChange={(value) => updateRow(row.id, 'mamad' as any, value === 'none' ? null : value)}
-                      >
-                        <SelectTrigger className="h-10 text-sm px-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="☒☐">☒☐ שמאל</SelectItem>
-                          <SelectItem value="☐☒">☐☒ ימין</SelectItem>
-                          <SelectItem value="☒☐☒">☒☐☒ כפול</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* צד מנוע */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">מנוע</label>
-                      <Select
-                        value={row.engine_side || 'none'}
-                        onValueChange={(value) => updateRow(row.id, 'engine_side', value === 'none' ? null : value)}
-                      >
-                        <SelectTrigger className="h-10 text-base px-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="L">L</SelectItem>
-                          <SelectItem value="R">R</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* כנף פנימית מבט פנים */}
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">כנף פנימית</label>
-                      <Select
-                        value={(row as any).internal_wing || 'none'}
-                        onValueChange={(value) => updateRow(row.id, 'internal_wing' as any, value === 'none' ? null : value)}
-                      >
-                        <SelectTrigger className="h-10 text-base px-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="R">ימין</SelectItem>
-                          <SelectItem value="L">שמאל</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* ציר מבט פנים פתיחה פנימה */}
-                    <div className="w-24">
-                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה פנימה</label>
-                      <WingPositionSelector
-                        value={(row.wing_position as WingPositionValue) || null}
-                        onChange={(v) => updateRow(row.id, 'wing_position' as any, v)}
-                        size="sm"
-                      />
-                    </div>
-                    {/* ציר מבט פנים פתיחה החוצה */}
-                    <div className="w-24">
-                      <label className="text-[11px] text-muted-foreground block text-center">פתיחה החוצה</label>
-                      <WingPositionSelector
-                        value={(row.wing_position_out as WingPositionValue) || null}
-                        onChange={(v) => updateRow(row.id, 'wing_position_out' as any, v)}
-                        size="sm"
-                      />
-                    </div>
-                    {/* גליף */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">גליף</label>
-                      <Input
-                        value={row.glyph || ''}
-                        onChange={(e) => updateRow(row.id, 'glyph', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        dir="ltr"
-                      />
-                    </div>
-                    {/* עובי קיר - legacy field, keep for existing data */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">עובי קיר</label>
-                      <Input
-                        value={row.wall_thickness || ''}
-                        onChange={(e) => updateRow(row.id, 'wall_thickness', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        inputMode="tel"
-                        dir="ltr"
-                      />
-                    </div>
-                    {/* עומק */}
-                    <div className="w-16">
-                      <label className="text-[11px] text-muted-foreground block text-center">עומק עד הפריקסט</label>
-                      <Input
-                        value={(row as any).depth || ''}
-                        onChange={(e) => updateRow(row.id, 'depth' as any, e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        inputMode="tel"
-                        dir="ltr"
-                      />
-                    </div>
-                    {/* גובה יואים */}
-                    <div className="w-20">
-                      <label className="text-[11px] text-muted-foreground block text-center">מדרגה בשיש</label>
-                      <Select
-                        value={row.jamb_height || 'none'}
-                        onValueChange={(val) => updateRow(row.id, 'jamb_height', val === 'none' ? null : val)}
-                      >
-                        <SelectTrigger className="h-10 text-sm font-medium px-2 text-center">
-                          <SelectValue placeholder="-" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">-</SelectItem>
-                          <SelectItem value="יש">יש</SelectItem>
-                          <SelectItem value="אין">אין</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* מנואלה */}
-                    <div className="w-14">
-                      <label className="text-[11px] text-muted-foreground block text-center">מנואלה</label>
-                      <div className="h-10 flex items-center justify-center">
-                        <input
-                          type="checkbox"
-                          checked={(row as any).is_manual || false}
-                          onChange={(e) => updateRow(row.id, 'is_manual' as any, e.target.checked as any)}
-                          className="h-5 w-5 rounded border-border"
-                        />
-                      </div>
-                    </div>
-                    {/* הערות */}
-                    <div className="w-28">
-                      <label className="text-[11px] text-muted-foreground block text-center">הערות</label>
-                      <Input
-                        value={row.field_notes || ''}
-                        onChange={(e) => updateRow(row.id, 'field_notes', e.target.value || null)}
-                        className="h-10 text-base px-2"
-                        dir="rtl"
-                      />
-                    </div>
-                    
-                    {/* Delete Button */}
-                    <div className="w-10 flex items-end">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 text-muted-foreground hover:text-destructive"
-                        onClick={() => setRowToDelete(row.id)}
-                        disabled={connectionStatus === 'offline'}
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <MeasurementRowCard
+                key={row.id}
+                row={row}
+                projectStatus={project?.status}
+                connectionStatus={connectionStatus}
+                onFieldChange={updateRow as any}
+                onDelete={setRowToDelete}
+              />
             ))}
             {/* Pagination controls */}
             {totalPages > 1 && (
