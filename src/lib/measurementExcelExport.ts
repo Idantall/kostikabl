@@ -110,7 +110,7 @@ function getColumnDefs(projectStatus?: string): ColumnDef[] {
     { key: 'depth', header: 'עומק עד הפריקסט', width: 6.5 },
     { key: 'jamb_height', header: 'מדרגה בשיש', width: 13 },
     { key: 'is_manual', header: 'מנואלה', width: 6 },
-    { key: 'field_notes', header: 'הערות', width: 28 },
+    { key: 'field_notes', header: 'הערות', width: 40 },
   );
 
   return cols;
@@ -287,7 +287,7 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 18;
+    ws.getRow(rowIndex).height = 30;
 
     for (let i = 0; i < columnDefs.length; i++) {
       const def = columnDefs[i];
