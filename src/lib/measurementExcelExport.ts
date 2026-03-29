@@ -199,7 +199,8 @@ function createWorksheet(
   floorLabel: string,
   apartmentLabel: string,
   wingImages: Record<string, string>,
-  columnDefs: ColumnDef[]
+  columnDefs: ColumnDef[],
+  projectStatus?: string
 ): void {
   const cleanName = sheetName.substring(0, 31).replace(/[\\/?*\[\]:]/g, '_');
   const ws = workbook.addWorksheet(cleanName, {
