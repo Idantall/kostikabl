@@ -693,6 +693,119 @@ const MeasurementEditor = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Floor Dialog */}
+      <Dialog open={addFloorOpen} onOpenChange={setAddFloorOpen}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>הוסף קומה</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>שם קומה</Label>
+              <Input
+                value={newFloorLabel}
+                onChange={(e) => setNewFloorLabel(e.target.value)}
+                placeholder="לדוגמה: 5"
+                dir="rtl"
+              />
+            </div>
+            <div>
+              <Label>מספר דירות</Label>
+              <Input
+                type="number"
+                min={1}
+                max={20}
+                value={newFloorAptCount}
+                onChange={(e) => {
+                  const count = Math.max(1, Math.min(20, parseInt(e.target.value) || 1));
+                  setNewFloorAptCount(count);
+                  setNewFloorAptLabels(Array.from({ length: count }, (_, i) => String(i + 1)));
+                }}
+              />
+            </div>
+            <div>
+              <Label>שמות דירות</Label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {newFloorAptLabels.map((label, i) => (
+                  <Input
+                    key={i}
+                    value={label}
+                    onChange={(e) => {
+                      const updated = [...newFloorAptLabels];
+                      updated[i] = e.target.value;
+                      setNewFloorAptLabels(updated);
+                    }}
+                    className="w-16 text-center"
+                    dir="rtl"
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label>פתחים לדירה</Label>
+              <Input
+                type="number"
+                min={1}
+                max={35}
+                value={newFloorOpeningsPerApt}
+                onChange={(e) => setNewFloorOpeningsPerApt(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddFloorOpen(false)}>ביטול</Button>
+            <Button onClick={addFloor}>הוסף קומה</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Apartment Dialog */}
+      <Dialog open={addApartmentOpen} onOpenChange={setAddApartmentOpen}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>הוסף דירה</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>קומה</Label>
+              <Select value={newAptFloor} onValueChange={setNewAptFloor}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר קומה" />
+                </SelectTrigger>
+                <SelectContent>
+                  {floors.map(f => (
+                    <SelectItem key={f} value={f}>קומה {f}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>שם דירה</Label>
+              <Input
+                value={newAptLabel}
+                onChange={(e) => setNewAptLabel(e.target.value)}
+                placeholder="לדוגמה: 3"
+                dir="rtl"
+              />
+            </div>
+            <div>
+              <Label>מספר פתחים</Label>
+              <Input
+                type="number"
+                min={1}
+                max={35}
+                value={newAptOpenings}
+                onChange={(e) => setNewAptOpenings(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddApartmentOpen(false)}>ביטול</Button>
+            <Button onClick={addApartment}>הוסף דירה</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
