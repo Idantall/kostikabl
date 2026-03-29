@@ -287,7 +287,13 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 30;
+    // Auto-adjust row height based on notes text length
+    const notesText = getField(row, 'field_notes') || '';
+    const notesColWidth = 40; // matches field_notes column width
+    const charsPerLine = Math.floor(notesColWidth * 1.2); // approximate chars that fit per line
+    const lineCount = notesText ? Math.max(1, Math.ceil(notesText.length / charsPerLine)) : 1;
+    const rowHeight = Math.max(30, lineCount * 15);
+    ws.getRow(rowIndex).height = rowHeight;
 
     for (let i = 0; i < columnDefs.length; i++) {
       const def = columnDefs[i];
