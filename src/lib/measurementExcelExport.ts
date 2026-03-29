@@ -417,7 +417,7 @@ export async function exportMeasurementToExcel(options: ExportOptions): Promise<
 
   for (const sheetKey of sortedSheetKeys) {
     const { rows: sheetRows, floorLabel, apartmentLabel } = groupedBySheet.get(sheetKey)!;
-    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages, columnDefs);
+    createWorksheet(workbook, sheetKey, sheetRows, project, floorLabel, apartmentLabel, wingImages, columnDefs, projectStatus);
   }
 
   // Generate and download
