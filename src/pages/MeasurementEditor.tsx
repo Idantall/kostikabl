@@ -185,15 +185,19 @@ const MeasurementEditor = () => {
     ? apartments 
     : [...new Set(rows.filter(r => r.floor_label === selectedFloor).map(r => r.apartment_label).filter(Boolean))] as string[];
 
-  const updateRow = (id: string, field: keyof MeasurementRow, value: string | null) => {
-    // Update local state immediately
-    setRows(prev => prev.map(row => 
-      row.id === id ? { ...row, [field]: value } : row
-    ));
-    
-    // Queue for offline-aware sync (debounced to avoid race conditions)
+  const updateRow = useCallback((id: string, field: keyof MeasurementRow, value: string | boolean | null) => {
+    setRows(prev => {
+      const index = prev.findIndex(row => row.id === id);
+      if (index === -1) return prev;
+      const current = prev[index];
+      if ((current as any)[field] === value) return prev;
+      const next = [...prev];
+      next[index] = { ...current, [field]: value };
+      return next;
+    });
+
     debouncedQueueUpdate(id, 'measurement_rows', { [field]: value });
-  };
+  }, [debouncedQueueUpdate]);
 
   const addRow = async () => {
     if (!projectId) return;
