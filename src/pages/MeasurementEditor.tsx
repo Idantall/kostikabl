@@ -566,8 +566,8 @@ const MeasurementEditor = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
-            {filteredRows.map((row) => (
+           <div className="space-y-3">
+            {paginatedRows.map((row) => (
               <Card key={row.id} className="overflow-hidden">
                 <CardContent className="p-3">
                   <div className="text-xs text-muted-foreground mb-2">
