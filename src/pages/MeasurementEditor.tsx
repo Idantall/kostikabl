@@ -345,14 +345,47 @@ const MeasurementEditor = () => {
   const addApartment = async () => {
     if (!projectId || !newAptFloor || !newAptLabel.trim()) { toast.error("יש לבחור קומה ולהזין שם דירה"); return; }
     if (connectionStatus === 'offline') { toast.error("לא ניתן להוסיף במצב אופליין"); return; }
-    const newRows = Array.from({ length: newAptOpenings }, (_, i) => ({
-      project_id: parseInt(projectId),
-      floor_label: newAptFloor,
-      apartment_label: newAptLabel.trim(),
-      sheet_name: 'ידני',
-      opening_no: String(i + 1),
-      is_manual: true,
-    }));
+    
+    const selectedAptType = newAptTypeId !== 'none' ? apartmentTypes.find((t: any) => t.id === newAptTypeId) : null;
+    
+    let newRows: any[];
+    if (selectedAptType) {
+      // Type-aware: create rows from apartment type template
+      newRows = (selectedAptType.rows || []).map((row: any, idx: number) => ({
+        project_id: parseInt(projectId),
+        floor_label: newAptFloor,
+        apartment_label: newAptLabel.trim(),
+        sheet_name: 'ידני',
+        opening_no: String(row.opening_no || idx + 1),
+        location_in_apartment: row.location_in_apartment || null,
+        contract_item: row.contract_item || null,
+        item_code: row.item_code || null,
+        height: row.height || null,
+        width: row.width || null,
+        notes: row.notes || null,
+        hinge_direction: row.hinge_direction || null,
+        mamad: row.mamad || null,
+        glyph: row.glyph || null,
+        jamb_height: row.jamb_height || null,
+        depth: row.depth || null,
+        is_manual: row.is_manual || false,
+        engine_side: row.engine_side || null,
+        field_notes: row.field_notes || null,
+        internal_wing: row.internal_wing || null,
+        wing_position: row.wing_position || null,
+        wing_position_out: row.wing_position_out || null,
+      }));
+    } else {
+      newRows = Array.from({ length: newAptOpenings }, (_, i) => ({
+        project_id: parseInt(projectId),
+        floor_label: newAptFloor,
+        apartment_label: newAptLabel.trim(),
+        sheet_name: 'ידני',
+        opening_no: String(i + 1),
+        is_manual: true,
+      }));
+    }
+    
     const { data, error } = await supabase.from("measurement_rows").insert(newRows).select();
     if (error) { toast.error("שגיאה בהוספת דירה"); return; }
     setRows(prev => [...prev, ...(data || [])]);
@@ -360,7 +393,13 @@ const MeasurementEditor = () => {
       setApartments(prev => [...prev, newAptLabel.trim()].sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
     }
     setAddApartmentOpen(false);
-    setNewAptFloor(''); setNewAptLabel(''); setNewAptOpenings(1);
+    setNewAptFloor(''); setNewAptLabel(''); setNewAptOpenings(1); setNewAptTypeId('none');
+    
+    // Auto-navigate to new apartment if no type was used
+    if (!selectedAptType) {
+      setSelectedFloor(newAptFloor);
+      setSelectedApartment(newAptLabel.trim());
+    }
     toast.success(`דירה ${newAptLabel} נוספה לקומה ${newAptFloor}`);
   };
 
