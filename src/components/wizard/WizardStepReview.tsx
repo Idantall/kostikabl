@@ -188,6 +188,7 @@ export function WizardStepReview() {
           name,
           created_by: session.user.id,
           status: projectStatus,
+          project_metadata: projectMetadata,
         };
 
         if (projectType === 'pre_contract' && contractPdfPath) {
