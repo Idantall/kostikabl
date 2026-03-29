@@ -242,7 +242,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       // Row 2: apartment numbers
       const row2: string[] = ["", ""];
       for (const col of columnHeaders) {
-        row2.push(col.label);
+        row2.push(`דירה ${col.label}`);
       }
       row2.push("");
 
