@@ -311,6 +311,12 @@ function createWorksheet(
         cell.font = { name: 'Calibri', size: 11, bold: false };
       }
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'medium' },
+        bottom: { style: 'medium' },
+        left: { style: 'medium' },
+        right: { style: 'medium' },
+      };
     }
 
     // Embed wing images
