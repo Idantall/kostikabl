@@ -262,18 +262,20 @@ function createWorksheet(
   // ROW 5: Header row - HORIZONTAL text (no rotation)
   ws.getRow(5).height = 30;
 
+  const mediumBorder: Partial<ExcelJS.Borders> = {
+    top: { style: 'medium' },
+    bottom: { style: 'medium' },
+    left: { style: 'medium' },
+    right: { style: 'medium' },
+  };
+
   for (let i = 0; i < columnDefs.length; i++) {
     const col = String.fromCharCode(65 + i);
     const cell = ws.getCell(`${col}5`);
     cell.value = columnDefs[i].header;
     cell.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
     cell.font = { name: 'Calibri', size: 11, bold: false };
-    cell.border = {
-      top: { style: 'thin' },
-      bottom: { style: 'thin' },
-      left: { style: 'thin' },
-      right: { style: 'thin' },
-    };
+    cell.border = mediumBorder;
   }
 
   const sortedRows = [...sheetRows].sort((a, b) => {
