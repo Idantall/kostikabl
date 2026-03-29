@@ -307,6 +307,7 @@ const MeasurementEditor = () => {
   };
 
 
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center" dir="rtl">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
