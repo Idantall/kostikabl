@@ -203,8 +203,9 @@ function createWorksheet(
 ): void {
   const cleanName = sheetName.substring(0, 31).replace(/[\\/?*\[\]:]/g, '_');
   const ws = workbook.addWorksheet(cleanName, {
-    views: [{ rightToLeft: true }],
-    pageSetup: { orientation: 'landscape' }
+    views: [{ rightToLeft: true, state: 'normal' }],
+    pageSetup: { orientation: 'landscape', horizontalCentered: true },
+    properties: { defaultRowHeight: 15, rightToLeft: true } as any
   });
 
   const colCount = columnDefs.length;
