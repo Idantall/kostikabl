@@ -17,50 +17,10 @@ import { ConnectionStatusBadge } from "@/components/ConnectionStatusBadge";
 import { BankEditorDialog, BankItem } from "@/components/measurement/BankEditorDialog";
 import { MeasurementRowCard, MeasurementRowData } from "@/components/measurement/MeasurementRowCard";
 
-interface MeasurementRow {
-  id: string;
+interface MeasurementRow extends MeasurementRowData {
   project_id: number;
-  floor_label: string | null;
-  apartment_label: string | null;
   sheet_name: string | null;
-  location_in_apartment: string | null;
-  opening_no: string | null;
-  contract_item: string | null;
-  item_code: string | null;
-  height: string | null;
-  width: string | null;
-  notes: string | null;
-  field_notes: string | null;
-  wall_thickness: string | null;
-  glyph: string | null;
-  jamb_height: string | null;
-  engine_side: string | null;
-  hinge_direction: string | null;
-  mamad: string | null;
-  depth: string | null;
-  is_manual: boolean;
-  internal_wing: string | null;
-  wing_position: string | null;
-  wing_position_out: string | null;
 }
-
-// Helper to extract user notes (excluding angle patterns from legacy data)
-const getUserNotes = (notes: string | null): string => {
-  if (!notes) return '';
-  return notes
-    .replace(/זווית1:[^;]*;?/g, '')
-    .replace(/זווית2:[^;]*;?/g, '')
-    .trim();
-};
-
-// Helper to preserve angle patterns when user edits notes (legacy compatibility)
-const mergeUserNotes = (newUserNotes: string, existingNotes: string | null): string | null => {
-  const angle1Match = existingNotes?.match(/זווית1:[^;]*/)?.[0] || '';
-  const angle2Match = existingNotes?.match(/זווית2:[^;]*/)?.[0] || '';
-  
-  const parts = [angle1Match, angle2Match, newUserNotes.trim()].filter(Boolean);
-  return parts.length > 0 ? parts.join(';') : null;
-};
 
 const MeasurementEditor = () => {
   const navigate = useNavigate();
