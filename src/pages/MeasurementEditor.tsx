@@ -623,15 +623,21 @@ const MeasurementEditor = () => {
                       />
                     </div>
                     {/* גובה יואים */}
-                    <div className="w-16">
+                    <div className="w-20">
                       <label className="text-[11px] text-muted-foreground block text-center">מדרגה בשיש</label>
-                      <Input
-                        value={row.jamb_height || ''}
-                        onChange={(e) => updateRow(row.id, 'jamb_height', e.target.value || null)}
-                        className="h-10 text-lg font-medium px-2 text-center"
-                        inputMode="tel"
-                        dir="ltr"
-                      />
+                      <Select
+                        value={row.jamb_height || 'none'}
+                        onValueChange={(val) => updateRow(row.id, 'jamb_height', val === 'none' ? null : val)}
+                      >
+                        <SelectTrigger className="h-10 text-sm font-medium px-2 text-center">
+                          <SelectValue placeholder="-" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">-</SelectItem>
+                          <SelectItem value="יש">יש</SelectItem>
+                          <SelectItem value="אין">אין</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     {/* מנואלה */}
                     <div className="w-14">

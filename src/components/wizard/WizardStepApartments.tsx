@@ -470,7 +470,19 @@ export function WizardStepApartments() {
                             <Input value={row.depth || ''} onChange={e => handleUpdateRow(row.id, 'depth', e.target.value || null)} className="h-9" inputMode="tel" dir="ltr" />
                           </TableCell>
                           <TableCell data-row={rowIdx} data-col={hasProductionItemColumn ? 14 : 13}>
-                            <Input value={row.jamb_height || ''} onChange={e => handleUpdateRow(row.id, 'jamb_height', e.target.value)} className="h-9" dir="ltr" />
+                            <Select
+                              value={row.jamb_height || 'none'}
+                              onValueChange={(val) => handleUpdateRow(row.id, 'jamb_height', val === 'none' ? '' : val)}
+                            >
+                              <SelectTrigger className="h-9 text-sm">
+                                <SelectValue placeholder="-" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">-</SelectItem>
+                                <SelectItem value="יש">יש</SelectItem>
+                                <SelectItem value="אין">אין</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableCell>
                           <TableCell className="text-center" data-row={rowIdx} data-col={hasProductionItemColumn ? 15 : 14}>
                             <input type="checkbox" checked={row.is_manual || false} onChange={e => handleUpdateRow(row.id, 'is_manual', e.target.checked)} className="h-5 w-5 rounded border-border" />
