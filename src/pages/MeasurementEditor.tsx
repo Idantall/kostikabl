@@ -130,9 +130,38 @@ const MeasurementEditor = () => {
     
     // Load project metadata (types + bank)
     const meta = (projectData as any).project_metadata || {};
-    setBankItems(meta.bankItems || []);
     setApartmentTypes(meta.apartmentTypes || []);
     setFloorTypes(meta.floorTypes || []);
+    
+    // Load bank items from metadata, or reconstruct from measurement_rows if empty
+    if (meta.bankItems && meta.bankItems.length > 0) {
+      setBankItems(meta.bankItems);
+    } else {
+      // Reconstruct bank from distinct contract_item values in measurement_rows
+      const { data: distinctItems } = await supabase
+        .from("measurement_rows")
+        .select("contract_item, height, width, notes")
+        .eq("project_id", parseInt(projectId))
+        .not("contract_item", "is", null)
+        .neq("contract_item", "");
+      
+      if (distinctItems && distinctItems.length > 0) {
+        const seen = new Map<string, BankItem>();
+        for (const row of distinctItems) {
+          const key = row.contract_item!;
+          if (!seen.has(key)) {
+            seen.set(key, {
+              id: crypto.randomUUID(),
+              item_no: key,
+              height: row.height || '',
+              width: row.width || '',
+              floor_height: row.notes || '',
+            });
+          }
+        }
+        setBankItems(Array.from(seen.values()));
+      }
+    }
 
     // Fetch measurement rows
     const { data: rowsData, error } = await supabase
