@@ -820,6 +820,30 @@ const MeasurementEditor = () => {
                 </CardContent>
               </Card>
             ))}
+            {/* Pagination controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 py-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                >
+                  הקודם
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  עמוד {page + 1} מתוך {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                >
+                  הבא
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </main>
