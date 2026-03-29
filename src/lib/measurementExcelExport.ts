@@ -251,10 +251,9 @@ function createWorksheet(
   const metadataCell = ws.getCell('A3');
   const site = project.name || '';
   const building = project.building_code || '';
-  // Derive apartment type from floor label if available
-  const typeMatch = floorLabel.match(/\((.+?)\)/);
-  const aptDisplay = typeMatch ? `${apartmentLabel} (${typeMatch[1]})` : apartmentLabel;
-  metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${aptDisplay}                         `;
+  // Apartment type is stored directly in apartment_label (e.g. "31 (טיפוס א)")
+  // No need to derive from floor label - apartments have their own type
+  metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${apartmentLabel}                         `;
   metadataCell.alignment = { horizontal: 'center', vertical: 'middle' };
   metadataCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(3).height = 15.95;
