@@ -497,7 +497,7 @@ const MeasurementEditor = () => {
       <div className="sticky top-[57px] z-10 bg-muted/80 backdrop-blur-sm border-b">
         <div className="container mx-auto px-3 py-3">
           <div className="flex flex-wrap gap-2 items-center">
-            <Select value={selectedFloor} onValueChange={(v) => { setSelectedFloor(v); setSelectedApartment('all'); }}>
+            <Select value={selectedFloor} onValueChange={(v) => { setSelectedFloor(v); setSelectedApartment('all'); setPage(0); }}>
               <SelectTrigger className="w-[120px]">
                 <SelectValue placeholder="קומה" />
               </SelectTrigger>
