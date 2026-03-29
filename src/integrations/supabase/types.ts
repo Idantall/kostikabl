@@ -1527,6 +1527,7 @@ export type Database = {
           parent_project_id: number | null
           production_batch_label: string | null
           production_file_path: string | null
+          project_metadata: Json | null
           source_file_path: string | null
           source_measurement_project_id: number | null
           status: string
@@ -1552,6 +1553,7 @@ export type Database = {
           parent_project_id?: number | null
           production_batch_label?: string | null
           production_file_path?: string | null
+          project_metadata?: Json | null
           source_file_path?: string | null
           source_measurement_project_id?: number | null
           status?: string
@@ -1577,6 +1579,7 @@ export type Database = {
           parent_project_id?: number | null
           production_batch_label?: string | null
           production_file_path?: string | null
+          project_metadata?: Json | null
           source_file_path?: string | null
           source_measurement_project_id?: number | null
           status?: string

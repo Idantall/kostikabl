@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Plus, Loader2, Trash2, ChevronDown, Building2, Home, FileText } from "lucide-react";
+import { ArrowRight, Plus, Loader2, Trash2, ChevronDown, Building2, Home, FileText, Package } from "lucide-react";
 import { WingPositionSelector, WingPositionValue } from "@/components/WingPositionSelector";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useOfflineSync, getAllPendingData } from "@/hooks/useOfflineSync";
 import { useDebouncedSync } from "@/hooks/useDebouncedSync";
 import { ConnectionStatusBadge } from "@/components/ConnectionStatusBadge";
+import { BankEditorDialog, BankItem } from "@/components/measurement/BankEditorDialog";
 
 interface MeasurementRow {
   id: string;
@@ -74,17 +75,25 @@ const MeasurementEditor = () => {
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   const [addFloorOpen, setAddFloorOpen] = useState(false);
   const [addApartmentOpen, setAddApartmentOpen] = useState(false);
+  const [bankEditorOpen, setBankEditorOpen] = useState(false);
+  
+  // Project metadata (types + bank)
+  const [bankItems, setBankItems] = useState<BankItem[]>([]);
+  const [apartmentTypes, setApartmentTypes] = useState<any[]>([]);
+  const [floorTypes, setFloorTypes] = useState<any[]>([]);
   
   // Add floor dialog state
   const [newFloorLabel, setNewFloorLabel] = useState('');
   const [newFloorAptCount, setNewFloorAptCount] = useState(1);
   const [newFloorAptLabels, setNewFloorAptLabels] = useState<string[]>(['1']);
   const [newFloorOpeningsPerApt, setNewFloorOpeningsPerApt] = useState(1);
+  const [newFloorTypeId, setNewFloorTypeId] = useState<string>('none');
   
   // Add apartment dialog state
   const [newAptFloor, setNewAptFloor] = useState('');
   const [newAptLabel, setNewAptLabel] = useState('');
   const [newAptOpenings, setNewAptOpenings] = useState(1);
+  const [newAptTypeId, setNewAptTypeId] = useState<string>('none');
   
   const { connectionStatus, pendingCount, lastError, queueUpdate, forceSync } = useOfflineSync(projectId);
   const { debouncedQueueUpdate, flushAll } = useDebouncedSync(queueUpdate, 600);
@@ -108,7 +117,7 @@ const MeasurementEditor = () => {
     // Fetch project
     const { data: projectData } = await supabase
       .from("projects")
-      .select("name, status")
+      .select("name, status, project_metadata")
       .eq("id", parseInt(projectId))
       .single();
     
@@ -118,6 +127,12 @@ const MeasurementEditor = () => {
       return;
     }
     setProject(projectData);
+    
+    // Load project metadata (types + bank)
+    const meta = (projectData as any).project_metadata || {};
+    setBankItems(meta.bankItems || []);
+    setApartmentTypes(meta.apartmentTypes || []);
+    setFloorTypes(meta.floorTypes || []);
 
     // Fetch measurement rows
     const { data: rowsData, error } = await supabase
@@ -250,18 +265,54 @@ const MeasurementEditor = () => {
   const addFloor = async () => {
     if (!projectId || !newFloorLabel.trim()) { toast.error("יש להזין שם קומה"); return; }
     if (connectionStatus === 'offline') { toast.error("לא ניתן להוסיף במצב אופליין"); return; }
-    const validLabels = newFloorAptLabels.filter(l => l.trim());
-    if (validLabels.length === 0) { toast.error("יש להזין לפחות דירה אחת"); return; }
-    const newRows = validLabels.flatMap(aptLabel =>
-      Array.from({ length: newFloorOpeningsPerApt }, (_, i) => ({
-        project_id: parseInt(projectId),
-        floor_label: newFloorLabel.trim(),
-        apartment_label: aptLabel.trim(),
-        sheet_name: 'ידני',
-        opening_no: String(i + 1),
-        is_manual: true,
-      }))
-    );
+    
+    const selectedFloorType = newFloorTypeId !== 'none' ? floorTypes.find((t: any) => t.id === newFloorTypeId) : null;
+    
+    let newRows: any[];
+    if (selectedFloorType) {
+      // Type-aware: create rows from floor type template
+      newRows = selectedFloorType.apartments.flatMap((apt: any, aptIdx: number) => {
+        const aptLabel = apt.label?.replace('דירה ', '') || String(aptIdx + 1);
+        return (apt.rows || []).map((row: any, rowIdx: number) => ({
+          project_id: parseInt(projectId),
+          floor_label: newFloorLabel.trim(),
+          apartment_label: aptLabel,
+          sheet_name: 'ידני',
+          opening_no: String(row.opening_no || rowIdx + 1),
+          location_in_apartment: row.location_in_apartment || null,
+          contract_item: row.contract_item || null,
+          item_code: row.item_code || null,
+          height: row.height || null,
+          width: row.width || null,
+          notes: row.notes || null,
+          hinge_direction: row.hinge_direction || null,
+          mamad: row.mamad || null,
+          glyph: row.glyph || null,
+          jamb_height: row.jamb_height || null,
+          depth: row.depth || null,
+          is_manual: row.is_manual || false,
+          engine_side: row.engine_side || null,
+          field_notes: row.field_notes || null,
+          internal_wing: row.internal_wing || null,
+          wing_position: row.wing_position || null,
+          wing_position_out: row.wing_position_out || null,
+        }));
+      });
+    } else {
+      const validLabels = newFloorAptLabels.filter(l => l.trim());
+      if (validLabels.length === 0) { toast.error("יש להזין לפחות דירה אחת"); return; }
+      newRows = validLabels.flatMap(aptLabel =>
+        Array.from({ length: newFloorOpeningsPerApt }, (_, i) => ({
+          project_id: parseInt(projectId),
+          floor_label: newFloorLabel.trim(),
+          apartment_label: aptLabel.trim(),
+          sheet_name: 'ידני',
+          opening_no: String(i + 1),
+          is_manual: true,
+        }))
+      );
+    }
+    
     const { data, error } = await supabase.from("measurement_rows").insert(newRows).select();
     if (error) { toast.error("שגיאה בהוספת קומה"); return; }
     setRows(prev => [...prev, ...(data || [])]);
@@ -275,26 +326,66 @@ const MeasurementEditor = () => {
         return getOrder(a) - getOrder(b);
       }));
     }
-    const newApts = validLabels.map(l => l.trim()).filter(l => !apartments.includes(l));
+    const allAptLabels = [...new Set((data || []).map((r: any) => r.apartment_label).filter(Boolean))] as string[];
+    const newApts = allAptLabels.filter(l => !apartments.includes(l));
     if (newApts.length > 0) {
       setApartments(prev => [...prev, ...newApts].sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
     }
     setAddFloorOpen(false);
-    setNewFloorLabel(''); setNewFloorAptCount(1); setNewFloorAptLabels(['1']); setNewFloorOpeningsPerApt(1);
-    toast.success(`קומה ${newFloorLabel} נוספה עם ${validLabels.length} דירות`);
+    setNewFloorLabel(''); setNewFloorAptCount(1); setNewFloorAptLabels(['1']); setNewFloorOpeningsPerApt(1); setNewFloorTypeId('none');
+    
+    // Auto-navigate to new floor if no type was used
+    if (!selectedFloorType) {
+      setSelectedFloor(newFloorLabel.trim());
+      setSelectedApartment('all');
+    }
+    toast.success(`קומה ${newFloorLabel} נוספה`);
   };
 
   const addApartment = async () => {
     if (!projectId || !newAptFloor || !newAptLabel.trim()) { toast.error("יש לבחור קומה ולהזין שם דירה"); return; }
     if (connectionStatus === 'offline') { toast.error("לא ניתן להוסיף במצב אופליין"); return; }
-    const newRows = Array.from({ length: newAptOpenings }, (_, i) => ({
-      project_id: parseInt(projectId),
-      floor_label: newAptFloor,
-      apartment_label: newAptLabel.trim(),
-      sheet_name: 'ידני',
-      opening_no: String(i + 1),
-      is_manual: true,
-    }));
+    
+    const selectedAptType = newAptTypeId !== 'none' ? apartmentTypes.find((t: any) => t.id === newAptTypeId) : null;
+    
+    let newRows: any[];
+    if (selectedAptType) {
+      // Type-aware: create rows from apartment type template
+      newRows = (selectedAptType.rows || []).map((row: any, idx: number) => ({
+        project_id: parseInt(projectId),
+        floor_label: newAptFloor,
+        apartment_label: newAptLabel.trim(),
+        sheet_name: 'ידני',
+        opening_no: String(row.opening_no || idx + 1),
+        location_in_apartment: row.location_in_apartment || null,
+        contract_item: row.contract_item || null,
+        item_code: row.item_code || null,
+        height: row.height || null,
+        width: row.width || null,
+        notes: row.notes || null,
+        hinge_direction: row.hinge_direction || null,
+        mamad: row.mamad || null,
+        glyph: row.glyph || null,
+        jamb_height: row.jamb_height || null,
+        depth: row.depth || null,
+        is_manual: row.is_manual || false,
+        engine_side: row.engine_side || null,
+        field_notes: row.field_notes || null,
+        internal_wing: row.internal_wing || null,
+        wing_position: row.wing_position || null,
+        wing_position_out: row.wing_position_out || null,
+      }));
+    } else {
+      newRows = Array.from({ length: newAptOpenings }, (_, i) => ({
+        project_id: parseInt(projectId),
+        floor_label: newAptFloor,
+        apartment_label: newAptLabel.trim(),
+        sheet_name: 'ידני',
+        opening_no: String(i + 1),
+        is_manual: true,
+      }));
+    }
+    
     const { data, error } = await supabase.from("measurement_rows").insert(newRows).select();
     if (error) { toast.error("שגיאה בהוספת דירה"); return; }
     setRows(prev => [...prev, ...(data || [])]);
@@ -302,7 +393,13 @@ const MeasurementEditor = () => {
       setApartments(prev => [...prev, newAptLabel.trim()].sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
     }
     setAddApartmentOpen(false);
-    setNewAptFloor(''); setNewAptLabel(''); setNewAptOpenings(1);
+    setNewAptFloor(''); setNewAptLabel(''); setNewAptOpenings(1); setNewAptTypeId('none');
+    
+    // Auto-navigate to new apartment if no type was used
+    if (!selectedAptType) {
+      setSelectedFloor(newAptFloor);
+      setSelectedApartment(newAptLabel.trim());
+    }
     toast.success(`דירה ${newAptLabel} נוספה לקומה ${newAptFloor}`);
   };
 
@@ -407,6 +504,11 @@ const MeasurementEditor = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => setBankEditorOpen(true)} disabled={connectionStatus === 'offline'}>
+              <Package className="h-4 w-4" />
+              בנק פרטים
+            </Button>
 
             <span className="text-sm text-muted-foreground mr-auto">
               {filteredRows.length} שורות
@@ -716,48 +818,68 @@ const MeasurementEditor = () => {
                 dir="rtl"
               />
             </div>
-            <div>
-              <Label>מספר דירות</Label>
-              <Input
-                type="number"
-                min={1}
-                max={20}
-                value={newFloorAptCount}
-                onChange={(e) => {
-                  const count = Math.max(1, Math.min(20, parseInt(e.target.value) || 1));
-                  setNewFloorAptCount(count);
-                  setNewFloorAptLabels(Array.from({ length: count }, (_, i) => String(i + 1)));
-                }}
-              />
-            </div>
-            <div>
-              <Label>שמות דירות</Label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {newFloorAptLabels.map((label, i) => (
-                  <Input
-                    key={i}
-                    value={label}
-                    onChange={(e) => {
-                      const updated = [...newFloorAptLabels];
-                      updated[i] = e.target.value;
-                      setNewFloorAptLabels(updated);
-                    }}
-                    className="w-16 text-center"
-                    dir="rtl"
-                  />
-                ))}
+            {floorTypes.length > 0 && (
+              <div>
+                <Label>טיפוס קומה</Label>
+                <Select value={newFloorTypeId} onValueChange={setNewFloorTypeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="ללא טיפוס" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">ללא טיפוס</SelectItem>
+                    {floorTypes.map((t: any) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name} ({t.apartments?.length || 0} דירות)</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            <div>
-              <Label>פתחים לדירה</Label>
-              <Input
-                type="number"
-                min={1}
-                max={35}
-                value={newFloorOpeningsPerApt}
-                onChange={(e) => setNewFloorOpeningsPerApt(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
-              />
-            </div>
+            )}
+            {newFloorTypeId === 'none' && (
+              <>
+                <div>
+                  <Label>מספר דירות</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={newFloorAptCount}
+                    onChange={(e) => {
+                      const count = Math.max(1, Math.min(20, parseInt(e.target.value) || 1));
+                      setNewFloorAptCount(count);
+                      setNewFloorAptLabels(Array.from({ length: count }, (_, i) => String(i + 1)));
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>שמות דירות</Label>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {newFloorAptLabels.map((label, i) => (
+                      <Input
+                        key={i}
+                        value={label}
+                        onChange={(e) => {
+                          const updated = [...newFloorAptLabels];
+                          updated[i] = e.target.value;
+                          setNewFloorAptLabels(updated);
+                        }}
+                        className="w-16 text-center"
+                        dir="rtl"
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label>פתחים לדירה</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={35}
+                    value={newFloorOpeningsPerApt}
+                    onChange={(e) => setNewFloorOpeningsPerApt(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
+                  />
+                </div>
+              </>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddFloorOpen(false)}>ביטול</Button>
@@ -795,16 +917,34 @@ const MeasurementEditor = () => {
                 dir="rtl"
               />
             </div>
-            <div>
-              <Label>מספר פתחים</Label>
-              <Input
-                type="number"
-                min={1}
-                max={35}
-                value={newAptOpenings}
-                onChange={(e) => setNewAptOpenings(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
-              />
-            </div>
+            {apartmentTypes.length > 0 && (
+              <div>
+                <Label>טיפוס דירה</Label>
+                <Select value={newAptTypeId} onValueChange={setNewAptTypeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="ללא טיפוס" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">ללא טיפוס</SelectItem>
+                    {apartmentTypes.map((t: any) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name} ({t.rows?.length || 0} פתחים)</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {newAptTypeId === 'none' && (
+              <div>
+                <Label>מספר פתחים</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={35}
+                  value={newAptOpenings}
+                  onChange={(e) => setNewAptOpenings(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddApartmentOpen(false)}>ביטול</Button>
@@ -812,6 +952,18 @@ const MeasurementEditor = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bank Editor Dialog */}
+      {projectId && (
+        <BankEditorDialog
+          open={bankEditorOpen}
+          onOpenChange={setBankEditorOpen}
+          projectId={parseInt(projectId)}
+          bankItems={bankItems}
+          onBankItemsChange={setBankItems}
+          onRowsUpdated={fetchData}
+        />
+      )}
     </div>
   );
 };
