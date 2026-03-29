@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Plus, Loader2, Trash2, ChevronDown, Building2, Home, FileText } from "lucide-react";
+import { ArrowRight, Plus, Loader2, Trash2, ChevronDown, Building2, Home, FileText, Package } from "lucide-react";
 import { WingPositionSelector, WingPositionValue } from "@/components/WingPositionSelector";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useOfflineSync, getAllPendingData } from "@/hooks/useOfflineSync";
 import { useDebouncedSync } from "@/hooks/useDebouncedSync";
 import { ConnectionStatusBadge } from "@/components/ConnectionStatusBadge";
+import { BankEditorDialog, BankItem } from "@/components/measurement/BankEditorDialog";
 
 interface MeasurementRow {
   id: string;
