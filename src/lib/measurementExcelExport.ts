@@ -287,7 +287,7 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    ws.getRow(rowIndex).height = 18;
+    ws.getRow(rowIndex).height = 30;
 
     for (let i = 0; i < columnDefs.length; i++) {
       const def = columnDefs[i];
