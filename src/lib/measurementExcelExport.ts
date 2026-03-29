@@ -98,7 +98,7 @@ function getColumnDefs(projectStatus?: string): ColumnDef[] {
   }
 
   cols.push(
-    { key: 'height', header: 'גובה', width: 13 },
+    { key: 'height', header: 'גובה', width: 5.5 },
     { key: 'width', header: 'רוחב', width: 5.5 },
     { key: 'notes', header: 'גובה מהריצוף', width: 6.5 },
     { key: 'mamad', header: 'ממד כיס בצד', width: 5.5 },
