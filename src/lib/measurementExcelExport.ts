@@ -206,8 +206,6 @@ function createWorksheet(
     views: [{ rightToLeft: true }],
     pageSetup: { orientation: 'landscape', horizontalCentered: true },
   });
-  // Force RTL at the sheet level (ExcelJS internal property)
-  (ws as any).views = [{ rightToLeft: true }];
 
   const colCount = columnDefs.length;
   const lastColLetter = String.fromCharCode(64 + colCount);
