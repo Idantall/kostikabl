@@ -72,6 +72,8 @@ const MeasurementEditor = () => {
   const [apartments, setApartments] = useState<string[]>([]);
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
   const [selectedApartment, setSelectedApartment] = useState<string>('all');
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 50;
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   const [addFloorOpen, setAddFloorOpen] = useState(false);
   const [addApartmentOpen, setAddApartmentOpen] = useState(false);
