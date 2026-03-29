@@ -1159,12 +1159,19 @@ export const MeasurementDataViewer = forwardRef<MeasurementDataViewerHandle, Mea
                         {/* מדרגה בשיש */}
                         <TableCell className="text-center text-sm">
                           {isEditing ? (
-                            <Input
-                              value={editValues.jamb_height}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, jamb_height: e.target.value }))}
-                              className="h-7 text-sm w-20 text-center"
-                              inputMode="tel"
-                            />
+                            <Select
+                              value={editValues.jamb_height || 'none'}
+                              onValueChange={(val) => setEditValues(prev => ({ ...prev, jamb_height: val === 'none' ? '' : val }))}
+                            >
+                              <SelectTrigger className="h-7 text-sm w-20 text-center">
+                                <SelectValue placeholder="-" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">-</SelectItem>
+                                <SelectItem value="יש">יש</SelectItem>
+                                <SelectItem value="אין">אין</SelectItem>
+                              </SelectContent>
+                            </Select>
                           ) : (
                             getRowField(row, 'jamb_height') || '-'
                           )}
