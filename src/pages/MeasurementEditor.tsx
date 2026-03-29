@@ -505,6 +505,11 @@ const MeasurementEditor = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => setBankEditorOpen(true)} disabled={connectionStatus === 'offline'}>
+              <Package className="h-4 w-4" />
+              בנק פרטים
+            </Button>
+
             <span className="text-sm text-muted-foreground mr-auto">
               {filteredRows.length} שורות
             </span>
