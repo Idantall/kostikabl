@@ -72,6 +72,19 @@ const MeasurementEditor = () => {
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
   const [selectedApartment, setSelectedApartment] = useState<string>('all');
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
+  const [addFloorOpen, setAddFloorOpen] = useState(false);
+  const [addApartmentOpen, setAddApartmentOpen] = useState(false);
+  
+  // Add floor dialog state
+  const [newFloorLabel, setNewFloorLabel] = useState('');
+  const [newFloorAptCount, setNewFloorAptCount] = useState(1);
+  const [newFloorAptLabels, setNewFloorAptLabels] = useState<string[]>(['1']);
+  const [newFloorOpeningsPerApt, setNewFloorOpeningsPerApt] = useState(1);
+  
+  // Add apartment dialog state
+  const [newAptFloor, setNewAptFloor] = useState('');
+  const [newAptLabel, setNewAptLabel] = useState('');
+  const [newAptOpenings, setNewAptOpenings] = useState(1);
   
   const { connectionStatus, pendingCount, lastError, queueUpdate, forceSync } = useOfflineSync(projectId);
   const { debouncedQueueUpdate, flushAll } = useDebouncedSync(queueUpdate, 600);
