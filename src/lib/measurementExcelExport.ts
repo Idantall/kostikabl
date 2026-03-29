@@ -312,7 +312,7 @@ function createWorksheet(
       } else {
         cell.font = { name: 'Calibri', size: 11, bold: false };
       }
-      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: def.key === 'field_notes' };
       cell.border = {
         top: { style: 'medium' },
         bottom: { style: 'medium' },
