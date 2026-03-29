@@ -247,7 +247,66 @@ const MeasurementEditor = () => {
     toast.success("שורה נמחקה");
   };
 
-  if (loading) {
+  const addFloor = async () => {
+    if (!projectId || !newFloorLabel.trim()) { toast.error("יש להזין שם קומה"); return; }
+    if (connectionStatus === 'offline') { toast.error("לא ניתן להוסיף במצב אופליין"); return; }
+    const validLabels = newFloorAptLabels.filter(l => l.trim());
+    if (validLabels.length === 0) { toast.error("יש להזין לפחות דירה אחת"); return; }
+    const newRows = validLabels.flatMap(aptLabel =>
+      Array.from({ length: newFloorOpeningsPerApt }, (_, i) => ({
+        project_id: parseInt(projectId),
+        floor_label: newFloorLabel.trim(),
+        apartment_label: aptLabel.trim(),
+        sheet_name: 'ידני',
+        opening_no: String(i + 1),
+        is_manual: true,
+      }))
+    );
+    const { data, error } = await supabase.from("measurement_rows").insert(newRows).select();
+    if (error) { toast.error("שגיאה בהוספת קומה"); return; }
+    setRows(prev => [...prev, ...(data || [])]);
+    if (!floors.includes(newFloorLabel.trim())) {
+      setFloors(prev => [...prev, newFloorLabel.trim()].sort((a, b) => {
+        const getOrder = (label: string) => {
+          const lower = label.toLowerCase();
+          if (lower.includes('קרקע') || lower.includes('לובי')) return 0;
+          return parseInt(label) || 999;
+        };
+        return getOrder(a) - getOrder(b);
+      }));
+    }
+    const newApts = validLabels.map(l => l.trim()).filter(l => !apartments.includes(l));
+    if (newApts.length > 0) {
+      setApartments(prev => [...prev, ...newApts].sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
+    }
+    setAddFloorOpen(false);
+    setNewFloorLabel(''); setNewFloorAptCount(1); setNewFloorAptLabels(['1']); setNewFloorOpeningsPerApt(1);
+    toast.success(`קומה ${newFloorLabel} נוספה עם ${validLabels.length} דירות`);
+  };
+
+  const addApartment = async () => {
+    if (!projectId || !newAptFloor || !newAptLabel.trim()) { toast.error("יש לבחור קומה ולהזין שם דירה"); return; }
+    if (connectionStatus === 'offline') { toast.error("לא ניתן להוסיף במצב אופליין"); return; }
+    const newRows = Array.from({ length: newAptOpenings }, (_, i) => ({
+      project_id: parseInt(projectId),
+      floor_label: newAptFloor,
+      apartment_label: newAptLabel.trim(),
+      sheet_name: 'ידני',
+      opening_no: String(i + 1),
+      is_manual: true,
+    }));
+    const { data, error } = await supabase.from("measurement_rows").insert(newRows).select();
+    if (error) { toast.error("שגיאה בהוספת דירה"); return; }
+    setRows(prev => [...prev, ...(data || [])]);
+    if (!apartments.includes(newAptLabel.trim())) {
+      setApartments(prev => [...prev, newAptLabel.trim()].sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
+    }
+    setAddApartmentOpen(false);
+    setNewAptFloor(''); setNewAptLabel(''); setNewAptOpenings(1);
+    toast.success(`דירה ${newAptLabel} נוספה לקומה ${newAptFloor}`);
+  };
+
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center" dir="rtl">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
