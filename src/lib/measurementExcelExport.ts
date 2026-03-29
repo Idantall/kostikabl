@@ -346,6 +346,12 @@ function createWorksheet(
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
       cell.font = { name: 'Calibri', size: 11, bold: false };
+      cell.border = {
+        top: { style: 'medium' },
+        bottom: { style: 'medium' },
+        left: { style: 'medium' },
+        right: { style: 'medium' },
+      };
     }
     rowIndex++;
   }
