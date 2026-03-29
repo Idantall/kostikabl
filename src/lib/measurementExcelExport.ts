@@ -251,7 +251,10 @@ function createWorksheet(
   const metadataCell = ws.getCell('A3');
   const site = project.name || '';
   const building = project.building_code || '';
-  metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${apartmentLabel}                         `;
+  // Derive apartment type from floor label if available
+  const typeMatch = floorLabel.match(/\((.+?)\)/);
+  const aptDisplay = typeMatch ? `${apartmentLabel} (${typeMatch[1]})` : apartmentLabel;
+  metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${aptDisplay}                         `;
   metadataCell.alignment = { horizontal: 'center', vertical: 'middle' };
   metadataCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(3).height = 15.95;
