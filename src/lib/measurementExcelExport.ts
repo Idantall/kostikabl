@@ -104,8 +104,8 @@ function getColumnDefs(projectStatus?: string): ColumnDef[] {
     { key: 'mamad', header: 'ממד כיס בצד', width: 6.5 },
     { key: 'engine_side', header: 'צד מנוע', width: 5.5 },
     { key: 'internal_wing', header: 'כנף פנימית מבט פנים', width: 7 },
-    { key: 'wing_position', header: 'ציר מבט פנים פתיחה פנימה', width: 7, isWingImage: true },
-    { key: 'wing_position_out', header: 'ציר מבט פנים פתיחה החוצה', width: 7, isWingImage: true },
+    { key: 'wing_position', header: 'ציר פנימה', width: 8, isWingImage: true },
+    { key: 'wing_position_out', header: 'ציר החוצה', width: 8, isWingImage: true },
     { key: 'glyph', header: 'גליף', width: 5 },
     { key: 'depth', header: 'עומק עד הפריקסט', width: 6.5 },
     { key: 'jamb_height', header: 'מדרגה בשיש', width: 6.5 },
@@ -251,7 +251,10 @@ function createWorksheet(
   const metadataCell = ws.getCell('A3');
   const site = project.name || '';
   const building = project.building_code || '';
-  metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${apartmentLabel}                         `;
+  // Derive apartment type from floor label if available
+  const typeMatch = floorLabel.match(/\((.+?)\)/);
+  const aptDisplay = typeMatch ? `${apartmentLabel} (${typeMatch[1]})` : apartmentLabel;
+  metadataCell.value = `   לקוח/קבלן:                      באתר:    ${site}                     בניין:  ${building}                 קומה:  ${floorLabel}         דירה:   ${aptDisplay}                         `;
   metadataCell.alignment = { horizontal: 'center', vertical: 'middle' };
   metadataCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(3).height = 15.95;
