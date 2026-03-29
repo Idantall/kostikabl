@@ -269,10 +269,10 @@ function createWorksheet(
     cell.alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
     cell.font = { name: 'Calibri', size: 11, bold: false };
     cell.border = {
-      top: { style: 'thin' },
-      bottom: { style: 'thin' },
-      left: { style: 'thin' },
-      right: { style: 'thin' },
+      top: { style: 'medium' },
+      bottom: { style: 'medium' },
+      left: { style: 'medium' },
+      right: { style: 'medium' },
     };
   }
 
