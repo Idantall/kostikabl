@@ -218,9 +218,18 @@ function createWorksheet(
 
   // ROW 1: Title row
   ws.mergeCells(`A1:${String.fromCharCode(64 + Math.min(colCount, 12))}1`);
+  let titlePrefix = 'דף מידות לביצוע';
+  if (projectStatus === 'blind_jambs') {
+    titlePrefix = 'דף מידות משקופים';
+  } else if (projectStatus === 'pre_contract') {
+    titlePrefix = 'דף מידות חוזה';
+  }
   const ruleHe = project.measurement_rule === 'conventional' ? 'קונבנציונלי' : 'ברנוביץ';
+  const showRule = projectStatus === 'measurement' || projectStatus === 'running';
   const titleCell = ws.getCell('A1');
-  titleCell.value = `דף מידות לביצוע  -  ${ruleHe}  -   אלום קוסטיקה י.ש בע"מ`;
+  titleCell.value = showRule
+    ? `${titlePrefix}  -  ${ruleHe}  -   אלום קוסטיקה י.ש בע"מ`
+    : `${titlePrefix}  -   אלום קוסטיקה י.ש בע"מ`;
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
   titleCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(1).height = 15.95;
