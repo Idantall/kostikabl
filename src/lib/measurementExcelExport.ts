@@ -349,6 +349,7 @@ function createWorksheet(
       cell.value = '';
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
       cell.font = { name: 'Calibri', size: 11, bold: false };
+      cell.border = mediumBorder;
     }
     rowIndex++;
   }
