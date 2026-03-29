@@ -113,6 +113,13 @@ export function WizardStepReview() {
 
       const projectStatus = projectType === 'pre_contract' ? 'pre_contract' : 'blind_jambs';
 
+      // Build project_metadata from wizard state
+      const projectMetadata = {
+        bankItems: bankItems || [],
+        apartmentTypes: state.apartmentTypes || [],
+        floorTypes: state.floorTypes || [],
+      };
+
       if (isMultiBuilding) {
         // Create father project
         const { data: father, error: fatherError } = await supabase
@@ -131,6 +138,7 @@ export function WizardStepReview() {
             name: buildingName,
             created_by: session.user.id,
             status: projectStatus,
+            project_metadata: projectMetadata,
           };
 
           if (projectType === 'pre_contract' && contractPdfPath) {
