@@ -98,17 +98,17 @@ function getColumnDefs(projectStatus?: string): ColumnDef[] {
   }
 
   cols.push(
-    { key: 'height', header: 'גובה', width: 9 },
-    { key: 'width', header: 'רוחב', width: 9 },
+    { key: 'height', header: 'גובה', width: 13 },
+    { key: 'width', header: 'רוחב', width: 13 },
     { key: 'notes', header: 'גובה מהריצוף', width: 6.5 },
-    { key: 'mamad', header: 'ממד כיס בצד', width: 6.5 },
+    { key: 'mamad', header: 'ממד כיס בצד', width: 13 },
     { key: 'engine_side', header: 'צד מנוע', width: 5.5 },
     { key: 'internal_wing', header: 'כנף פנימית מבט פנים', width: 7 },
-    { key: 'wing_position', header: 'ציר פנימה', width: 8, isWingImage: true },
-    { key: 'wing_position_out', header: 'ציר החוצה', width: 8, isWingImage: true },
+    { key: 'wing_position', header: 'ציר מבט פנים פתיחה פנימה', width: 13, isWingImage: true },
+    { key: 'wing_position_out', header: 'ציר מבט פנים פתיחה החוצה', width: 13, isWingImage: true },
     { key: 'glyph', header: 'גליף', width: 5 },
     { key: 'depth', header: 'עומק עד הפריקסט', width: 6.5 },
-    { key: 'jamb_height', header: 'מדרגה בשיש', width: 6.5 },
+    { key: 'jamb_height', header: 'מדרגה בשיש', width: 13 },
     { key: 'is_manual', header: 'מנואלה', width: 6 },
     { key: 'field_notes', header: 'הערות', width: 28 },
   );
