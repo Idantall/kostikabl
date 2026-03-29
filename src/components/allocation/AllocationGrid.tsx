@@ -268,11 +268,22 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const ws = XLSX.utils.aoa_to_sheet(wsData);
       ws["!merges"] = merges;
 
+      // Apply bold font to all cells
+      const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
+      for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[addr]) ws[addr] = { v: "", t: "s" };
+          if (!ws[addr].s) ws[addr].s = {};
+          ws[addr].s.font = { bold: true };
+        }
+      }
+
       // Set column widths
       ws["!cols"] = [
         { wch: 12 }, // מידות
         { wch: 12 }, // מספר פרט
-        ...columnHeaders.map(() => ({ wch: 6 })),
+        ...columnHeaders.map(() => ({ wch: 8 })),
         { wch: 8 }, // סה״כ
       ];
 
