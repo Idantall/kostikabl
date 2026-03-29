@@ -205,7 +205,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
   };
 
   // Export to XLSX
-  const exportXLSX = () => {
+  const exportXLSX = async () => {
     if (filteredRows.length === 0) {
       toast.error("אין נתונים לייצוא");
       return;
@@ -213,94 +213,113 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
     setExporting(true);
     try {
-      const colCount = 2 + columnHeaders.length + 1; // מידות + מספר פרט + apts + סה״כ
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Kostika System';
+      const ws = wb.addWorksheet('הקצאה', {
+        views: [{ rightToLeft: true }],
+      });
 
-      // Row 1: floor group headers (merged), with מידות and מספר פרט spanning 2 rows
-      const row1: string[] = ["מידות", "מספר פרט"];
-      const merges: XLSX.Range[] = [
-        { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }, // מידות spans 2 rows
-        { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }, // מספר פרט spans 2 rows
-        { s: { r: 0, c: colCount - 1 }, e: { r: 1, c: colCount - 1 } }, // סה״כ spans 2 rows
-      ];
+      const colCount = 2 + columnHeaders.length + 1;
+      const boldFont: Partial<ExcelJS.Font> = { name: 'Calibri', size: 11, bold: true };
+      const centerAlign: Partial<ExcelJS.Alignment> = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      const thinBorder: Partial<ExcelJS.Borders> = {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+      };
 
-      let aptColStart = 2;
+      // Row 1: floor group headers
+      const row1Data: string[] = ['מידות', 'מספר פרט'];
       for (const span of floorSpans) {
-        row1.push(span.label);
-        // Fill remaining cells in this floor group with empty strings
-        for (let i = 1; i < span.colspan; i++) {
-          row1.push("");
-        }
+        row1Data.push(span.label);
+        for (let i = 1; i < span.colspan; i++) row1Data.push('');
+      }
+      row1Data.push('סה״כ');
+      const exRow1 = ws.addRow(row1Data);
+
+      // Row 2: apartment numbers
+      const row2Data: string[] = ['', ''];
+      for (const col of columnHeaders) {
+        row2Data.push(`דירה ${col.label}`);
+      }
+      row2Data.push('');
+      const exRow2 = ws.addRow(row2Data);
+
+      // Merges: מידות, מספר פרט, סה״כ span 2 rows
+      ws.mergeCells(1, 1, 2, 1);
+      ws.mergeCells(1, 2, 2, 2);
+      ws.mergeCells(1, colCount, 2, colCount);
+
+      // Merge floor group headers
+      let aptColStart = 3;
+      for (const span of floorSpans) {
         if (span.colspan > 1) {
-          merges.push({
-            s: { r: 0, c: aptColStart },
-            e: { r: 0, c: aptColStart + span.colspan - 1 },
-          });
+          ws.mergeCells(1, aptColStart, 1, aptColStart + span.colspan - 1);
         }
         aptColStart += span.colspan;
       }
-      row1.push("סה״כ");
 
-      // Row 2: apartment numbers
-      const row2: string[] = ["", ""];
-      for (const col of columnHeaders) {
-        row2.push(`דירה ${col.label}`);
-      }
-      row2.push("");
+      // Style header rows
+      [exRow1, exRow2].forEach(r => {
+        r.eachCell({ includeEmpty: true }, cell => {
+          cell.font = boldFont;
+          cell.alignment = centerAlign;
+          cell.border = thinBorder;
+        });
+      });
 
-      // Data rows (starting at row index 2)
-      const dataRows = filteredRows.map(row => {
+      // Data rows
+      for (const row of filteredRows) {
         const rowData: (string | number)[] = [row.dimensions, row.itemCode];
         for (const col of columnHeaders) {
           rowData.push(getCellValue(row.itemCode, col.aptId));
         }
         rowData.push(getRowTotal(row.itemCode));
-        return rowData;
-      });
+        const exRow = ws.addRow(rowData);
+        exRow.eachCell({ includeEmpty: true }, cell => {
+          cell.font = boldFont;
+          cell.alignment = centerAlign;
+          cell.border = thinBorder;
+        });
+      }
 
       // Totals row
-      const totalsRow: (string | number)[] = ["", "סה״כ"];
+      const totalsData: (string | number)[] = ['', 'סה״כ'];
       for (const col of columnHeaders) {
-        totalsRow.push(columnTotals.get(col.aptId) || 0);
+        totalsData.push(columnTotals.get(col.aptId) || 0);
       }
-      totalsRow.push(grandTotal);
+      totalsData.push(grandTotal);
+      const totalsExRow = ws.addRow(totalsData);
+      totalsExRow.eachCell({ includeEmpty: true }, cell => {
+        cell.font = boldFont;
+        cell.alignment = centerAlign;
+        cell.border = thinBorder;
+      });
 
-      // Create worksheet
-      const wsData = [row1, row2, ...dataRows, totalsRow];
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-      ws["!merges"] = merges;
-
-      // Apply bold font to all cells
-      const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
-      for (let R = range.s.r; R <= range.e.r; R++) {
-        for (let C = range.s.c; C <= range.e.c; C++) {
-          const addr = XLSX.utils.encode_cell({ r: R, c: C });
-          if (!ws[addr]) ws[addr] = { v: "", t: "s" };
-          if (!ws[addr].s) ws[addr].s = {};
-          ws[addr].s.font = { bold: true };
-        }
+      // Column widths
+      ws.getColumn(1).width = 12;
+      ws.getColumn(2).width = 12;
+      for (let i = 3; i <= 2 + columnHeaders.length; i++) {
+        ws.getColumn(i).width = 8;
       }
+      ws.getColumn(colCount).width = 8;
 
-      // Set column widths
-      ws["!cols"] = [
-        { wch: 12 }, // מידות
-        { wch: 12 }, // מספר פרט
-        ...columnHeaders.map(() => ({ wch: 8 })),
-        { wch: 8 }, // סה״כ
-      ];
+      // Generate and download
+      const buffer = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `${projectName}-allocation-${date}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-      // Create workbook with RTL
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "הקצאה");
-      if (wb.Workbook?.Sheets?.[0]) {
-        (wb.Workbook.Sheets[0] as any).Views = [{ RTL: true }];
-      } else {
-        wb.Workbook = { Sheets: [{ Views: [{ RTL: true }] } as any] };
-      }
-
-      // Generate file
-      const date = new Date().toISOString().split("T")[0];
-      XLSX.writeFile(wb, `${projectName}-allocation-${date}.xlsx`);
-      
       toast.success("הקובץ הורד בהצלחה");
     } catch (error) {
       console.error("Export error:", error);
