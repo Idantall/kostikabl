@@ -509,7 +509,7 @@ const MeasurementEditor = () => {
               </SelectContent>
             </Select>
 
-            <Select value={selectedApartment} onValueChange={setSelectedApartment}>
+            <Select value={selectedApartment} onValueChange={(v) => { setSelectedApartment(v); setPage(0); }}>
               <SelectTrigger className="w-[120px]">
                 <SelectValue placeholder="דירה" />
               </SelectTrigger>
