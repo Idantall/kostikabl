@@ -287,7 +287,7 @@ function createWorksheet(
   // DATA ROWS (starting at row 6)
   let rowIndex = 6;
   for (const row of sortedRows) {
-    // Don't set explicit row height — let Excel auto-fit with wrapText
+    ws.getRow(rowIndex).height = 18;
 
     for (let i = 0; i < columnDefs.length; i++) {
       const def = columnDefs[i];
