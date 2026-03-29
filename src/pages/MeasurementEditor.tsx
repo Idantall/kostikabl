@@ -265,18 +265,54 @@ const MeasurementEditor = () => {
   const addFloor = async () => {
     if (!projectId || !newFloorLabel.trim()) { toast.error("יש להזין שם קומה"); return; }
     if (connectionStatus === 'offline') { toast.error("לא ניתן להוסיף במצב אופליין"); return; }
-    const validLabels = newFloorAptLabels.filter(l => l.trim());
-    if (validLabels.length === 0) { toast.error("יש להזין לפחות דירה אחת"); return; }
-    const newRows = validLabels.flatMap(aptLabel =>
-      Array.from({ length: newFloorOpeningsPerApt }, (_, i) => ({
-        project_id: parseInt(projectId),
-        floor_label: newFloorLabel.trim(),
-        apartment_label: aptLabel.trim(),
-        sheet_name: 'ידני',
-        opening_no: String(i + 1),
-        is_manual: true,
-      }))
-    );
+    
+    const selectedFloorType = newFloorTypeId !== 'none' ? floorTypes.find((t: any) => t.id === newFloorTypeId) : null;
+    
+    let newRows: any[];
+    if (selectedFloorType) {
+      // Type-aware: create rows from floor type template
+      newRows = selectedFloorType.apartments.flatMap((apt: any, aptIdx: number) => {
+        const aptLabel = apt.label?.replace('דירה ', '') || String(aptIdx + 1);
+        return (apt.rows || []).map((row: any, rowIdx: number) => ({
+          project_id: parseInt(projectId),
+          floor_label: newFloorLabel.trim(),
+          apartment_label: aptLabel,
+          sheet_name: 'ידני',
+          opening_no: String(row.opening_no || rowIdx + 1),
+          location_in_apartment: row.location_in_apartment || null,
+          contract_item: row.contract_item || null,
+          item_code: row.item_code || null,
+          height: row.height || null,
+          width: row.width || null,
+          notes: row.notes || null,
+          hinge_direction: row.hinge_direction || null,
+          mamad: row.mamad || null,
+          glyph: row.glyph || null,
+          jamb_height: row.jamb_height || null,
+          depth: row.depth || null,
+          is_manual: row.is_manual || false,
+          engine_side: row.engine_side || null,
+          field_notes: row.field_notes || null,
+          internal_wing: row.internal_wing || null,
+          wing_position: row.wing_position || null,
+          wing_position_out: row.wing_position_out || null,
+        }));
+      });
+    } else {
+      const validLabels = newFloorAptLabels.filter(l => l.trim());
+      if (validLabels.length === 0) { toast.error("יש להזין לפחות דירה אחת"); return; }
+      newRows = validLabels.flatMap(aptLabel =>
+        Array.from({ length: newFloorOpeningsPerApt }, (_, i) => ({
+          project_id: parseInt(projectId),
+          floor_label: newFloorLabel.trim(),
+          apartment_label: aptLabel.trim(),
+          sheet_name: 'ידני',
+          opening_no: String(i + 1),
+          is_manual: true,
+        }))
+      );
+    }
+    
     const { data, error } = await supabase.from("measurement_rows").insert(newRows).select();
     if (error) { toast.error("שגיאה בהוספת קומה"); return; }
     setRows(prev => [...prev, ...(data || [])]);
@@ -290,13 +326,20 @@ const MeasurementEditor = () => {
         return getOrder(a) - getOrder(b);
       }));
     }
-    const newApts = validLabels.map(l => l.trim()).filter(l => !apartments.includes(l));
+    const allAptLabels = [...new Set((data || []).map((r: any) => r.apartment_label).filter(Boolean))] as string[];
+    const newApts = allAptLabels.filter(l => !apartments.includes(l));
     if (newApts.length > 0) {
       setApartments(prev => [...prev, ...newApts].sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
     }
     setAddFloorOpen(false);
-    setNewFloorLabel(''); setNewFloorAptCount(1); setNewFloorAptLabels(['1']); setNewFloorOpeningsPerApt(1);
-    toast.success(`קומה ${newFloorLabel} נוספה עם ${validLabels.length} דירות`);
+    setNewFloorLabel(''); setNewFloorAptCount(1); setNewFloorAptLabels(['1']); setNewFloorOpeningsPerApt(1); setNewFloorTypeId('none');
+    
+    // Auto-navigate to new floor if no type was used
+    if (!selectedFloorType) {
+      setSelectedFloor(newFloorLabel.trim());
+      setSelectedApartment('all');
+    }
+    toast.success(`קומה ${newFloorLabel} נוספה`);
   };
 
   const addApartment = async () => {
