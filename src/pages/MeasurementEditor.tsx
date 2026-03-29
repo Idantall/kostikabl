@@ -189,15 +189,21 @@ const MeasurementEditor = () => {
     const uniqueFloors = [...new Set((rowsData || []).map(r => r.floor_label).filter(Boolean))] as string[];
     const uniqueApartments = [...new Set((rowsData || []).map(r => r.apartment_label).filter(Boolean))] as string[];
     // Floor sorting: קרקע/לובי come first (as floor 0), then numeric order
-    setFloors(uniqueFloors.sort((a, b) => {
+    const sortedFloors = uniqueFloors.sort((a, b) => {
       const getOrder = (label: string) => {
         const lower = label.toLowerCase();
         if (lower.includes('קרקע') || lower.includes('לובי') || lower.includes('lobby') || lower.includes('ground')) return 0;
         return parseInt(label) || 999;
       };
       return getOrder(a) - getOrder(b);
-    }));
+    });
+    setFloors(sortedFloors);
     setApartments(uniqueApartments.sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
+    
+    // Auto-select first floor when there are many rows to prevent rendering 1000+ cards
+    if ((rowsData || []).length > 50 && sortedFloors.length > 0) {
+      setSelectedFloor(sortedFloors[0]);
+    }
   };
 
   const filteredRows = rows
