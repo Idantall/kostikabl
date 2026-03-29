@@ -229,8 +229,8 @@ function createWorksheet(
   const showRule = projectStatus === 'measurement' || projectStatus === 'running';
   const titleCell = ws.getCell('A1');
   titleCell.value = showRule
-    ? `${titlePrefix}  -  ${ruleHe}  -   אלום קוסטיקה י.ש בע"מ`
-    : `${titlePrefix}  -   אלום קוסטיקה י.ש בע"מ`;
+    ? `${titlePrefix}  -  ${ruleHe}  -   אלום קוסטיקה בע"מ`
+    : `${titlePrefix}  -   אלום קוסטיקה בע"מ`;
   titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
   titleCell.font = { name: 'Calibri', size: 11, bold: true };
   ws.getRow(1).height = 15.95;
