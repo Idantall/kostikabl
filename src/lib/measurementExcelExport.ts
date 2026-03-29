@@ -313,6 +313,7 @@ function createWorksheet(
         cell.font = { name: 'Calibri', size: 11, bold: false };
       }
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = mediumBorder;
     }
 
     // Embed wing images
