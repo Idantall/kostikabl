@@ -818,48 +818,68 @@ const MeasurementEditor = () => {
                 dir="rtl"
               />
             </div>
-            <div>
-              <Label>מספר דירות</Label>
-              <Input
-                type="number"
-                min={1}
-                max={20}
-                value={newFloorAptCount}
-                onChange={(e) => {
-                  const count = Math.max(1, Math.min(20, parseInt(e.target.value) || 1));
-                  setNewFloorAptCount(count);
-                  setNewFloorAptLabels(Array.from({ length: count }, (_, i) => String(i + 1)));
-                }}
-              />
-            </div>
-            <div>
-              <Label>שמות דירות</Label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {newFloorAptLabels.map((label, i) => (
-                  <Input
-                    key={i}
-                    value={label}
-                    onChange={(e) => {
-                      const updated = [...newFloorAptLabels];
-                      updated[i] = e.target.value;
-                      setNewFloorAptLabels(updated);
-                    }}
-                    className="w-16 text-center"
-                    dir="rtl"
-                  />
-                ))}
+            {floorTypes.length > 0 && (
+              <div>
+                <Label>טיפוס קומה</Label>
+                <Select value={newFloorTypeId} onValueChange={setNewFloorTypeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="ללא טיפוס" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">ללא טיפוס</SelectItem>
+                    {floorTypes.map((t: any) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name} ({t.apartments?.length || 0} דירות)</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            <div>
-              <Label>פתחים לדירה</Label>
-              <Input
-                type="number"
-                min={1}
-                max={35}
-                value={newFloorOpeningsPerApt}
-                onChange={(e) => setNewFloorOpeningsPerApt(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
-              />
-            </div>
+            )}
+            {newFloorTypeId === 'none' && (
+              <>
+                <div>
+                  <Label>מספר דירות</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={newFloorAptCount}
+                    onChange={(e) => {
+                      const count = Math.max(1, Math.min(20, parseInt(e.target.value) || 1));
+                      setNewFloorAptCount(count);
+                      setNewFloorAptLabels(Array.from({ length: count }, (_, i) => String(i + 1)));
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>שמות דירות</Label>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {newFloorAptLabels.map((label, i) => (
+                      <Input
+                        key={i}
+                        value={label}
+                        onChange={(e) => {
+                          const updated = [...newFloorAptLabels];
+                          updated[i] = e.target.value;
+                          setNewFloorAptLabels(updated);
+                        }}
+                        className="w-16 text-center"
+                        dir="rtl"
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label>פתחים לדירה</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={35}
+                    value={newFloorOpeningsPerApt}
+                    onChange={(e) => setNewFloorOpeningsPerApt(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
+                  />
+                </div>
+              </>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddFloorOpen(false)}>ביטול</Button>
@@ -897,16 +917,34 @@ const MeasurementEditor = () => {
                 dir="rtl"
               />
             </div>
-            <div>
-              <Label>מספר פתחים</Label>
-              <Input
-                type="number"
-                min={1}
-                max={35}
-                value={newAptOpenings}
-                onChange={(e) => setNewAptOpenings(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
-              />
-            </div>
+            {apartmentTypes.length > 0 && (
+              <div>
+                <Label>טיפוס דירה</Label>
+                <Select value={newAptTypeId} onValueChange={setNewAptTypeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="ללא טיפוס" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">ללא טיפוס</SelectItem>
+                    {apartmentTypes.map((t: any) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name} ({t.rows?.length || 0} פתחים)</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {newAptTypeId === 'none' && (
+              <div>
+                <Label>מספר פתחים</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={35}
+                  value={newAptOpenings}
+                  onChange={(e) => setNewAptOpenings(Math.max(1, Math.min(35, parseInt(e.target.value) || 1)))}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddApartmentOpen(false)}>ביטול</Button>
@@ -914,6 +952,18 @@ const MeasurementEditor = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bank Editor Dialog */}
+      {projectId && (
+        <BankEditorDialog
+          open={bankEditorOpen}
+          onOpenChange={setBankEditorOpen}
+          projectId={parseInt(projectId)}
+          bankItems={bankItems}
+          onBankItemsChange={setBankItems}
+          onRowsUpdated={fetchData}
+        />
+      )}
     </div>
   );
 };
