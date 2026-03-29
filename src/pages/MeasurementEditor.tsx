@@ -218,6 +218,9 @@ const MeasurementEditor = () => {
       return aNum - bNum;
     });
 
+  const totalPages = Math.ceil(filteredRows.length / PAGE_SIZE);
+  const paginatedRows = filteredRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
   const filteredApartments = selectedFloor === 'all' 
     ? apartments 
     : [...new Set(rows.filter(r => r.floor_label === selectedFloor).map(r => r.apartment_label).filter(Boolean))] as string[];
