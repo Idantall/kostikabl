@@ -117,7 +117,7 @@ const MeasurementEditor = () => {
     // Fetch project
     const { data: projectData } = await supabase
       .from("projects")
-      .select("name, status")
+      .select("name, status, project_metadata")
       .eq("id", parseInt(projectId))
       .single();
     
@@ -127,6 +127,12 @@ const MeasurementEditor = () => {
       return;
     }
     setProject(projectData);
+    
+    // Load project metadata (types + bank)
+    const meta = (projectData as any).project_metadata || {};
+    setBankItems(meta.bankItems || []);
+    setApartmentTypes(meta.apartmentTypes || []);
+    setFloorTypes(meta.floorTypes || []);
 
     // Fetch measurement rows
     const { data: rowsData, error } = await supabase
