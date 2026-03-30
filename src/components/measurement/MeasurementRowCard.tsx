@@ -61,6 +61,7 @@ export const MeasurementRowCard = memo(function MeasurementRowCard({
   connectionStatus,
   onFieldChange,
   onDelete,
+  onLabelChange,
 }: MeasurementRowCardProps) {
   const updateField = useCallback(
     (field: keyof MeasurementRowData, value: string | boolean | null) => {
