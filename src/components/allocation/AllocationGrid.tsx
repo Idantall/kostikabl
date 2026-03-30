@@ -515,10 +515,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       headerImg.style.cssText = 'width:100%;height:auto;display:block;margin-bottom:6px;';
       container.appendChild(headerImg);
 
-      // Addressee fields (לכבוד / אתר / לידי)
+      // Date + Addressee fields
+      const now2 = new Date();
+      const dateStr = `${String(now2.getDate()).padStart(2, '0')}/${String(now2.getMonth() + 1).padStart(2, '0')}/${now2.getFullYear()}`;
       const fieldsDiv = document.createElement('div');
       fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:14px;font-weight:bold;margin:8px 4px;line-height:1.8;';
-      fieldsDiv.innerHTML = 'לכבוד:<br/>אתר:<br/>לידי:';
+      fieldsDiv.innerHTML = `${dateStr}<br/>לכבוד:<br/>אתר:<br/>לידי:`;
       container.appendChild(fieldsDiv);
 
       // Build the table
