@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, ArrowRight, Plus, Trash2, Copy, Building2, Home, ChevronDown, ChevronUp, Pencil, Check, X, Save, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export function WizardStepFloors() {
   const { state, dispatch, currentFloors } = useWizard();
@@ -457,10 +458,24 @@ export function WizardStepFloors() {
                     <CollapsibleTrigger asChild>
                       <div className="flex items-center justify-between p-3 bg-muted/50 cursor-pointer hover:bg-muted transition-colors">
                         <div className="flex items-center gap-3">
-                          {expandedFloors.has(floor.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          
                           <Input value={floor.label} onChange={e => handleUpdateFloorLabel(floor.id, e.target.value)} onClick={e => e.stopPropagation()} className="w-32 h-8" dir="rtl" />
                           <Badge variant="outline">{floor.apartments.length} דירות</Badge>
-                          {floor.sourceFloorTypeName && <Badge variant="secondary" className="text-xs">טיפוס {floor.sourceFloorTypeName}</Badge>}
+                          {floor.sourceFloorTypeName && (
+                            <Badge variant="secondary" className="text-xs gap-1">
+                              טיפוס {floor.sourceFloorTypeName}
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  dispatch({ type: 'CLEAR_FLOOR_TYPE_TAG', payload: floor.id });
+                                }}
+                                className="hover:text-destructive"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           
@@ -513,7 +528,18 @@ export function WizardStepFloors() {
                                 <>
                                   <span className="text-sm font-medium">{apt.label}</span>
                                   <span className="text-xs text-muted-foreground">({apt.rows.length} שורות)</span>
-                                  {apt.sourceApartmentTypeName && <Badge variant="secondary" className="text-[10px] px-1 py-0">טיפוס {apt.sourceApartmentTypeName}</Badge>}
+                                  {apt.sourceApartmentTypeName && (
+                                    <Badge variant="secondary" className="text-[10px] px-1 py-0 gap-0.5">
+                                      טיפוס {apt.sourceApartmentTypeName}
+                                      <button
+                                        type="button"
+                                        onClick={() => dispatch({ type: 'CLEAR_APARTMENT_TYPE_TAG', payload: { floorId: floor.id, apartmentId: apt.id } })}
+                                        className="hover:text-destructive"
+                                      >
+                                        <X className="h-2.5 w-2.5" />
+                                      </button>
+                                    </Badge>
+                                  )}
                                   <Button
                                     variant="ghost"
                                     size="icon"
@@ -531,10 +557,18 @@ export function WizardStepFloors() {
                             </div>
                           ))}
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => handleAddApartment(floor.id)} className="gap-2">
-                          <Plus className="h-3 w-3" />
-                          הוסף דירה
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={() => handleAddApartment(floor.id)} className="gap-2">
+                            <Plus className="h-3 w-3" />
+                            הוסף דירה
+                          </Button>
+                          <AddMultipleApartmentsPopover floorId={floor.id} onAdd={(floorId, count) => {
+                            for (let i = 0; i < count; i++) {
+                              handleAddApartment(floorId);
+                            }
+                            toast.success(`נוספו ${count} דירות`);
+                          }} />
+                        </div>
                       </div>
                     </CollapsibleContent>
                   </div>
@@ -686,5 +720,30 @@ export function WizardStepFloors() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function AddMultipleApartmentsPopover({ floorId, onAdd }: { floorId: string; onAdd: (floorId: string, count: number) => void }) {
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState('3');
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm">הוסף מספר דירות</Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 bg-background" align="start">
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">כמות דירות להוספה</Label>
+          <Input type="number" min="1" max="30" value={count} onChange={e => setCount(e.target.value)} dir="ltr" className="h-9" />
+          <Button size="sm" className="w-full" onClick={() => {
+            const n = parseInt(count);
+            if (isNaN(n) || n < 1 || n > 30) { toast.error('כמות לא תקינה (1-30)'); return; }
+            onAdd(floorId, n);
+            setOpen(false);
+            setCount('3');
+          }}>הוסף</Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Plus, Trash2, Upload, Download, AlertCircle, FileText, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import * as XLSX from 'xlsx';
@@ -421,11 +422,26 @@ export function WizardStepBank() {
             </div>
           )}
 
-          {/* Add item button */}
-          <Button variant="outline" onClick={handleAddItem} className="gap-2">
-            <Plus className="h-4 w-4" />
-            הוסף פרט
-          </Button>
+          {/* Add item buttons */}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleAddItem} className="gap-2">
+              <Plus className="h-4 w-4" />
+              הוסף פרט
+            </Button>
+            <AddMultipleBankItemsPopover onAdd={(count) => {
+              for (let i = 0; i < count; i++) {
+                const newItem: BankItem = {
+                  id: crypto.randomUUID(),
+                  item_no: '',
+                  height: '',
+                  width: '',
+                  floor_height: '',
+                };
+                dispatch({ type: 'ADD_BANK_ITEM', payload: newItem });
+              }
+              toast.success(`נוספו ${count} פרטים`);
+            }} />
+          </div>
         </CardContent>
       </Card>
 
@@ -550,5 +566,31 @@ export function WizardStepBank() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+// Inline helper component for multi-add
+function AddMultipleBankItemsPopover({ onAdd }: { onAdd: (count: number) => void }) {
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState('5');
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm">הוסף מספר פרטים</Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 bg-background" align="start">
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">כמות פרטים להוספה</Label>
+          <Input type="number" min="1" max="50" value={count} onChange={e => setCount(e.target.value)} dir="ltr" className="h-9" />
+          <Button size="sm" className="w-full" onClick={() => {
+            const n = parseInt(count);
+            if (isNaN(n) || n < 1 || n > 50) { toast.error('כמות לא תקינה (1-50)'); return; }
+            onAdd(n);
+            setOpen(false);
+            setCount('5');
+          }}>הוסף</Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

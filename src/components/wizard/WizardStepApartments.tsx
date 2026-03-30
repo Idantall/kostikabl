@@ -304,9 +304,9 @@ export function WizardStepApartments() {
           {currentApartment ? (
             <>
               <ScrollArea className="w-full" dir="rtl">
-                <div className="border rounded-lg min-w-[1500px]" ref={tableRef} onKeyDown={onTableKeyDown}>
+                <div className="border rounded-lg min-w-[1500px] max-h-[70vh] overflow-y-auto" ref={tableRef} onKeyDown={onTableKeyDown}>
                   <Table dir="rtl" className="table-fixed">
-                    <TableHeader>
+                    <TableHeader className="sticky top-0 z-10 bg-background">
                     <TableRow>
                          <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
@@ -611,7 +611,8 @@ export function WizardStepApartments() {
             <DialogTitle>החל סוג דירה</DialogTitle>
             <DialogDescription>בחר סוג דירה להחלה על הדירה הנוכחית. הנתונים הקיימים יוחלפו.</DialogDescription>
           </DialogHeader>
-          <div className="py-4 space-y-2">
+          <ScrollArea className="max-h-[60vh]">
+          <div className="py-4 space-y-2 pr-4">
             {state.apartmentTypes.map(t => (
               <Button
                 key={t.id}
@@ -633,6 +634,7 @@ export function WizardStepApartments() {
               </Button>
             ))}
           </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>

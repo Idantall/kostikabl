@@ -72,7 +72,9 @@ type WizardAction =
   | { type: 'APPLY_APARTMENT_TYPE'; payload: { typeId: string; floorId: string; apartmentId: string } }
   | { type: 'SAVE_FLOOR_TYPE'; payload: { name: string; floor: WizardFloor } }
   | { type: 'DELETE_FLOOR_TYPE'; payload: string }
-  | { type: 'APPLY_FLOOR_TYPE'; payload: { typeId: string; targetFloorIds: string[] } }
+   | { type: 'APPLY_FLOOR_TYPE'; payload: { typeId: string; targetFloorIds: string[] } }
+  | { type: 'CLEAR_FLOOR_TYPE_TAG'; payload: string }
+  | { type: 'CLEAR_APARTMENT_TYPE_TAG'; payload: { floorId: string; apartmentId: string } }
   | { type: 'RESET' };
 
 const initialState: WizardState = {
@@ -449,6 +451,27 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         })
       );
     }
+
+    case 'CLEAR_FLOOR_TYPE_TAG':
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(f => f.id === action.payload ? { ...f, sourceFloorTypeName: null } : f)
+      );
+
+    case 'CLEAR_APARTMENT_TYPE_TAG':
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(f =>
+          f.id === action.payload.floorId
+            ? {
+                ...f,
+                apartments: f.apartments.map(a =>
+                  a.id === action.payload.apartmentId
+                    ? { ...a, sourceApartmentTypeName: null }
+                    : a
+                ),
+              }
+            : f
+        )
+      );
 
     case 'RESET':
       return initialState;
