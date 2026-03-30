@@ -608,6 +608,8 @@ const MeasurementEditor = () => {
                 connectionStatus={connectionStatus}
                 onFieldChange={updateRow as any}
                 onDelete={setRowToDelete}
+                onLabelChange={handleLabelChange}
+              />
               />
             ))}
             {/* Pagination controls */}
