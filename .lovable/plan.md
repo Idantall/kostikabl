@@ -1,53 +1,29 @@
 
 
-# Wizard UX Improvements — 6 Fixes
+# Enable Editing Floor & Apartment Labels in Measurement Editor
 
-## Issues & Solutions
+## What Changes
 
-### 1. Add multiple bank items at once (בנק פרטים)
-Currently only "הוסף פרט" adds one row. Add a "הוסף מספר פרטים" button with a count input (similar to the existing "הוסף מספר פתחים" popover in WizardStepApartments).
+### 1. MeasurementRowCard — Make labels editable (line 74-76)
+Replace the static `קומה {row.floor_label} | דירה {row.apartment_label}` text with two small inline editable inputs (or clickable-to-edit fields). Each calls `onFieldChange(id, 'floor_label', value)` / `onFieldChange(id, 'apartment_label', value)` on blur/enter.
 
-**File**: `src/components/wizard/WizardStepBank.tsx`
-- Add a Popover next to the existing "הוסף פרט" button with a numeric input for count
-- Loop and dispatch `ADD_BANK_ITEM` for each new empty row
+### 2. MeasurementEditor — Handle ripple effects on label change
+When a floor_label or apartment_label changes on a single row:
+- **Batch update option**: Add a confirmation prompt — "Update all rows with floor X to new label Y?" — so renaming a floor/apartment applies to all rows sharing that label, not just one row.
+- **Refresh filter lists**: After the update, recalculate the `floors` and `apartments` state arrays from the updated `rows` array so the filter dropdowns reflect the new labels immediately.
 
-### 2. Add multiple apartments per floor at once
-Currently "הוסף דירה" adds one apartment. Add a "הוסף מספר דירות" button with count input.
+### 3. Batch rename logic
+Wrap the `updateRow` handler with a special check: if the field is `floor_label` or `apartment_label` and the old value differs from the new value, show a small confirmation toast/dialog asking whether to rename all rows with the old label. If yes, loop through all matching rows and queue updates for each. If no, update only the single row.
 
-**File**: `src/components/wizard/WizardStepFloors.tsx`
-- Add a Popover or small dialog next to "הוסף דירה" (line 534)
-- Loop `ADD_APARTMENT` dispatch with auto-incremented labels
+## Technical Details
 
-### 3. Cancel/clear applied apartment or floor type
-Add a button to clear `sourceApartmentTypeName` / `sourceFloorTypeName` from an apartment or floor, essentially "un-applying" a type without deleting data.
+**Files modified:**
+- `src/components/measurement/MeasurementRowCard.tsx` — Replace static label line with two small Input fields for floor_label and apartment_label, debounced on blur
+- `src/pages/MeasurementEditor.tsx` — Add `renameFloor(oldLabel, newLabel)` and `renameApartment(floor, oldLabel, newLabel)` functions that batch-update all matching rows in state + queue DB updates. Add a rename confirmation dialog. Recalculate floor/apartment filter arrays after any label change.
 
-**Files**: 
-- `src/components/wizard/WizardContext.tsx` — Add `CLEAR_APARTMENT_TYPE_TAG` and `CLEAR_FLOOR_TYPE_TAG` actions that null out the source type name fields
-- `src/components/wizard/WizardStepFloors.tsx` — Add an X button on the floor type badge to clear it
-- `src/components/wizard/WizardStepApartments.tsx` — Add an X button on the apartment type badge in the apartment selector
-
-### 4. Remove expand/collapse arrows from floors
-Replace ChevronDown/ChevronUp icons on each floor's collapsible trigger. Keep the collapsible functionality (click to toggle) but remove the arrow icons — the entire header bar is clickable.
-
-**File**: `src/components/wizard/WizardStepFloors.tsx` (line 460)
-- Remove the `{expandedFloors.has(floor.id) ? <ChevronUp> : <ChevronDown>}` icons entirely
-
-### 5. Sticky header row in apartment table
-When scrolling vertically through 20+ rows, the table header scrolls out of view. Make the `<TableHeader>` sticky.
-
-**File**: `src/components/wizard/WizardStepApartments.tsx`
-- Add `sticky top-0 z-10 bg-background` to the `<TableHeader>` element
-- Wrap the table area in a max-height container with `overflow-y-auto` so vertical scroll is contained
-
-### 6. Add scroll to apartment type selection dialog
-The "החל סוג דירה" dialog (line 608-636) doesn't scroll when there are many types.
-
-**File**: `src/components/wizard/WizardStepApartments.tsx`
-- Wrap the type list in a `ScrollArea` with `max-h-[60vh]` or similar inside the dialog content
-
-## Files Modified
-- `src/components/wizard/WizardStepBank.tsx`
-- `src/components/wizard/WizardStepFloors.tsx`
-- `src/components/wizard/WizardStepApartments.tsx`
-- `src/components/wizard/WizardContext.tsx`
+**Ripple effects handled:**
+- Filter dropdown lists (`floors`, `apartments`) are recalculated from rows after rename
+- Selected filter values are updated if the currently-selected floor/apartment was renamed
+- All rows sharing the old label are updated in one batch (with user confirmation)
+- DB updates are queued via the existing `debouncedQueueUpdate` for each affected row
 
