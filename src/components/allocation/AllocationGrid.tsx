@@ -476,11 +476,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const headerDataUrl = toDataUrl(headerBuf);
       const footerDataUrl = toDataUrl(footerBuf);
 
-      // Build an off-screen HTML table that mirrors the allocation grid
+      // Build an off-screen HTML table — let it size naturally so nothing is cut off
       const container = document.createElement('div');
-      container.style.cssText = 'position:absolute;left:-9999px;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:0;';
-      // Wide enough for A3 landscape at 2x scale
-      container.style.width = `${1580}px`;
+      container.style.cssText = 'position:absolute;left:-9999px;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
 
       // Header image
       const headerImg = document.createElement('img');
