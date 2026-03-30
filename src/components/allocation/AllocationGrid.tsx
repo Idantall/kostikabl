@@ -505,6 +505,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       headerImg.style.cssText = 'width:100%;height:auto;display:block;margin-bottom:6px;';
       container.appendChild(headerImg);
 
+      // Addressee fields (לכבוד / אתר / לידי)
+      const fieldsDiv = document.createElement('div');
+      fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:14px;font-weight:bold;margin:8px 4px;line-height:1.8;';
+      fieldsDiv.innerHTML = 'לכבוד:<br/>אתר:<br/>לידי:';
+      container.appendChild(fieldsDiv);
+
       // Build the table
       const table = document.createElement('table');
       table.style.cssText = 'border-collapse:collapse;font-size:11px;direction:rtl;text-align:center;';
