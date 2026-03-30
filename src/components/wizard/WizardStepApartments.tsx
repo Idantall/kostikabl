@@ -634,6 +634,7 @@ export function WizardStepApartments() {
               </Button>
             ))}
           </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>

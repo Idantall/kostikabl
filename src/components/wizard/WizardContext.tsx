@@ -452,6 +452,27 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
       );
     }
 
+    case 'CLEAR_FLOOR_TYPE_TAG':
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(f => f.id === action.payload ? { ...f, sourceFloorTypeName: null } : f)
+      );
+
+    case 'CLEAR_APARTMENT_TYPE_TAG':
+      return updateCurrentBuildingFloors(state, floors =>
+        floors.map(f =>
+          f.id === action.payload.floorId
+            ? {
+                ...f,
+                apartments: f.apartments.map(a =>
+                  a.id === action.payload.apartmentId
+                    ? { ...a, sourceApartmentTypeName: null }
+                    : a
+                ),
+              }
+            : f
+        )
+      );
+
     case 'RESET':
       return initialState;
     

@@ -556,10 +556,18 @@ export function WizardStepFloors() {
                             </div>
                           ))}
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => handleAddApartment(floor.id)} className="gap-2">
-                          <Plus className="h-3 w-3" />
-                          הוסף דירה
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={() => handleAddApartment(floor.id)} className="gap-2">
+                            <Plus className="h-3 w-3" />
+                            הוסף דירה
+                          </Button>
+                          <AddMultipleApartmentsPopover floorId={floor.id} onAdd={(floorId, count) => {
+                            for (let i = 0; i < count; i++) {
+                              handleAddApartment(floorId);
+                            }
+                            toast.success(`נוספו ${count} דירות`);
+                          }} />
+                        </div>
                       </div>
                     </CollapsibleContent>
                   </div>
