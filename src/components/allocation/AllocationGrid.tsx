@@ -213,6 +213,14 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
     setExporting(true);
     try {
+      // Load branding images
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/branding/allocation-header.jpg'),
+        fetch('/branding/allocation-footer.jpg'),
+      ]);
+      const headerBuf = await headerRes.arrayBuffer();
+      const footerBuf = await footerRes.arrayBuffer();
+
       const wb = new ExcelJS.Workbook();
       wb.creator = 'Kostika System';
       const ws = wb.addWorksheet('הקצאה', {
@@ -229,7 +237,26 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         right: { style: 'thin' },
       };
 
-      // Row 1: floor group headers
+      // ── Header image (rows 1-4 reserved) ──
+      const HEADER_ROWS = 4;
+      for (let i = 0; i < HEADER_ROWS; i++) {
+        const r = ws.addRow([]);
+        r.height = 22;
+      }
+      // Place header image spanning across top rows
+      const headerId = wb.addImage({
+        buffer: headerBuf,
+        extension: 'jpeg',
+      });
+      // Calculate total width in Excel units for image placement
+      const totalWidthPx = 12 * 7.5 + 12 * 7.5 + columnHeaders.length * 8 * 7.5 + 8 * 7.5;
+      ws.addImage(headerId, {
+        tl: { col: 0, row: 0 },
+        ext: { width: Math.min(totalWidthPx, 900), height: 85 },
+      });
+
+      // ── Data header row offset = HEADER_ROWS ──
+      // Row HEADER_ROWS+1: floor group headers
       const row1Data: string[] = ['מידות', 'מספר פרט'];
       for (const span of floorSpans) {
         row1Data.push(span.label);
@@ -238,7 +265,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       row1Data.push('סה״כ');
       const exRow1 = ws.addRow(row1Data);
 
-      // Row 2: apartment numbers
+      // Row HEADER_ROWS+2: apartment numbers
       const row2Data: string[] = ['', ''];
       for (const col of columnHeaders) {
         row2Data.push(`דירה ${col.label}`);
@@ -246,16 +273,17 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       row2Data.push('');
       const exRow2 = ws.addRow(row2Data);
 
+      const dataHeaderRow = HEADER_ROWS + 1;
       // Merges: מידות, מספר פרט, סה״כ span 2 rows
-      ws.mergeCells(1, 1, 2, 1);
-      ws.mergeCells(1, 2, 2, 2);
-      ws.mergeCells(1, colCount, 2, colCount);
+      ws.mergeCells(dataHeaderRow, 1, dataHeaderRow + 1, 1);
+      ws.mergeCells(dataHeaderRow, 2, dataHeaderRow + 1, 2);
+      ws.mergeCells(dataHeaderRow, colCount, dataHeaderRow + 1, colCount);
 
       // Merge floor group headers
       let aptColStart = 3;
       for (const span of floorSpans) {
         if (span.colspan > 1) {
-          ws.mergeCells(1, aptColStart, 1, aptColStart + span.colspan - 1);
+          ws.mergeCells(dataHeaderRow, aptColStart, dataHeaderRow, aptColStart + span.colspan - 1);
         }
         aptColStart += span.colspan;
       }
@@ -295,6 +323,40 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         cell.font = boldFont;
         cell.alignment = centerAlign;
         cell.border = thinBorder;
+      });
+
+      // ── Footer: signature text + brand logos ──
+      const lastDataRow = ws.rowCount;
+      // Empty spacer row
+      ws.addRow([]);
+      // Signature text rows
+      const sigRow1 = ws.addRow([]);
+      ws.mergeCells(sigRow1.number, 1, sigRow1.number, colCount);
+      const sigCell1 = sigRow1.getCell(1);
+      sigCell1.value = 'לאישורך לביצוע';
+      sigCell1.font = { name: 'Calibri', size: 14, bold: true };
+      sigCell1.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      const sigRow2 = ws.addRow([]);
+      ws.mergeCells(sigRow2.number, 1, sigRow2.number, colCount);
+      const sigCell2 = sigRow2.getCell(1);
+      sigCell2.value = 'יריב קוסטיקה';
+      sigCell2.font = { name: 'Calibri', size: 14, bold: true };
+      sigCell2.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      // Empty spacer
+      ws.addRow([]);
+
+      // Footer brand logos image
+      const footerId = wb.addImage({
+        buffer: footerBuf,
+        extension: 'jpeg',
+      });
+      const footerRow = ws.rowCount;
+      ws.getRow(footerRow).height = 30;
+      ws.addImage(footerId, {
+        tl: { col: 0, row: footerRow - 1 },
+        ext: { width: Math.min(totalWidthPx, 900), height: 45 },
       });
 
       // Column widths
