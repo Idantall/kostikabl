@@ -611,7 +611,8 @@ export function WizardStepApartments() {
             <DialogTitle>החל סוג דירה</DialogTitle>
             <DialogDescription>בחר סוג דירה להחלה על הדירה הנוכחית. הנתונים הקיימים יוחלפו.</DialogDescription>
           </DialogHeader>
-          <div className="py-4 space-y-2">
+          <ScrollArea className="max-h-[60vh]">
+          <div className="py-4 space-y-2 pr-4">
             {state.apartmentTypes.map(t => (
               <Button
                 key={t.id}
