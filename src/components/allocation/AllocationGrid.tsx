@@ -540,7 +540,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const totalFixedW = fixedColW * 3; // מידות + מספר פרט + סה״כ
       const dataColW = Math.max(6, (availableW - totalFixedW) / columnHeaders.length);
 
-      const columnStyles: Record<number, { cellWidth: number; halign: string }> = {};
+      const columnStyles: Record<number, { cellWidth: number; halign: 'center' }> = {};
       columnStyles[0] = { cellWidth: fixedColW, halign: 'center' };
       columnStyles[1] = { cellWidth: fixedColW, halign: 'center' };
       for (let i = 2; i < 2 + columnHeaders.length; i++) {
