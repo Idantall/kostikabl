@@ -255,8 +255,27 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         ext: { width: Math.min(totalWidthPx, 900), height: 85 },
       });
 
-      // ── Data header row offset = HEADER_ROWS ──
-      // Row HEADER_ROWS+1: floor group headers
+      // ── Addressee fields (לכבוד / אתר / לידי) ──
+      const addressFont: Partial<ExcelJS.Font> = { name: 'Calibri', size: 12, bold: true };
+      const addressAlign: Partial<ExcelJS.Alignment> = { horizontal: 'right', vertical: 'middle' };
+
+      const fieldLabels = ['לכבוד:', 'אתר:', 'לידי:'];
+      for (const label of fieldLabels) {
+        const addrRow = ws.addRow([]);
+        addrRow.height = 20;
+        ws.mergeCells(addrRow.number, 1, addrRow.number, colCount);
+        const addrCell = addrRow.getCell(1);
+        addrCell.value = label;
+        addrCell.font = addressFont;
+        addrCell.alignment = addressAlign;
+      }
+
+      // Empty spacer row before table
+      const spacerRow = ws.addRow([]);
+      spacerRow.height = 8;
+
+      // ── Data header rows ──
+      // Floor group headers
       const row1Data: string[] = ['מידות', 'מספר פרט'];
       for (const span of floorSpans) {
         row1Data.push(span.label);
