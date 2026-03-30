@@ -1,0 +1,1 @@
+UPDATE projects SET status = 'pre_contract' WHERE id = 4;
