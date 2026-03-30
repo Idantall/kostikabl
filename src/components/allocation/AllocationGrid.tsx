@@ -255,9 +255,19 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         ext: { width: Math.min(totalWidthPx, 900), height: 85 },
       });
 
-      // ── Addressee fields (לכבוד / אתר / לידי) ──
+      // ── Date + Addressee fields (תאריך / לכבוד / אתר / לידי) ──
       const addressFont: Partial<ExcelJS.Font> = { name: 'Calibri', size: 12, bold: true };
       const addressAlign: Partial<ExcelJS.Alignment> = { horizontal: 'right', vertical: 'middle' };
+
+      // Date row
+      const dateRow = ws.addRow([]);
+      dateRow.height = 20;
+      ws.mergeCells(dateRow.number, 1, dateRow.number, colCount);
+      const dateCell = dateRow.getCell(1);
+      const now = new Date();
+      dateCell.value = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+      dateCell.font = addressFont;
+      dateCell.alignment = addressAlign;
 
       const fieldLabels = ['לכבוד:', 'אתר:', 'לידי:'];
       for (const label of fieldLabels) {
