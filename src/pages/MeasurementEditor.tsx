@@ -39,6 +39,15 @@ const MeasurementEditor = () => {
   const [addApartmentOpen, setAddApartmentOpen] = useState(false);
   const [bankEditorOpen, setBankEditorOpen] = useState(false);
   
+  // Rename confirmation state
+  const [renameConfirm, setRenameConfirm] = useState<{
+    rowId: string;
+    field: 'floor_label' | 'apartment_label';
+    oldValue: string | null;
+    newValue: string | null;
+    matchingCount: number;
+  } | null>(null);
+  
   // Project metadata (types + bank)
   const [bankItems, setBankItems] = useState<BankItem[]>([]);
   const [apartmentTypes, setApartmentTypes] = useState<any[]>([]);
