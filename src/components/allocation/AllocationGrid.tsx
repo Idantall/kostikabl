@@ -476,11 +476,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const headerDataUrl = toDataUrl(headerBuf);
       const footerDataUrl = toDataUrl(footerBuf);
 
-      // Build an off-screen HTML table that mirrors the allocation grid
+      // Build an off-screen HTML table — let it size naturally so nothing is cut off
       const container = document.createElement('div');
-      container.style.cssText = 'position:absolute;left:-9999px;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:0;';
-      // Wide enough for A3 landscape at 2x scale
-      container.style.width = `${1580}px`;
+      container.style.cssText = 'position:absolute;left:-9999px;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
 
       // Header image
       const headerImg = document.createElement('img');
@@ -490,7 +488,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       // Build the table
       const table = document.createElement('table');
-      table.style.cssText = 'width:100%;border-collapse:collapse;font-size:11px;direction:rtl;text-align:center;';
+      table.style.cssText = 'border-collapse:collapse;font-size:11px;direction:rtl;text-align:center;';
 
       // Floor group header row
       const thead = document.createElement('thead');
@@ -627,28 +625,27 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       document.body.removeChild(container);
 
-      // A3 landscape PDF
-      const pdfW = 420;
-      const pdfH = 297;
+      // Create PDF sized to fit the entire content on one page (A3 landscape proportions)
+      const A3_W = 420;
+      const A3_H = 297;
       const margin = 6;
-      const imgW = pdfW - margin * 2;
-      const imgH = (canvas.height * imgW) / canvas.width;
 
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
+      // Scale content to fit A3 width, then check if height fits — if not, extend page height
+      const contentW = canvas.width;
+      const contentH = canvas.height;
+      const imgW = A3_W - margin * 2;
+      const imgH = (contentH * imgW) / contentW;
+
+      // Use A3 landscape width but extend height if needed to fit everything on one page
+      const pageH = Math.max(A3_H, imgH + margin * 2);
+
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: [A3_W, pageH],
+      });
       const imgData = canvas.toDataURL('image/jpeg', 0.92);
-
-      let heightLeft = imgH;
-      let position = margin;
-
-      doc.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
-      heightLeft -= (pdfH - margin * 2);
-
-      while (heightLeft > 0) {
-        doc.addPage();
-        position = margin - (imgH - heightLeft);
-        doc.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
-        heightLeft -= (pdfH - margin * 2);
-      }
+      doc.addImage(imgData, 'JPEG', margin, margin, imgW, imgH);
 
       const date = new Date().toISOString().split('T')[0];
       doc.save(`${projectName}-allocation-${date}.pdf`);
