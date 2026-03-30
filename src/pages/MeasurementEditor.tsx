@@ -208,7 +208,65 @@ const MeasurementEditor = () => {
     debouncedQueueUpdate(id, 'measurement_rows', { [field]: value });
   }, [debouncedQueueUpdate]);
 
-  const addRow = async () => {
+  const recalcFilters = useCallback((updatedRows: MeasurementRow[]) => {
+    const uniqueFloors = [...new Set(updatedRows.map(r => r.floor_label).filter(Boolean))] as string[];
+    const sortedFloors = uniqueFloors.sort((a, b) => {
+      const getOrder = (label: string) => {
+        const lower = label.toLowerCase();
+        if (lower.includes('קרקע') || lower.includes('לובי') || lower.includes('lobby') || lower.includes('ground')) return 0;
+        return parseInt(label) || 999;
+      };
+      return getOrder(a) - getOrder(b);
+    });
+    setFloors(sortedFloors);
+    const uniqueApartments = [...new Set(updatedRows.map(r => r.apartment_label).filter(Boolean))] as string[];
+    setApartments(uniqueApartments.sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
+  }, []);
+
+  const handleLabelChange = useCallback((rowId: string, field: 'floor_label' | 'apartment_label', oldValue: string | null, newValue: string | null) => {
+    if (oldValue === newValue) return;
+    // Count how many other rows share the old label value
+    const matchingCount = rows.filter(r => r[field] === oldValue && r.id !== rowId).length;
+    if (matchingCount > 0) {
+      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount });
+    } else {
+      // Only one row had this value, just recalc filters
+      recalcFilters(rows);
+    }
+  }, [rows, recalcFilters]);
+
+  const applyBatchRename = useCallback(() => {
+    if (!renameConfirm) return;
+    const { field, oldValue, newValue } = renameConfirm;
+    setRows(prev => {
+      const updated = prev.map(r =>
+        r[field] === oldValue ? { ...r, [field]: newValue } : r
+      );
+      recalcFilters(updated);
+      return updated;
+    });
+    // Queue DB updates for all matching rows
+    rows.forEach(r => {
+      if (r[field] === oldValue) {
+        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: newValue });
+      }
+    });
+    // Update selected filter if it was the renamed value
+    if (field === 'floor_label' && selectedFloor === oldValue) {
+      setSelectedFloor(newValue || 'all');
+    }
+    if (field === 'apartment_label' && selectedApartment === oldValue) {
+      setSelectedApartment(newValue || 'all');
+    }
+    setRenameConfirm(null);
+    toast.success(`שונה בכל השורות`);
+  }, [renameConfirm, rows, debouncedQueueUpdate, recalcFilters, selectedFloor, selectedApartment]);
+
+  const skipBatchRename = useCallback(() => {
+    // Just recalc filters for the single-row change already applied
+    recalcFilters(rows);
+    setRenameConfirm(null);
+  }, [rows, recalcFilters]);
     if (!projectId) return;
     
     // Check if we're online first
