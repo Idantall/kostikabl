@@ -73,8 +73,38 @@ export const MeasurementRowCard = memo(function MeasurementRowCard({
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-3">
-        <div className="text-xs text-muted-foreground mb-2">
-          קומה {row.floor_label || "—"} | דירה {row.apartment_label || "—"}
+        <div className="flex gap-3 items-center text-xs text-muted-foreground mb-2">
+          <span className="flex items-center gap-1">
+            קומה
+            <input
+              className="w-12 text-center border-b border-dashed border-muted-foreground/40 bg-transparent focus:outline-none focus:border-primary text-xs font-medium text-foreground"
+              value={row.floor_label || ""}
+              onChange={(e) => updateField("floor_label", e.target.value || null)}
+              onBlur={(e) => {
+                const newVal = e.target.value || null;
+                if (newVal !== row.floor_label && onLabelChange) {
+                  onLabelChange(row.id, 'floor_label', row.floor_label, newVal);
+                }
+              }}
+              dir="rtl"
+            />
+          </span>
+          <span>|</span>
+          <span className="flex items-center gap-1">
+            דירה
+            <input
+              className="w-12 text-center border-b border-dashed border-muted-foreground/40 bg-transparent focus:outline-none focus:border-primary text-xs font-medium text-foreground"
+              value={row.apartment_label || ""}
+              onChange={(e) => updateField("apartment_label", e.target.value || null)}
+              onBlur={(e) => {
+                const newVal = e.target.value || null;
+                if (newVal !== row.apartment_label && onLabelChange) {
+                  onLabelChange(row.id, 'apartment_label', row.apartment_label, newVal);
+                }
+              }}
+              dir="rtl"
+            />
+          </span>
         </div>
         <div className="flex gap-2 items-end flex-wrap">
           <div className="w-20">
