@@ -610,7 +610,6 @@ const MeasurementEditor = () => {
                 onDelete={setRowToDelete}
                 onLabelChange={handleLabelChange}
               />
-              />
             ))}
             {/* Pagination controls */}
             {totalPages > 1 && (
