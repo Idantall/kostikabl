@@ -255,8 +255,27 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         ext: { width: Math.min(totalWidthPx, 900), height: 85 },
       });
 
-      // ── Data header row offset = HEADER_ROWS ──
-      // Row HEADER_ROWS+1: floor group headers
+      // ── Addressee fields (לכבוד / אתר / לידי) ──
+      const addressFont: Partial<ExcelJS.Font> = { name: 'Calibri', size: 12, bold: true };
+      const addressAlign: Partial<ExcelJS.Alignment> = { horizontal: 'right', vertical: 'middle' };
+
+      const fieldLabels = ['לכבוד:', 'אתר:', 'לידי:'];
+      for (const label of fieldLabels) {
+        const addrRow = ws.addRow([]);
+        addrRow.height = 20;
+        ws.mergeCells(addrRow.number, 1, addrRow.number, colCount);
+        const addrCell = addrRow.getCell(1);
+        addrCell.value = label;
+        addrCell.font = addressFont;
+        addrCell.alignment = addressAlign;
+      }
+
+      // Empty spacer row before table
+      const spacerRow = ws.addRow([]);
+      spacerRow.height = 8;
+
+      // ── Data header rows ──
+      // Floor group headers
       const row1Data: string[] = ['מידות', 'מספר פרט'];
       for (const span of floorSpans) {
         row1Data.push(span.label);
@@ -273,7 +292,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       row2Data.push('');
       const exRow2 = ws.addRow(row2Data);
 
-      const dataHeaderRow = HEADER_ROWS + 1;
+      const dataHeaderRow = exRow1.number;
       // Merges: מידות, מספר פרט, סה״כ span 2 rows
       ws.mergeCells(dataHeaderRow, 1, dataHeaderRow + 1, 1);
       ws.mergeCells(dataHeaderRow, 2, dataHeaderRow + 1, 2);
@@ -485,6 +504,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       headerImg.src = headerDataUrl;
       headerImg.style.cssText = 'width:100%;height:auto;display:block;margin-bottom:6px;';
       container.appendChild(headerImg);
+
+      // Addressee fields (לכבוד / אתר / לידי)
+      const fieldsDiv = document.createElement('div');
+      fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:14px;font-weight:bold;margin:8px 4px;line-height:1.8;';
+      fieldsDiv.innerHTML = 'לכבוד:<br/>אתר:<br/>לידי:';
+      container.appendChild(fieldsDiv);
 
       // Build the table
       const table = document.createElement('table');
