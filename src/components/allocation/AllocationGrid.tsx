@@ -292,7 +292,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       row2Data.push('');
       const exRow2 = ws.addRow(row2Data);
 
-      const dataHeaderRow = HEADER_ROWS + 1;
+      const dataHeaderRow = exRow1.number;
       // Merges: מידות, מספר פרט, סה״כ span 2 rows
       ws.mergeCells(dataHeaderRow, 1, dataHeaderRow + 1, 1);
       ws.mergeCells(dataHeaderRow, 2, dataHeaderRow + 1, 2);
