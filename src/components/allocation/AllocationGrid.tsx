@@ -255,9 +255,19 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         ext: { width: Math.min(totalWidthPx, 900), height: 85 },
       });
 
-      // ── Addressee fields (לכבוד / אתר / לידי) ──
+      // ── Date + Addressee fields (תאריך / לכבוד / אתר / לידי) ──
       const addressFont: Partial<ExcelJS.Font> = { name: 'Calibri', size: 12, bold: true };
       const addressAlign: Partial<ExcelJS.Alignment> = { horizontal: 'right', vertical: 'middle' };
+
+      // Date row
+      const dateRow = ws.addRow([]);
+      dateRow.height = 20;
+      ws.mergeCells(dateRow.number, 1, dateRow.number, colCount);
+      const dateCell = dateRow.getCell(1);
+      const now = new Date();
+      dateCell.value = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+      dateCell.font = addressFont;
+      dateCell.alignment = addressAlign;
 
       const fieldLabels = ['לכבוד:', 'אתר:', 'לידי:'];
       for (const label of fieldLabels) {
@@ -505,10 +515,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       headerImg.style.cssText = 'width:100%;height:auto;display:block;margin-bottom:6px;';
       container.appendChild(headerImg);
 
-      // Addressee fields (לכבוד / אתר / לידי)
+      // Date + Addressee fields
+      const now2 = new Date();
+      const dateStr = `${String(now2.getDate()).padStart(2, '0')}/${String(now2.getMonth() + 1).padStart(2, '0')}/${now2.getFullYear()}`;
       const fieldsDiv = document.createElement('div');
       fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:14px;font-weight:bold;margin:8px 4px;line-height:1.8;';
-      fieldsDiv.innerHTML = 'לכבוד:<br/>אתר:<br/>לידי:';
+      fieldsDiv.innerHTML = `${dateStr}<br/>לכבוד:<br/>אתר:<br/>לידי:`;
       container.appendChild(fieldsDiv);
 
       // Build the table
