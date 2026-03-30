@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { Download, Loader2, Grid3X3, Printer } from "lucide-react";
+import { Download, Loader2, Grid3X3, Printer, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
