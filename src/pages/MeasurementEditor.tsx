@@ -39,6 +39,15 @@ const MeasurementEditor = () => {
   const [addApartmentOpen, setAddApartmentOpen] = useState(false);
   const [bankEditorOpen, setBankEditorOpen] = useState(false);
   
+  // Rename confirmation state
+  const [renameConfirm, setRenameConfirm] = useState<{
+    rowId: string;
+    field: 'floor_label' | 'apartment_label';
+    oldValue: string | null;
+    newValue: string | null;
+    matchingCount: number;
+  } | null>(null);
+  
   // Project metadata (types + bank)
   const [bankItems, setBankItems] = useState<BankItem[]>([]);
   const [apartmentTypes, setApartmentTypes] = useState<any[]>([]);
@@ -198,6 +207,66 @@ const MeasurementEditor = () => {
 
     debouncedQueueUpdate(id, 'measurement_rows', { [field]: value });
   }, [debouncedQueueUpdate]);
+
+  const recalcFilters = useCallback((updatedRows: MeasurementRow[]) => {
+    const uniqueFloors = [...new Set(updatedRows.map(r => r.floor_label).filter(Boolean))] as string[];
+    const sortedFloors = uniqueFloors.sort((a, b) => {
+      const getOrder = (label: string) => {
+        const lower = label.toLowerCase();
+        if (lower.includes('קרקע') || lower.includes('לובי') || lower.includes('lobby') || lower.includes('ground')) return 0;
+        return parseInt(label) || 999;
+      };
+      return getOrder(a) - getOrder(b);
+    });
+    setFloors(sortedFloors);
+    const uniqueApartments = [...new Set(updatedRows.map(r => r.apartment_label).filter(Boolean))] as string[];
+    setApartments(uniqueApartments.sort((a, b) => a.localeCompare(b, 'he', { numeric: true })));
+  }, []);
+
+  const handleLabelChange = useCallback((rowId: string, field: 'floor_label' | 'apartment_label', oldValue: string | null, newValue: string | null) => {
+    if (oldValue === newValue) return;
+    // Count how many other rows share the old label value
+    const matchingCount = rows.filter(r => r[field] === oldValue && r.id !== rowId).length;
+    if (matchingCount > 0) {
+      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount });
+    } else {
+      // Only one row had this value, just recalc filters
+      recalcFilters(rows);
+    }
+  }, [rows, recalcFilters]);
+
+  const applyBatchRename = useCallback(() => {
+    if (!renameConfirm) return;
+    const { field, oldValue, newValue } = renameConfirm;
+    setRows(prev => {
+      const updated = prev.map(r =>
+        r[field] === oldValue ? { ...r, [field]: newValue } : r
+      );
+      recalcFilters(updated);
+      return updated;
+    });
+    // Queue DB updates for all matching rows
+    rows.forEach(r => {
+      if (r[field] === oldValue) {
+        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: newValue });
+      }
+    });
+    // Update selected filter if it was the renamed value
+    if (field === 'floor_label' && selectedFloor === oldValue) {
+      setSelectedFloor(newValue || 'all');
+    }
+    if (field === 'apartment_label' && selectedApartment === oldValue) {
+      setSelectedApartment(newValue || 'all');
+    }
+    setRenameConfirm(null);
+    toast.success(`שונה בכל השורות`);
+  }, [renameConfirm, rows, debouncedQueueUpdate, recalcFilters, selectedFloor, selectedApartment]);
+
+  const skipBatchRename = useCallback(() => {
+    // Just recalc filters for the single-row change already applied
+    recalcFilters(rows);
+    setRenameConfirm(null);
+  }, [rows, recalcFilters]);
 
   const addRow = async () => {
     if (!projectId) return;
@@ -539,6 +608,7 @@ const MeasurementEditor = () => {
                 connectionStatus={connectionStatus}
                 onFieldChange={updateRow as any}
                 onDelete={setRowToDelete}
+                onLabelChange={handleLabelChange}
               />
             ))}
             {/* Pagination controls */}
@@ -587,7 +657,23 @@ const MeasurementEditor = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Add Floor Dialog */}
+      {/* Rename Confirmation */}
+      <AlertDialog open={!!renameConfirm} onOpenChange={(open) => { if (!open) skipBatchRename(); }}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>שינוי {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {renameConfirm?.matchingCount} שורות נוספות עם {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm?.oldValue}&quot;.
+              האם לעדכן את כולן ל-&quot;{renameConfirm?.newValue}&quot;?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={skipBatchRename}>רק שורה זו</AlertDialogCancel>
+            <AlertDialogAction onClick={applyBatchRename}>עדכן הכל</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Dialog open={addFloorOpen} onOpenChange={setAddFloorOpen}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
