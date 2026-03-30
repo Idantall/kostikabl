@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { Download, Loader2, Grid3X3, Printer } from "lucide-react";
+import { Download, Loader2, Grid3X3, Printer, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -448,6 +448,178 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     }
   };
 
+  // Export to PDF (looks like Excel printout with branding)
+  const exportPDF = async () => {
+    if (filteredRows.length === 0) {
+      toast.error("אין נתונים לייצוא");
+      return;
+    }
+
+    setExporting(true);
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const { default: autoTable } = await import('jspdf-autotable');
+
+      // Load branding images as base64
+      const [headerRes, footerRes] = await Promise.all([
+        fetch('/branding/allocation-header.jpg'),
+        fetch('/branding/allocation-footer.jpg'),
+      ]);
+      const headerBuf = await headerRes.arrayBuffer();
+      const footerBuf = await footerRes.arrayBuffer();
+      const toBase64 = (buf: ArrayBuffer) => {
+        const bytes = new Uint8Array(buf);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+      };
+      const headerB64 = toBase64(headerBuf);
+      const footerB64 = toBase64(footerBuf);
+
+      // A3 landscape: 420 x 297 mm
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
+      const pageW = 420;
+      const pageH = 297;
+      const margin = 8;
+
+      // Header image — full width, ~25mm tall
+      const headerImgW = pageW - margin * 2;
+      const headerImgH = 25;
+      doc.addImage(headerB64, 'JPEG', margin, margin, headerImgW, headerImgH);
+
+      // Build table data (RTL: columns reversed so rightmost = first fixed cols)
+      // jspdf-autotable renders left-to-right, so we reverse column order for RTL feel
+      const colCount = 2 + columnHeaders.length + 1;
+
+      // Floor group header row (top merged header)
+      // We'll use two header rows: floor groups + apartment numbers
+      const floorHeaderRow: string[] = [];
+      const aptHeaderRow: string[] = [];
+
+      // First two cols: מידות, מספר פרט (RTL order)
+      floorHeaderRow.push('מידות', 'מספר פרט');
+      aptHeaderRow.push('', '');
+
+      for (const span of floorSpans) {
+        for (let i = 0; i < span.colspan; i++) {
+          floorHeaderRow.push(i === 0 ? span.label : '');
+        }
+      }
+      floorHeaderRow.push('סה״כ');
+
+      for (const col of columnHeaders) {
+        aptHeaderRow.push(`דירה ${col.label}`);
+      }
+      aptHeaderRow.push('');
+
+      // Data rows
+      const bodyRows: (string | number)[][] = [];
+      for (const row of filteredRows) {
+        const r: (string | number)[] = [row.dimensions, row.itemCode];
+        for (const col of columnHeaders) {
+          const v = getCellValue(row.itemCode, col.aptId);
+          r.push(v > 0 ? v : '');
+        }
+        r.push(getRowTotal(row.itemCode));
+        bodyRows.push(r);
+      }
+
+      // Totals row
+      const totalsRowData: (string | number)[] = ['', 'סה״כ'];
+      for (const col of columnHeaders) {
+        totalsRowData.push(columnTotals.get(col.aptId) || 0);
+      }
+      totalsRowData.push(grandTotal);
+      bodyRows.push(totalsRowData);
+
+      const tableStartY = margin + headerImgH + 3;
+
+      // Calculate column widths: fixed cols wider, data cols auto
+      const availableW = pageW - margin * 2;
+      const fixedColW = 18;
+      const totalFixedW = fixedColW * 3; // מידות + מספר פרט + סה״כ
+      const dataColW = Math.max(6, (availableW - totalFixedW) / columnHeaders.length);
+
+      const columnStyles: Record<number, { cellWidth: number; halign: 'center' }> = {};
+      columnStyles[0] = { cellWidth: fixedColW, halign: 'center' };
+      columnStyles[1] = { cellWidth: fixedColW, halign: 'center' };
+      for (let i = 2; i < 2 + columnHeaders.length; i++) {
+        columnStyles[i] = { cellWidth: dataColW, halign: 'center' };
+      }
+      columnStyles[2 + columnHeaders.length] = { cellWidth: fixedColW, halign: 'center' };
+
+      // @ts-ignore - jspdf-autotable augments jsPDF
+      autoTable(doc, {
+        startY: tableStartY,
+        head: [floorHeaderRow, aptHeaderRow],
+        body: bodyRows,
+        theme: 'grid',
+        styles: {
+          font: 'helvetica',
+          fontSize: 7,
+          cellPadding: 1,
+          halign: 'center',
+          valign: 'middle',
+          lineWidth: 0.2,
+          lineColor: [0, 0, 0],
+        },
+        headStyles: {
+          fillColor: [220, 230, 241],
+          textColor: [0, 0, 0],
+          fontStyle: 'bold',
+          fontSize: 7,
+        },
+        bodyStyles: {
+          textColor: [0, 0, 0],
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
+        columnStyles,
+        // Style the totals row (last row) differently
+        didParseCell: (data: any) => {
+          // Bold totals row
+          if (data.section === 'body' && data.row.index === bodyRows.length - 1) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [220, 230, 241];
+          }
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: availableW,
+      });
+
+      // Get where the table ended
+      // @ts-ignore
+      const finalY: number = (doc as any).lastAutoTable?.finalY ?? tableStartY + 100;
+
+      // Signature text
+      const sigY = finalY + 8;
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      const sig1 = 'לאישורך לביצוע';
+      const sig2 = 'יריב קוסטיקה';
+      doc.text(sig1, pageW / 2, sigY, { align: 'center' });
+      doc.text(sig2, pageW / 2, sigY + 7, { align: 'center' });
+
+      // Footer image
+      const footerImgW = pageW - margin * 2;
+      const footerImgH = 15;
+      const footerY = Math.min(sigY + 15, pageH - margin - footerImgH);
+      doc.addImage(footerB64, 'JPEG', margin, footerY, footerImgW, footerImgH);
+
+      // Download
+      const date = new Date().toISOString().split('T')[0];
+      doc.save(`${projectName}-allocation-${date}.pdf`);
+
+      toast.success("הקובץ הורד בהצלחה");
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast.error("שגיאה בייצוא PDF");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // Calculate floor spans for grouped header
   const floorSpans = useMemo(() => {
     const spans: { floorId: number; label: string; colspan: number }[] = [];
@@ -612,6 +784,15 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
               >
                 {exporting ? <Loader2 className="h-4 w-4 ml-2 animate-spin" /> : <Download className="h-4 w-4 ml-2" />}
                 XLSX
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportPDF}
+                disabled={exporting}
+              >
+                {exporting ? <Loader2 className="h-4 w-4 ml-2 animate-spin" /> : <FileText className="h-4 w-4 ml-2" />}
+                PDF
               </Button>
               <Button
                 variant="outline"
