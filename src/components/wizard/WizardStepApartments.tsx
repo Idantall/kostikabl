@@ -306,7 +306,7 @@ export function WizardStepApartments() {
               <ScrollArea className="w-full" dir="rtl">
                 <div className="border rounded-lg min-w-[1500px]" ref={tableRef} onKeyDown={onTableKeyDown}>
                   <Table dir="rtl" className="table-fixed">
-                    <TableHeader>
+                    <TableHeader className="sticky top-0 z-10 bg-background">
                     <TableRow>
                          <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
