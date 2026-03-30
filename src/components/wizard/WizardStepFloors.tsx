@@ -722,3 +722,28 @@ export function WizardStepFloors() {
     </div>
   );
 }
+
+function AddMultipleApartmentsPopover({ floorId, onAdd }: { floorId: string; onAdd: (floorId: string, count: number) => void }) {
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState('3');
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm">הוסף מספר דירות</Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 bg-background" align="start">
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">כמות דירות להוספה</Label>
+          <Input type="number" min="1" max="30" value={count} onChange={e => setCount(e.target.value)} dir="ltr" className="h-9" />
+          <Button size="sm" className="w-full" onClick={() => {
+            const n = parseInt(count);
+            if (isNaN(n) || n < 1 || n > 30) { toast.error('כמות לא תקינה (1-30)'); return; }
+            onAdd(floorId, n);
+            setOpen(false);
+            setCount('3');
+          }}>הוסף</Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
