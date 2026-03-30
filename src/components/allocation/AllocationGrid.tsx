@@ -788,6 +788,15 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
               <Button
                 variant="outline"
                 size="sm"
+                onClick={exportPDF}
+                disabled={exporting}
+              >
+                {exporting ? <Loader2 className="h-4 w-4 ml-2 animate-spin" /> : <FileText className="h-4 w-4 ml-2" />}
+                PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={exportCSV}
                 disabled={exporting}
               >
