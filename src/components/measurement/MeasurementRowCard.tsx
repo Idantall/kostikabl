@@ -37,6 +37,7 @@ interface MeasurementRowCardProps {
   connectionStatus: "online" | "offline" | "syncing" | "error";
   onFieldChange: (id: string, field: keyof MeasurementRowData, value: string | boolean | null) => void;
   onDelete: (id: string) => void;
+  onLabelChange?: (id: string, field: 'floor_label' | 'apartment_label', oldValue: string | null, newValue: string | null) => void;
 }
 
 const getUserNotes = (notes: string | null): string => {
