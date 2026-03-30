@@ -8,6 +8,14 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    let redirected = false;
+
+    const goToLogin = () => {
+      if (cancelled || redirected) return;
+      redirected = true;
+      setReady(false);
+      navigate('/login', { replace: true });
+    };
 
     const signOutAndRedirect = async () => {
       try {
@@ -15,20 +23,15 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
       } catch {
         // ignore
       }
-
-      if (!cancelled) {
-        setReady(false);
-        navigate('/login', { replace: true });
-      }
+      goToLogin();
     };
 
     const validateSession = async () => {
+      if (cancelled || redirected) return;
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        if (!cancelled) {
-          setReady(false);
-          navigate('/login', { replace: true });
-        }
+        goToLogin();
         return;
       }
 
@@ -45,19 +48,16 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
-        setReady(false);
-        navigate('/login', { replace: true });
+        goToLogin();
         return;
       }
-
-      // Avoid Supabase calls directly in the callback; validate right after.
-      setTimeout(() => {
-        void validateSession();
-      }, 0);
+      if (!redirected && !cancelled) {
+        setTimeout(() => void validateSession(), 0);
+      }
     });
 
     const onFocus = () => {
-      void validateSession();
+      if (!redirected) void validateSession();
     };
     window.addEventListener('focus', onFocus);
 
