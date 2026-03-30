@@ -625,28 +625,27 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       document.body.removeChild(container);
 
-      // A3 landscape PDF
-      const pdfW = 420;
-      const pdfH = 297;
+      // Create PDF sized to fit the entire content on one page (A3 landscape proportions)
+      const A3_W = 420;
+      const A3_H = 297;
       const margin = 6;
-      const imgW = pdfW - margin * 2;
-      const imgH = (canvas.height * imgW) / canvas.width;
 
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
+      // Scale content to fit A3 width, then check if height fits — if not, extend page height
+      const contentW = canvas.width;
+      const contentH = canvas.height;
+      const imgW = A3_W - margin * 2;
+      const imgH = (contentH * imgW) / contentW;
+
+      // Use A3 landscape width but extend height if needed to fit everything on one page
+      const pageH = Math.max(A3_H, imgH + margin * 2);
+
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: [A3_W, pageH],
+      });
       const imgData = canvas.toDataURL('image/jpeg', 0.92);
-
-      let heightLeft = imgH;
-      let position = margin;
-
-      doc.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
-      heightLeft -= (pdfH - margin * 2);
-
-      while (heightLeft > 0) {
-        doc.addPage();
-        position = margin - (imgH - heightLeft);
-        doc.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
-        heightLeft -= (pdfH - margin * 2);
-      }
+      doc.addImage(imgData, 'JPEG', margin, margin, imgW, imgH);
 
       const date = new Date().toISOString().split('T')[0];
       doc.save(`${projectName}-allocation-${date}.pdf`);
