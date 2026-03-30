@@ -658,7 +658,23 @@ const MeasurementEditor = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Add Floor Dialog */}
+      {/* Rename Confirmation */}
+      <AlertDialog open={!!renameConfirm} onOpenChange={(open) => { if (!open) skipBatchRename(); }}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>שינוי {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {renameConfirm?.matchingCount} שורות נוספות עם {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm?.oldValue}&quot;.
+              האם לעדכן את כולן ל-&quot;{renameConfirm?.newValue}&quot;?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={skipBatchRename}>רק שורה זו</AlertDialogCancel>
+            <AlertDialogAction onClick={applyBatchRename}>עדכן הכל</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Dialog open={addFloorOpen} onOpenChange={setAddFloorOpen}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
