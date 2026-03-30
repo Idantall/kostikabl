@@ -267,6 +267,8 @@ const MeasurementEditor = () => {
     recalcFilters(rows);
     setRenameConfirm(null);
   }, [rows, recalcFilters]);
+
+  const addRow = async () => {
     if (!projectId) return;
     
     // Check if we're online first
