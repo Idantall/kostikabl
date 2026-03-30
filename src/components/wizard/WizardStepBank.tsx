@@ -423,11 +423,26 @@ export function WizardStepBank() {
             </div>
           )}
 
-          {/* Add item button */}
-          <Button variant="outline" onClick={handleAddItem} className="gap-2">
-            <Plus className="h-4 w-4" />
-            הוסף פרט
-          </Button>
+          {/* Add item buttons */}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleAddItem} className="gap-2">
+              <Plus className="h-4 w-4" />
+              הוסף פרט
+            </Button>
+            <AddMultipleBankItemsPopover onAdd={(count) => {
+              for (let i = 0; i < count; i++) {
+                const newItem: BankItem = {
+                  id: crypto.randomUUID(),
+                  item_no: '',
+                  height: '',
+                  width: '',
+                  floor_height: '',
+                };
+                dispatch({ type: 'ADD_BANK_ITEM', payload: newItem });
+              }
+              toast.success(`נוספו ${count} פרטים`);
+            }} />
+          </div>
         </CardContent>
       </Card>
 
