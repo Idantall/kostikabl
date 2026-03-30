@@ -460,7 +460,21 @@ export function WizardStepFloors() {
                           
                           <Input value={floor.label} onChange={e => handleUpdateFloorLabel(floor.id, e.target.value)} onClick={e => e.stopPropagation()} className="w-32 h-8" dir="rtl" />
                           <Badge variant="outline">{floor.apartments.length} דירות</Badge>
-                          {floor.sourceFloorTypeName && <Badge variant="secondary" className="text-xs">טיפוס {floor.sourceFloorTypeName}</Badge>}
+                          {floor.sourceFloorTypeName && (
+                            <Badge variant="secondary" className="text-xs gap-1">
+                              טיפוס {floor.sourceFloorTypeName}
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  dispatch({ type: 'CLEAR_FLOOR_TYPE_TAG', payload: floor.id });
+                                }}
+                                className="hover:text-destructive"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           
