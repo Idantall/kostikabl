@@ -1,61 +1,53 @@
 
 
-# Allocation Export XLSX — Add Branded Wrapper (Header/Footer Images)
+# Wizard UX Improvements — 6 Fixes
 
-## What We're Building
+## Issues & Solutions
 
-The allocation grid XLSX export will be wrapped with the Kostika branded letterhead from the uploaded DOCX:
-- **Top of sheet**: Kostika logo + company info header image
-- **Bottom of data**: Signature text ("לאישורך לביצוע / יריב קוסטיקה") + brand logos strip (MASACHIM, SCREENEX, RESIDENCE, WINEX, RAILTECH)
-- **Middle**: The allocation table data — untouched
+### 1. Add multiple bank items at once (בנק פרטים)
+Currently only "הוסף פרט" adds one row. Add a "הוסף מספר פרטים" button with a count input (similar to the existing "הוסף מספר פתחים" popover in WizardStepApartments).
 
-## Layout (A3 Landscape)
+**File**: `src/components/wizard/WizardStepBank.tsx`
+- Add a Popover next to the existing "הוסף פרט" button with a numeric input for count
+- Loop and dispatch `ADD_BANK_ITEM` for each new empty row
 
-```text
-┌─────────────────────────────────────────────┐
-│  [Header image: Kostika logo + contact info]│  ← Rows 1-4 (reserved, merged)
-│                                             │
-│  ┌─────────────────────────────────────┐    │
-│  │  מידות │ מספר פרט │ דירה 1 │ ...    │    │  ← Data starts at row 5
-│  │  ...   │  ...     │  ...   │ ...    │    │
-│  │  סה״כ  │  ...     │  ...   │ ...    │    │
-│  └─────────────────────────────────────┘    │
-│                                             │
-│         לאישורך לביצוע                       │  ← 2 rows below data
-│         יריב קוסטיקה                        │
-│  [Footer image: brand logos strip]          │  ← Bottom
-└─────────────────────────────────────────────┘
-```
+### 2. Add multiple apartments per floor at once
+Currently "הוסף דירה" adds one apartment. Add a "הוסף מספר דירות" button with count input.
 
-## Technical Approach
+**File**: `src/components/wizard/WizardStepFloors.tsx`
+- Add a Popover or small dialog next to "הוסף דירה" (line 534)
+- Loop `ADD_APARTMENT` dispatch with auto-incremented labels
 
-### 1. Copy brand images to project assets
-- Copy the two extracted images (`img_p0_2.jpg` = header logo, `img_p0_1.jpg` = footer brands strip) into `public/branding/` so they can be fetched at runtime during export.
+### 3. Cancel/clear applied apartment or floor type
+Add a button to clear `sourceApartmentTypeName` / `sourceFloorTypeName` from an apartment or floor, essentially "un-applying" a type without deleting data.
 
-### 2. Modify `AllocationGrid.tsx` — `exportXLSX` function
+**Files**: 
+- `src/components/wizard/WizardContext.tsx` — Add `CLEAR_APARTMENT_TYPE_TAG` and `CLEAR_FLOOR_TYPE_TAG` actions that null out the source type name fields
+- `src/components/wizard/WizardStepFloors.tsx` — Add an X button on the floor type badge to clear it
+- `src/components/wizard/WizardStepApartments.tsx` — Add an X button on the apartment type badge in the apartment selector
 
-**Image loading**: Fetch the two branding images as ArrayBuffers using `fetch()` before building the workbook.
+### 4. Remove expand/collapse arrows from floors
+Replace ChevronDown/ChevronUp icons on each floor's collapsible trigger. Keep the collapsible functionality (click to toggle) but remove the arrow icons — the entire header bar is clickable.
 
-**Header section (rows 1-4)**:
-- Reserve rows 1-4 by inserting blank rows before the data
-- Set row heights for header area (~80px total)
-- Use `workbook.addImage()` + `worksheet.addImage(imageId, { tl, ext })` to place the header image spanning the full width across rows 1-3
-- The header image contains the Kostika logo + address + contact info
+**File**: `src/components/wizard/WizardStepFloors.tsx` (line 460)
+- Remove the `{expandedFloors.has(floor.id) ? <ChevronUp> : <ChevronDown>}` icons entirely
 
-**Data section (starts row 5)**:
-- Shift all existing data rows down by 4 (offset row indices)
-- Table content remains completely unchanged
+### 5. Sticky header row in apartment table
+When scrolling vertically through 20+ rows, the table header scrolls out of view. Make the `<TableHeader>` sticky.
 
-**Footer section (after data)**:
-- Add 2 text rows after the totals row: "לאישורך לביצוע" and "יריב קוסטיקה" — centered, bold
-- Add the brand logos strip image below, spanning the full width
-- Use `worksheet.addImage()` with `tl`/`ext` positioning
+**File**: `src/components/wizard/WizardStepApartments.tsx`
+- Add `sticky top-0 z-10 bg-background` to the `<TableHeader>` element
+- Wrap the table area in a max-height container with `overflow-y-auto` so vertical scroll is contained
 
-### 3. Print setup
-- Update page setup to account for the header/footer images in margins
+### 6. Add scroll to apartment type selection dialog
+The "החל סוג דירה" dialog (line 608-636) doesn't scroll when there are many types.
 
-### Files Modified
-- `src/components/allocation/AllocationGrid.tsx` — export function updated
-- `public/branding/allocation-header.jpg` — header image (copied from parsed doc)
-- `public/branding/allocation-footer.jpg` — footer brands image (copied from parsed doc)
+**File**: `src/components/wizard/WizardStepApartments.tsx`
+- Wrap the type list in a `ScrollArea` with `max-h-[60vh]` or similar inside the dialog content
+
+## Files Modified
+- `src/components/wizard/WizardStepBank.tsx`
+- `src/components/wizard/WizardStepFloors.tsx`
+- `src/components/wizard/WizardStepApartments.tsx`
+- `src/components/wizard/WizardContext.tsx`
 
