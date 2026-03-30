@@ -527,7 +527,18 @@ export function WizardStepFloors() {
                                 <>
                                   <span className="text-sm font-medium">{apt.label}</span>
                                   <span className="text-xs text-muted-foreground">({apt.rows.length} שורות)</span>
-                                  {apt.sourceApartmentTypeName && <Badge variant="secondary" className="text-[10px] px-1 py-0">טיפוס {apt.sourceApartmentTypeName}</Badge>}
+                                  {apt.sourceApartmentTypeName && (
+                                    <Badge variant="secondary" className="text-[10px] px-1 py-0 gap-0.5">
+                                      טיפוס {apt.sourceApartmentTypeName}
+                                      <button
+                                        type="button"
+                                        onClick={() => dispatch({ type: 'CLEAR_APARTMENT_TYPE_TAG', payload: { floorId: floor.id, apartmentId: apt.id } })}
+                                        className="hover:text-destructive"
+                                      >
+                                        <X className="h-2.5 w-2.5" />
+                                      </button>
+                                    </Badge>
+                                  )}
                                   <Button
                                     variant="ghost"
                                     size="icon"
