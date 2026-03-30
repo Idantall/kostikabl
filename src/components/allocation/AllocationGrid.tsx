@@ -458,156 +458,198 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     setExporting(true);
     try {
       const { default: jsPDF } = await import('jspdf');
-      const { default: autoTable } = await import('jspdf-autotable');
+      const html2canvas = (await import('html2canvas')).default;
 
-      // Load branding images as base64
+      // Load branding images as base64 data URLs
       const [headerRes, footerRes] = await Promise.all([
         fetch('/branding/allocation-header.jpg'),
         fetch('/branding/allocation-footer.jpg'),
       ]);
       const headerBuf = await headerRes.arrayBuffer();
       const footerBuf = await footerRes.arrayBuffer();
-      const toBase64 = (buf: ArrayBuffer) => {
+      const toDataUrl = (buf: ArrayBuffer, mime = 'image/jpeg') => {
         const bytes = new Uint8Array(buf);
         let binary = '';
         for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-        return btoa(binary);
+        return `data:${mime};base64,${btoa(binary)}`;
       };
-      const headerB64 = toBase64(headerBuf);
-      const footerB64 = toBase64(footerBuf);
+      const headerDataUrl = toDataUrl(headerBuf);
+      const footerDataUrl = toDataUrl(footerBuf);
 
-      // A3 landscape: 420 x 297 mm
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
-      const pageW = 420;
-      const pageH = 297;
-      const margin = 8;
+      // Build an off-screen HTML table that mirrors the allocation grid
+      const container = document.createElement('div');
+      container.style.cssText = 'position:absolute;left:-9999px;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:0;';
+      // Wide enough for A3 landscape at 2x scale
+      container.style.width = `${1580}px`;
 
-      // Header image — full width, ~25mm tall
-      const headerImgW = pageW - margin * 2;
-      const headerImgH = 25;
-      doc.addImage(headerB64, 'JPEG', margin, margin, headerImgW, headerImgH);
+      // Header image
+      const headerImg = document.createElement('img');
+      headerImg.src = headerDataUrl;
+      headerImg.style.cssText = 'width:100%;height:auto;display:block;margin-bottom:6px;';
+      container.appendChild(headerImg);
 
-      // Build table data (RTL: columns reversed so rightmost = first fixed cols)
-      // jspdf-autotable renders left-to-right, so we reverse column order for RTL feel
-      const colCount = 2 + columnHeaders.length + 1;
+      // Build the table
+      const table = document.createElement('table');
+      table.style.cssText = 'width:100%;border-collapse:collapse;font-size:11px;direction:rtl;text-align:center;';
 
-      // Floor group header row (top merged header)
-      // We'll use two header rows: floor groups + apartment numbers
-      const floorHeaderRow: string[] = [];
-      const aptHeaderRow: string[] = [];
+      // Floor group header row
+      const thead = document.createElement('thead');
+      const tr1 = document.createElement('tr');
+      const cellStyle = 'border:1px solid #000;padding:3px 4px;font-weight:bold;text-align:center;';
+      const headerBg = 'background:#dce6f1;';
 
-      // First two cols: מידות, מספר פרט (RTL order)
-      floorHeaderRow.push('מידות', 'מספר פרט');
-      aptHeaderRow.push('', '');
+      // מידות (rowspan 2)
+      const thDim = document.createElement('th');
+      thDim.rowSpan = 2;
+      thDim.style.cssText = cellStyle + headerBg + 'min-width:60px;';
+      thDim.textContent = 'מידות';
+      tr1.appendChild(thDim);
 
+      // מספר פרט (rowspan 2)
+      const thCode = document.createElement('th');
+      thCode.rowSpan = 2;
+      thCode.style.cssText = cellStyle + headerBg + 'min-width:60px;';
+      thCode.textContent = 'מספר פרט';
+      tr1.appendChild(thCode);
+
+      // Floor spans
       for (const span of floorSpans) {
-        for (let i = 0; i < span.colspan; i++) {
-          floorHeaderRow.push(i === 0 ? span.label : '');
-        }
+        const th = document.createElement('th');
+        th.colSpan = span.colspan;
+        th.style.cssText = cellStyle + headerBg;
+        th.textContent = span.label;
+        tr1.appendChild(th);
       }
-      floorHeaderRow.push('סה״כ');
 
+      // סה״כ (rowspan 2)
+      const thTotal = document.createElement('th');
+      thTotal.rowSpan = 2;
+      thTotal.style.cssText = cellStyle + headerBg + 'min-width:40px;';
+      thTotal.textContent = 'סה״כ';
+      tr1.appendChild(thTotal);
+      thead.appendChild(tr1);
+
+      // Apartment numbers row
+      const tr2 = document.createElement('tr');
       for (const col of columnHeaders) {
-        aptHeaderRow.push(`דירה ${col.label}`);
+        const th = document.createElement('th');
+        th.style.cssText = cellStyle + 'background:#eef2f7;font-size:10px;min-width:28px;';
+        th.textContent = `דירה ${col.label}`;
+        tr2.appendChild(th);
       }
-      aptHeaderRow.push('');
+      thead.appendChild(tr2);
+      table.appendChild(thead);
 
       // Data rows
-      const bodyRows: (string | number)[][] = [];
-      for (const row of filteredRows) {
-        const r: (string | number)[] = [row.dimensions, row.itemCode];
+      const tbody = document.createElement('tbody');
+      filteredRows.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        const rowBg = idx % 2 === 0 ? '' : 'background:#f5f5f5;';
+
+        const tdDim = document.createElement('td');
+        tdDim.style.cssText = cellStyle + rowBg + 'font-family:monospace;font-size:10px;';
+        tdDim.textContent = row.dimensions;
+        tr.appendChild(tdDim);
+
+        const tdCode = document.createElement('td');
+        tdCode.style.cssText = cellStyle + rowBg;
+        tdCode.textContent = row.itemCode;
+        tr.appendChild(tdCode);
+
         for (const col of columnHeaders) {
+          const td = document.createElement('td');
+          td.style.cssText = cellStyle + rowBg + 'min-width:28px;';
           const v = getCellValue(row.itemCode, col.aptId);
-          r.push(v > 0 ? v : '');
+          td.textContent = v > 0 ? String(v) : '';
+          tr.appendChild(td);
         }
-        r.push(getRowTotal(row.itemCode));
-        bodyRows.push(r);
-      }
 
-      // Totals row
-      const totalsRowData: (string | number)[] = ['', 'סה״כ'];
-      for (const col of columnHeaders) {
-        totalsRowData.push(columnTotals.get(col.aptId) || 0);
-      }
-      totalsRowData.push(grandTotal);
-      bodyRows.push(totalsRowData);
+        const tdRowTotal = document.createElement('td');
+        tdRowTotal.style.cssText = cellStyle + rowBg + 'font-weight:bold;background:#eef2f7;';
+        tdRowTotal.textContent = String(getRowTotal(row.itemCode));
+        tr.appendChild(tdRowTotal);
 
-      const tableStartY = margin + headerImgH + 3;
-
-      // Calculate column widths: fixed cols wider, data cols auto
-      const availableW = pageW - margin * 2;
-      const fixedColW = 18;
-      const totalFixedW = fixedColW * 3; // מידות + מספר פרט + סה״כ
-      const dataColW = Math.max(6, (availableW - totalFixedW) / columnHeaders.length);
-
-      const columnStyles: Record<number, { cellWidth: number; halign: 'center' }> = {};
-      columnStyles[0] = { cellWidth: fixedColW, halign: 'center' };
-      columnStyles[1] = { cellWidth: fixedColW, halign: 'center' };
-      for (let i = 2; i < 2 + columnHeaders.length; i++) {
-        columnStyles[i] = { cellWidth: dataColW, halign: 'center' };
-      }
-      columnStyles[2 + columnHeaders.length] = { cellWidth: fixedColW, halign: 'center' };
-
-      // @ts-ignore - jspdf-autotable augments jsPDF
-      autoTable(doc, {
-        startY: tableStartY,
-        head: [floorHeaderRow, aptHeaderRow],
-        body: bodyRows,
-        theme: 'grid',
-        styles: {
-          font: 'helvetica',
-          fontSize: 7,
-          cellPadding: 1,
-          halign: 'center',
-          valign: 'middle',
-          lineWidth: 0.2,
-          lineColor: [0, 0, 0],
-        },
-        headStyles: {
-          fillColor: [220, 230, 241],
-          textColor: [0, 0, 0],
-          fontStyle: 'bold',
-          fontSize: 7,
-        },
-        bodyStyles: {
-          textColor: [0, 0, 0],
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245],
-        },
-        columnStyles,
-        // Style the totals row (last row) differently
-        didParseCell: (data: any) => {
-          // Bold totals row
-          if (data.section === 'body' && data.row.index === bodyRows.length - 1) {
-            data.cell.styles.fontStyle = 'bold';
-            data.cell.styles.fillColor = [220, 230, 241];
-          }
-        },
-        margin: { left: margin, right: margin },
-        tableWidth: availableW,
+        tbody.appendChild(tr);
       });
 
-      // Get where the table ended
-      // @ts-ignore
-      const finalY: number = (doc as any).lastAutoTable?.finalY ?? tableStartY + 100;
+      // Totals row
+      const trTotals = document.createElement('tr');
+      const tdEmpty = document.createElement('td');
+      tdEmpty.style.cssText = cellStyle + headerBg;
+      tdEmpty.textContent = '';
+      trTotals.appendChild(tdEmpty);
+
+      const tdTotalLabel = document.createElement('td');
+      tdTotalLabel.style.cssText = cellStyle + headerBg;
+      tdTotalLabel.textContent = 'סה״כ';
+      trTotals.appendChild(tdTotalLabel);
+
+      for (const col of columnHeaders) {
+        const td = document.createElement('td');
+        td.style.cssText = cellStyle + headerBg;
+        td.textContent = String(columnTotals.get(col.aptId) || 0);
+        trTotals.appendChild(td);
+      }
+
+      const tdGrand = document.createElement('td');
+      tdGrand.style.cssText = cellStyle + 'background:#c5d9f1;font-weight:bold;';
+      tdGrand.textContent = String(grandTotal);
+      trTotals.appendChild(tdGrand);
+
+      tbody.appendChild(trTotals);
+      table.appendChild(tbody);
+      container.appendChild(table);
 
       // Signature text
-      const sigY = finalY + 8;
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      const sig1 = 'לאישורך לביצוע';
-      const sig2 = 'יריב קוסטיקה';
-      doc.text(sig1, pageW / 2, sigY, { align: 'center' });
-      doc.text(sig2, pageW / 2, sigY + 7, { align: 'center' });
+      const sigDiv = document.createElement('div');
+      sigDiv.style.cssText = 'text-align:center;margin-top:12px;font-size:16px;font-weight:bold;direction:rtl;';
+      sigDiv.innerHTML = 'לאישורך לביצוע<br/>יריב קוסטיקה';
+      container.appendChild(sigDiv);
 
       // Footer image
-      const footerImgW = pageW - margin * 2;
-      const footerImgH = 15;
-      const footerY = Math.min(sigY + 15, pageH - margin - footerImgH);
-      doc.addImage(footerB64, 'JPEG', margin, footerY, footerImgW, footerImgH);
+      const footerImg = document.createElement('img');
+      footerImg.src = footerDataUrl;
+      footerImg.style.cssText = 'width:100%;height:auto;display:block;margin-top:12px;';
+      container.appendChild(footerImg);
 
-      // Download
+      document.body.appendChild(container);
+
+      // Wait for images to load
+      await new Promise(r => setTimeout(r, 300));
+
+      // Render to canvas
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      document.body.removeChild(container);
+
+      // A3 landscape PDF
+      const pdfW = 420;
+      const pdfH = 297;
+      const margin = 6;
+      const imgW = pdfW - margin * 2;
+      const imgH = (canvas.height * imgW) / canvas.width;
+
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+      let heightLeft = imgH;
+      let position = margin;
+
+      doc.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+      heightLeft -= (pdfH - margin * 2);
+
+      while (heightLeft > 0) {
+        doc.addPage();
+        position = margin - (imgH - heightLeft);
+        doc.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+        heightLeft -= (pdfH - margin * 2);
+      }
+
       const date = new Date().toISOString().split('T')[0];
       doc.save(`${projectName}-allocation-${date}.pdf`);
 
