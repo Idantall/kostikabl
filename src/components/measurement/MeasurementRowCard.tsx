@@ -63,12 +63,31 @@ export const MeasurementRowCard = memo(function MeasurementRowCard({
   onDelete,
   onLabelChange,
 }: MeasurementRowCardProps) {
+  // Local state for floor/apt labels - don't propagate until blur
+  const [localFloor, setLocalFloor] = useState(row.floor_label || "");
+  const [localApt, setLocalApt] = useState(row.apartment_label || "");
+
+  // Sync local state when row changes from outside (e.g. batch rename)
+  useEffect(() => { setLocalFloor(row.floor_label || ""); }, [row.floor_label]);
+  useEffect(() => { setLocalApt(row.apartment_label || ""); }, [row.apartment_label]);
+
   const updateField = useCallback(
     (field: keyof MeasurementRowData, value: string | boolean | null) => {
       onFieldChange(row.id, field, value);
     },
     [onFieldChange, row.id]
   );
+
+  const handleLabelBlur = useCallback((field: 'floor_label' | 'apartment_label', localVal: string) => {
+    const newVal = localVal || null;
+    const oldVal = row[field];
+    if (newVal === oldVal) return;
+    if (onLabelChange) {
+      onLabelChange(row.id, field, oldVal, newVal);
+    } else {
+      onFieldChange(row.id, field, newVal);
+    }
+  }, [row, onLabelChange, onFieldChange]);
 
   return (
     <Card className="overflow-hidden">
