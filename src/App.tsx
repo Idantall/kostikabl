@@ -1,4 +1,21 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, ComponentType } from "react";
+
+// Auto-reload on chunk load failure (stale deploy)
+function lazyWithRetry<T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) {
+  return lazy(() =>
+    factory().catch((err) => {
+      // If chunk fails to load, reload the page once
+      const key = 'chunk_reload';
+      const last = sessionStorage.getItem(key);
+      const now = Date.now();
+      if (!last || now - Number(last) > 10000) {
+        sessionStorage.setItem(key, String(now));
+        window.location.reload();
+      }
+      throw err;
+    })
+  );
+}
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
