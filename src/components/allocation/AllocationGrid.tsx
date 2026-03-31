@@ -526,7 +526,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       // Build the table
       const table = document.createElement('table');
-      table.style.cssText = 'border-collapse:collapse;font-size:11px;direction:rtl;text-align:center;';
+      table.style.cssText = 'border-collapse:collapse;font-size:14px;direction:rtl;text-align:center;';
 
       // Floor group header row
       const thead = document.createElement('thead');
