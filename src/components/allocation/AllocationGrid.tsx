@@ -586,7 +586,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
           // thick right border for floor separators handled separately
         }
         
-        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFont('NotoSansHebrew', 'normal');
         doc.setFontSize(fontSize);
         doc.setTextColor(0);
         
