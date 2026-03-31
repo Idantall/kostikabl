@@ -570,7 +570,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.text(dateStr, leftX, y, { align: 'left' });
       y += 10;
       // Address fields on the RIGHT side
-      const addressLabels = [rtl('לכבוד:'), rtl('אתר:'), rtl('לידי:')];
+      const addressLabels = [rtlHebrew('לכבוד:'), rtlHebrew('אתר:'), rtlHebrew('לידי:')];
       for (const line of addressLabels) {
         doc.text(line, rightX, y, { align: 'right' });
         y += 10;
