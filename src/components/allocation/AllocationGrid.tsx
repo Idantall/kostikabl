@@ -550,15 +550,25 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       // Pure Hebrew: simple character reversal (for labels, pure Hebrew text)
       const rtlHebrew = (s: string): string => !s ? s : [...s].reverse().join('');
       // Mixed content (Hebrew + numbers + Latin): bidi-style token reordering
-      // Hebrew tokens include surrounding quotes/geresh (like סה"כ)
+      // Each Hebrew token must also be char-reversed since jsPDF renders LTR
       const rtl = (s: string): string => {
         if (!s) return s;
         // If text is pure Hebrew (with spaces/punctuation, no digits/latin), use simple reversal
         if (!/[0-9A-Za-z]/.test(s)) return rtlHebrew(s);
-        // Mixed: tokenize and reorder
+        // Mixed: tokenize, reverse order, and reverse chars within Hebrew tokens
         return (s.match(/[\u0590-\u05FF"'״׳]+|\d+(?:[.+\-/]\d+)*|[A-Za-z]+|\s+|[(){}\[\]]|[^\s\u0590-\u05FF"'״׳]/g) || [s])
           .reverse()
-          .map(t => t === '(' ? ')' : t === ')' ? '(' : t === '[' ? ']' : t === ']' ? '[' : t === '{' ? '}' : t === '}' ? '{' : t)
+          .map(t => {
+            if (t === '(') return ')';
+            if (t === ')') return '(';
+            if (t === '[') return ']';
+            if (t === ']') return '[';
+            if (t === '{') return '}';
+            if (t === '}') return '{';
+            // Reverse characters within Hebrew tokens so they render correctly in LTR
+            if (/[\u0590-\u05FF]/.test(t)) return [...t].reverse().join('');
+            return t;
+          })
           .join('');
       };
 
