@@ -656,7 +656,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       x = tableStartX;
       drawCell(x, y, colWidths.dimensions, rowH, '', { bg: '#dce6f1', bold: true });
       x += colWidths.dimensions;
-      drawCell(x, y, colWidths.itemCode, rowH, 'כ״הס', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.itemCode, rowH, 'סה״כ', { bg: '#dce6f1', bold: true, fontSize: 9 });
       x += colWidths.itemCode;
       for (const col of columnHeaders) {
         drawCell(x, y, colWidths.apt, rowH, String(columnTotals.get(col.aptId) || 0), { bg: '#dce6f1', bold: true, fontSize: 7 });
