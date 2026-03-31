@@ -599,7 +599,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const hdrH = 7;
       
       // "מידות" header (2-row span)
-      drawCell(x, y, colWidths.dimensions, hdrH * 2, 'תודימ', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.dimensions, hdrH * 2, 'מידות', { bg: '#dce6f1', bold: true, fontSize: 9 });
       x += colWidths.dimensions;
       
       // "מספר פרט" header (2-row span)  
