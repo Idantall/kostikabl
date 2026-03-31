@@ -617,7 +617,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       }
       
       // "סה״כ" header (2-row span)
-      drawCell(x, y, colWidths.total, hdrH * 2, 'כ״הס', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.total, hdrH * 2, 'סה״כ', { bg: '#dce6f1', bold: true, fontSize: 9 });
       
       // Apartment sub-headers (row 2)
       y += hdrH;
