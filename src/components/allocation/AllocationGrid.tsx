@@ -547,7 +547,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // jsPDF renders LTR only – use bidi-style token reordering
+      // Pure Hebrew: simple character reversal (for labels like לכבוד, אתר, etc.)
+      const rtlHebrew = (s: string): string => !s ? s : [...s].reverse().join('');
+      // Mixed content (Hebrew + numbers + Latin): bidi-style token reordering
       const rtl = (s: string): string => {
         if (!s) return s;
         return (s.match(/[\u0590-\u05FF]+|\d+(?:[.+\-/]\d+)*|[A-Za-z]+|\s+|[(){}\[\]]|[^\s]/g) || [s])
@@ -568,7 +570,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.text(dateStr, leftX, y, { align: 'left' });
       y += 10;
       // Address fields on the RIGHT side
-      const addressLabels = [rtl('לכבוד:'), rtl('אתר:'), rtl('לידי:')];
+      const addressLabels = [rtlHebrew('לכבוד:'), rtlHebrew('אתר:'), rtlHebrew('לידי:')];
       for (const line of addressLabels) {
         doc.text(line, rightX, y, { align: 'right' });
         y += 10;
@@ -694,9 +696,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(24);
       const centerX = margin + tableWidth / 2;
-      doc.text(rtl('לאישורך לביצוע'), centerX, y, { align: 'center' });
+      doc.text(rtlHebrew('לאישורך לביצוע'), centerX, y, { align: 'center' });
       y += 12;
-      doc.text(rtl('יריב קוסטיקה'), centerX, y, { align: 'center' });
+      doc.text(rtlHebrew('יריב קוסטיקה'), centerX, y, { align: 'center' });
       y += 14;
 
       // Footer image
