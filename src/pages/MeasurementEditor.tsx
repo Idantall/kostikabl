@@ -285,10 +285,9 @@ const MeasurementEditor = () => {
   }, [renameConfirm, debouncedQueueUpdate, recalcFilters]);
 
   const skipBatchRename = useCallback(() => {
-    // Just recalc filters for the single-row change already applied
-    recalcFilters(rows);
+    // Cancel — no changes were applied yet (local state in card will revert via useEffect)
     setRenameConfirm(null);
-  }, [rows, recalcFilters]);
+  }, []);
 
   const addRow = async () => {
     if (!projectId) return;
