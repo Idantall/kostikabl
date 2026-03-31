@@ -747,8 +747,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.text(rtl('יריב קוסטיקה'), centerX, y, { align: 'center' });
       y += 14;
 
-      // Footer image (preserve aspect ratio)
-      const footerFit = fitImg(footerDims, tableWidth);
+      // Footer image (reuse pre-computed footerFit)
       try {
         doc.addImage(`data:image/jpeg;base64,${footerB64}`, 'JPEG', margin, y, footerFit.w, footerFit.h);
       } catch (e) {
