@@ -547,6 +547,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
+      // jsPDF doesn't support RTL — reverse Hebrew strings so they display correctly
+      const rtl = (s: string) => [...s].reverse().join('');
+
       // Date and address fields (RTL - right aligned)
       doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(12);
@@ -554,7 +557,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
       const rightX = margin + tableWidth;
       
-      const addressLines = [dateStr, 'לכבוד:', 'אתר:', 'לידי:'];
+      const addressLines = [dateStr, rtl('לכבוד:'), rtl('אתר:'), rtl('לידי:')];
       for (const line of addressLines) {
         doc.text(line, rightX, y, { align: 'right' });
         y += 6;
