@@ -547,6 +547,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
+      // jsPDF doesn't support RTL — reverse Hebrew strings so they display correctly
+      const rtl = (s: string) => [...s].reverse().join('');
+
       // Date and address fields (RTL - right aligned)
       doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(12);
@@ -554,7 +557,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
       const rightX = margin + tableWidth;
       
-      const addressLines = [dateStr, 'לכבוד:', 'אתר:', 'לידי:'];
+      const addressLines = [dateStr, rtl('לכבוד:'), rtl('אתר:'), rtl('לידי:')];
       for (const line of addressLines) {
         doc.text(line, rightX, y, { align: 'right' });
         y += 6;
@@ -590,8 +593,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         doc.setFontSize(fontSize);
         doc.setTextColor(0);
         
+        // Auto-reverse if text contains Hebrew characters
+        const hasHebrew = /[\u0590-\u05FF]/.test(text);
+        const displayText = hasHebrew ? rtl(String(text)) : String(text);
         const textX = align === 'center' ? x + w / 2 : align === 'right' ? x + w - 1 : x + 1;
-        doc.text(String(text), textX, yPos + h / 2 + 1, { align });
+        doc.text(displayText, textX, yPos + h / 2 + 1, { align });
       };
 
       // Draw floor header row
@@ -677,9 +683,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(12);
       const centerX = margin + tableWidth / 2;
-      doc.text('לאישורך לביצוע', centerX, y, { align: 'center' });
+      doc.text(rtl('לאישורך לביצוע'), centerX, y, { align: 'center' });
       y += 7;
-      doc.text('יריב קוסטיקה', centerX, y, { align: 'center' });
+      doc.text(rtl('יריב קוסטיקה'), centerX, y, { align: 'center' });
       y += 8;
 
       // Footer image
