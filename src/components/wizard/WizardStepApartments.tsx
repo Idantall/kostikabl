@@ -281,20 +281,25 @@ export function WizardStepApartments() {
                 </Button>
               )}
               {state.apartmentTypes.length > 0 && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  סוגים שמורים:
-                  {state.apartmentTypes.map(t => (
-                    <Badge key={t.id} variant="secondary" className="text-xs gap-1">
-                      {t.name} ({t.rows.length})
-                      <button
-                        type="button"
-                        onClick={() => dispatch({ type: 'DELETE_APARTMENT_TYPE', payload: t.id })}
-                        className="hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
+                <div className="flex items-center gap-1 text-xs text-muted-foreground min-w-0 overflow-hidden">
+                  <span className="shrink-0">סוגים שמורים:</span>
+                  <ScrollArea className="max-w-full" dir="rtl">
+                    <div className="flex items-center gap-1 pb-2">
+                      {state.apartmentTypes.map(t => (
+                        <Badge key={t.id} variant="secondary" className="text-xs gap-1 shrink-0 whitespace-nowrap">
+                          {t.name} ({t.rows.length})
+                          <button
+                            type="button"
+                            onClick={() => dispatch({ type: 'DELETE_APARTMENT_TYPE', payload: t.id })}
+                            className="hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
               )}
             </div>
@@ -303,10 +308,9 @@ export function WizardStepApartments() {
           {/* Apartment table */}
           {currentApartment ? (
             <>
-              <ScrollArea className="w-full" dir="rtl">
-                <div className="border rounded-lg min-w-[1500px] max-h-[70vh] overflow-y-auto" ref={tableRef} onKeyDown={onTableKeyDown}>
-                  <Table dir="rtl" className="table-fixed">
-                    <TableHeader className="sticky top-0 z-10 bg-background">
+              <div className="max-h-[70vh] overflow-auto border rounded-lg" ref={tableRef} onKeyDown={onTableKeyDown}>
+                <table dir="rtl" className="w-full table-fixed caption-bottom text-sm">
+                    <thead className="sticky top-0 z-10 bg-background [&_tr]:border-b shadow-[0_1px_0_0_hsl(var(--border))]">
                     <TableRow>
                          <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
@@ -333,7 +337,7 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-28">הערות</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
-                    </TableHeader>
+                    </thead>
                     <TableBody>
                       {currentApartment.rows.map((row, rowIdx) => (
                         <TableRow key={row.id}>
@@ -505,10 +509,8 @@ export function WizardStepApartments() {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                  </table>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
 
               <div className="flex items-center gap-2">
                 <Button variant="outline" onClick={() => handleAddRow(1)} className="gap-2" disabled={currentApartment.rows.length >= 35}>
