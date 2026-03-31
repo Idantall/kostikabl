@@ -597,9 +597,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       // Helper to draw a cell
       const drawCell = (x: number, yPos: number, w: number, h: number, text: string, opts?: {
         bg?: string; bold?: boolean; fontSize?: number; align?: 'center' | 'right' | 'left';
-        borderRight?: boolean; borderBottom?: boolean;
+        borderRight?: boolean; borderBottom?: boolean; skipRtl?: boolean;
       }) => {
-        const { bg, bold = false, fontSize = 8, align = 'center', borderRight = true, borderBottom = true } = opts || {};
+        const { bg, bold = false, fontSize = 8, align = 'center', borderRight = true, borderBottom = true, skipRtl = false } = opts || {};
         
         if (bg) {
           const rgb = bg === '#dce6f1' ? [220, 230, 241] : bg === '#eef2f7' ? [238, 242, 247] : bg === '#f5f5f5' ? [245, 245, 245] : bg === '#c5d9f1' ? [197, 217, 241] : [255, 255, 255];
