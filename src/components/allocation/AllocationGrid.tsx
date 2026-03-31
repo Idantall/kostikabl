@@ -477,7 +477,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     }
   };
 
-  // Export to PDF (looks like Excel printout with branding)
+  // Export to PDF using direct jsPDF rendering (no html2canvas)
   const exportPDF = async () => {
     if (filteredRows.length === 0) {
       toast.error("אין נתונים לייצוא");
@@ -487,152 +487,202 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     setExporting(true);
     try {
       const { default: jsPDF } = await import('jspdf');
-      const html2canvas = (await import('html2canvas')).default;
 
-      // Load branding images as base64 data URLs
+      // Load branding images as base64
       const [headerRes, footerRes] = await Promise.all([
         fetch('/branding/allocation-header.jpg'),
         fetch('/branding/allocation-footer.jpg'),
       ]);
-      const headerBuf = await headerRes.arrayBuffer();
-      const footerBuf = await footerRes.arrayBuffer();
-      const toDataUrl = (buf: ArrayBuffer, mime = 'image/jpeg') => {
+      const toBase64 = async (res: Response) => {
+        const buf = await res.arrayBuffer();
         const bytes = new Uint8Array(buf);
         let binary = '';
         for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-        return `data:${mime};base64,${btoa(binary)}`;
+        return btoa(binary);
       };
-      const headerDataUrl = toDataUrl(headerBuf);
-      const footerDataUrl = toDataUrl(footerBuf);
+      const headerB64 = await toBase64(headerRes);
+      const footerB64 = await toBase64(footerRes);
 
-      const cellStyle = 'border:1px solid #000;padding:3px 4px;font-weight:bold;text-align:center;';
-      const headerBgStyle = 'background:#dce6f1;';
-
-      // Build floor header row HTML
-      let floorHeaderCells = `<th rowspan="2" style="${cellStyle}${headerBgStyle}min-width:60px;">מידות</th>`;
-      floorHeaderCells += `<th rowspan="2" style="${cellStyle}${headerBgStyle}min-width:60px;">מספר פרט</th>`;
-      for (const span of floorSpans) {
-        floorHeaderCells += `<th colspan="${span.colspan}" style="${cellStyle}${headerBgStyle}">${span.label}</th>`;
-      }
-      floorHeaderCells += `<th rowspan="2" style="${cellStyle}${headerBgStyle}min-width:40px;">סה״כ</th>`;
-
-      // Build apartment header row HTML
-      let aptHeaderCells = '';
-      for (const col of columnHeaders) {
-        aptHeaderCells += `<th style="${cellStyle}background:#eef2f7;font-size:13px;min-width:28px;">דירה ${col.label}</th>`;
-      }
-
-      // Build data rows HTML
-      let dataRowsHtml = '';
-      for (let idx = 0; idx < filteredRows.length; idx++) {
-        const row = filteredRows[idx];
-        const rowBg = idx % 2 === 0 ? '' : 'background:#f5f5f5;';
-        let cells = `<td style="${cellStyle}${rowBg}font-family:monospace;font-size:13px;">${row.dimensions}</td>`;
-        cells += `<td style="${cellStyle}${rowBg}">${row.itemCode}</td>`;
-        for (const col of columnHeaders) {
-          const v = getCellValue(row.itemCode, col.aptId);
-          cells += `<td style="${cellStyle}${rowBg}min-width:28px;">${v > 0 ? v : ''}</td>`;
-        }
-        cells += `<td style="${cellStyle}${rowBg}font-weight:bold;background:#eef2f7;">${getRowTotal(row.itemCode)}</td>`;
-        dataRowsHtml += `<tr>${cells}</tr>`;
-      }
-
-      // Totals row
-      let totalsCells = `<td style="${cellStyle}${headerBgStyle}"></td>`;
-      totalsCells += `<td style="${cellStyle}${headerBgStyle}">סה״כ</td>`;
-      for (const col of columnHeaders) {
-        totalsCells += `<td style="${cellStyle}${headerBgStyle}">${columnTotals.get(col.aptId) || 0}</td>`;
-      }
-      totalsCells += `<td style="${cellStyle}background:#c5d9f1;font-weight:bold;">${grandTotal}</td>`;
-
-      const now2 = new Date();
-      const dateStr = `${String(now2.getDate()).padStart(2, '0')}/${String(now2.getMonth() + 1).padStart(2, '0')}/${now2.getFullYear()}`;
-
-      const fullHtml = `
-        <div dir="rtl" style="font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;">
-          <img src="${headerDataUrl}" style="width:100%;height:auto;display:block;margin-bottom:6px;" />
-          <div style="direction:rtl;text-align:right;font-size:18px;font-weight:bold;margin:8px 4px;line-height:1.8;">
-            ${dateStr}<br/>לכבוד:<br/>אתר:<br/>לידי:
-          </div>
-          <table style="border-collapse:collapse;font-size:14px;direction:rtl;text-align:center;">
-            <thead>
-              <tr>${floorHeaderCells}</tr>
-              <tr>${aptHeaderCells}</tr>
-            </thead>
-            <tbody>
-              ${dataRowsHtml}
-              <tr>${totalsCells}</tr>
-            </tbody>
-          </table>
-          <div style="text-align:center;margin-top:12px;font-size:16px;font-weight:bold;direction:rtl;">
-            לאישורך לביצוע<br/>יריב קוסטיקה
-          </div>
-          <img src="${footerDataUrl}" style="width:100%;height:auto;display:block;margin-top:12px;" />
-        </div>
-      `;
-
-      // Use an iframe to render — this guarantees html2canvas captures a real painted document
-      const iframe = document.createElement('iframe');
-      iframe.style.cssText = 'position:fixed;left:0;top:0;width:3000px;height:5000px;z-index:-9999;opacity:0;pointer-events:none;border:none;';
-      document.body.appendChild(iframe);
-
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) throw new Error('Cannot access iframe document');
-
-      iframeDoc.open();
-      iframeDoc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box;}</style></head><body style="background:#fff;">${fullHtml}</body></html>`);
-      iframeDoc.close();
-
-      // Wait for images inside the iframe to load
-      const iframeImgs = iframeDoc.querySelectorAll('img');
-      await Promise.all(Array.from(iframeImgs).map(img =>
-        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
-      ));
-      // Wait for layout
-      await new Promise(r => setTimeout(r, 300));
-
-      const target = iframeDoc.body.firstElementChild as HTMLElement;
-      const naturalWidth = target.scrollWidth;
-      const naturalHeight = target.scrollHeight;
-
-      // html2canvas on the iframe content
-      const canvas = await html2canvas(target, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        width: naturalWidth,
-        height: naturalHeight,
-        windowWidth: naturalWidth + 50,
-        windowHeight: naturalHeight + 50,
-      });
-
-      document.body.removeChild(iframe);
-
-      // Verify canvas is not empty
-      if (canvas.width === 0 || canvas.height === 0) {
-        throw new Error('html2canvas produced empty canvas');
-      }
-
-      // Create PDF sized to fit on one page (A3 landscape)
-      const A3_W = 420;
-      const A3_H = 297;
+      // Calculate dimensions
+      const aptCount = columnHeaders.length;
+      const colWidths = {
+        dimensions: 22,
+        itemCode: 18,
+        apt: Math.max(10, Math.min(14, 200 / Math.max(aptCount, 1))),
+        total: 14,
+      };
+      const tableWidth = colWidths.dimensions + colWidths.itemCode + aptCount * colWidths.apt + colWidths.total;
       const margin = 6;
-      const imgW = A3_W - margin * 2;
-      const imgH = (canvas.height * imgW) / canvas.width;
-      const pageH = Math.max(A3_H, imgH + margin * 2);
+      const pageWidth = Math.max(420, tableWidth + margin * 2); // A3 landscape min
+      
+      // Estimate page height
+      const headerImgH = 22;
+      const addressH = 32;
+      const tableHeaderH = 14;
+      const rowH = 6;
+      const dataH = filteredRows.length * rowH + rowH; // +1 for totals
+      const footerH = 40;
+      const pageHeight = Math.max(297, margin + headerImgH + addressH + tableHeaderH + dataH + footerH + margin);
 
       const doc = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
-        format: [A3_W, pageH],
+        format: [pageWidth, pageHeight],
       });
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-      doc.addImage(imgData, 'JPEG', margin, margin, imgW, imgH);
+
+      // Add header image
+      try {
+        doc.addImage(`data:image/jpeg;base64,${headerB64}`, 'JPEG', margin, margin, tableWidth, headerImgH);
+      } catch (e) {
+        console.warn('Header image failed', e);
+      }
+
+      let y = margin + headerImgH + 4;
+
+      // Date and address fields (RTL - right aligned)
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      const now = new Date();
+      const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+      const rightX = margin + tableWidth;
+      
+      const addressLines = [dateStr, ':לכבוד', ':אתר', ':לידי'];
+      for (const line of addressLines) {
+        doc.text(line, rightX, y, { align: 'right' });
+        y += 6;
+      }
+      y += 2;
+
+      // Table rendering
+      const tableStartX = margin;
+      const tableStartY = y;
+
+      // Helper to draw a cell
+      const drawCell = (x: number, yPos: number, w: number, h: number, text: string, opts?: {
+        bg?: string; bold?: boolean; fontSize?: number; align?: 'center' | 'right' | 'left';
+        borderRight?: boolean; borderBottom?: boolean;
+      }) => {
+        const { bg, bold = false, fontSize = 8, align = 'center', borderRight = true, borderBottom = true } = opts || {};
+        
+        if (bg) {
+          const rgb = bg === '#dce6f1' ? [220, 230, 241] : bg === '#eef2f7' ? [238, 242, 247] : bg === '#f5f5f5' ? [245, 245, 245] : bg === '#c5d9f1' ? [197, 217, 241] : [255, 255, 255];
+          doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+          doc.rect(x, yPos, w, h, 'F');
+        }
+        
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.2);
+        doc.rect(x, yPos, w, h, 'S');
+        
+        if (borderRight) {
+          // thick right border for floor separators handled separately
+        }
+        
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFontSize(fontSize);
+        doc.setTextColor(0);
+        
+        const textX = align === 'center' ? x + w / 2 : align === 'right' ? x + w - 1 : x + 1;
+        doc.text(String(text), textX, yPos + h / 2 + 1, { align });
+      };
+
+      // Draw floor header row
+      let x = tableStartX;
+      const hdrH = 7;
+      
+      // "מידות" header (2-row span)
+      drawCell(x, y, colWidths.dimensions, hdrH * 2, 'תודימ', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      x += colWidths.dimensions;
+      
+      // "מספר פרט" header (2-row span)  
+      drawCell(x, y, colWidths.itemCode, hdrH * 2, 'טרפ רפסמ', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      x += colWidths.itemCode;
+      
+      // Floor group headers
+      const floorBounds: number[] = [];
+      for (const span of floorSpans) {
+        const spanW = span.colspan * colWidths.apt;
+        floorBounds.push(x);
+        // Reverse Hebrew text for basic RTL (jsPDF doesn't support RTL natively)
+        drawCell(x, y, spanW, hdrH, span.label.split('').reverse().join(''), { bg: '#dce6f1', bold: true, fontSize: 8 });
+        x += spanW;
+      }
+      
+      // "סה״כ" header (2-row span)
+      drawCell(x, y, colWidths.total, hdrH * 2, 'כ״הס', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      
+      // Apartment sub-headers (row 2)
+      y += hdrH;
+      x = tableStartX + colWidths.dimensions + colWidths.itemCode;
+      for (const col of columnHeaders) {
+        drawCell(x, y, colWidths.apt, hdrH, col.label, { bg: '#eef2f7', fontSize: 7 });
+        x += colWidths.apt;
+      }
+      
+      y += hdrH;
+
+      // Data rows
+      for (let idx = 0; idx < filteredRows.length; idx++) {
+        const row = filteredRows[idx];
+        const bg = idx % 2 !== 0 ? '#f5f5f5' : undefined;
+        x = tableStartX;
+        
+        drawCell(x, y, colWidths.dimensions, rowH, row.dimensions, { bg, fontSize: 7 });
+        x += colWidths.dimensions;
+        
+        drawCell(x, y, colWidths.itemCode, rowH, row.itemCode, { bg, bold: true, fontSize: 8 });
+        x += colWidths.itemCode;
+        
+        for (const col of columnHeaders) {
+          const v = getCellValue(row.itemCode, col.aptId);
+          drawCell(x, y, colWidths.apt, rowH, v > 0 ? String(v) : '', { bg, fontSize: 7 });
+          x += colWidths.apt;
+        }
+        
+        drawCell(x, y, colWidths.total, rowH, String(getRowTotal(row.itemCode)), { bg: '#eef2f7', bold: true, fontSize: 8 });
+        
+        y += rowH;
+      }
+
+      // Totals row
+      x = tableStartX;
+      drawCell(x, y, colWidths.dimensions, rowH, '', { bg: '#dce6f1', bold: true });
+      x += colWidths.dimensions;
+      drawCell(x, y, colWidths.itemCode, rowH, 'כ״הס', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      x += colWidths.itemCode;
+      for (const col of columnHeaders) {
+        drawCell(x, y, colWidths.apt, rowH, String(columnTotals.get(col.aptId) || 0), { bg: '#dce6f1', bold: true, fontSize: 7 });
+        x += colWidths.apt;
+      }
+      drawCell(x, y, colWidths.total, rowH, String(grandTotal), { bg: '#c5d9f1', bold: true, fontSize: 9 });
+      y += rowH;
+
+      // Draw thick borders at floor boundaries
+      doc.setLineWidth(0.6);
+      doc.setDrawColor(100);
+      for (const bx of floorBounds.slice(1)) { // skip first
+        doc.line(bx, tableStartY, bx, y);
+      }
+
+      // Signature
+      y += 8;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      const centerX = margin + tableWidth / 2;
+      doc.text('עוציבל ךרושיאל', centerX, y, { align: 'center' });
+      y += 7;
+      doc.text('הקיטסוק ביריי', centerX, y, { align: 'center' });
+      y += 8;
+
+      // Footer image
+      try {
+        doc.addImage(`data:image/jpeg;base64,${footerB64}`, 'JPEG', margin, y, tableWidth, 15);
+      } catch (e) {
+        console.warn('Footer image failed', e);
+      }
 
       const date = new Date().toISOString().split('T')[0];
       doc.save(`${projectName}-allocation-${date}.pdf`);
-
       toast.success("הקובץ הורד בהצלחה");
     } catch (error) {
       console.error("PDF export error:", error);
