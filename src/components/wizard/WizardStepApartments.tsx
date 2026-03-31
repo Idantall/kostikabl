@@ -281,20 +281,25 @@ export function WizardStepApartments() {
                 </Button>
               )}
               {state.apartmentTypes.length > 0 && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  סוגים שמורים:
-                  {state.apartmentTypes.map(t => (
-                    <Badge key={t.id} variant="secondary" className="text-xs gap-1">
-                      {t.name} ({t.rows.length})
-                      <button
-                        type="button"
-                        onClick={() => dispatch({ type: 'DELETE_APARTMENT_TYPE', payload: t.id })}
-                        className="hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
+                <div className="flex items-center gap-1 text-xs text-muted-foreground min-w-0 overflow-hidden">
+                  <span className="shrink-0">סוגים שמורים:</span>
+                  <ScrollArea className="max-w-full" dir="rtl">
+                    <div className="flex items-center gap-1 pb-2">
+                      {state.apartmentTypes.map(t => (
+                        <Badge key={t.id} variant="secondary" className="text-xs gap-1 shrink-0 whitespace-nowrap">
+                          {t.name} ({t.rows.length})
+                          <button
+                            type="button"
+                            onClick={() => dispatch({ type: 'DELETE_APARTMENT_TYPE', payload: t.id })}
+                            className="hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
               )}
             </div>
