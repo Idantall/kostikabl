@@ -507,7 +507,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       // Build an off-screen HTML table — let it size naturally so nothing is cut off
       const container = document.createElement('div');
-      container.style.cssText = 'position:absolute;left:-9999px;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
+      container.style.cssText = 'position:fixed;left:0;top:0;z-index:-9999;opacity:0;pointer-events:none;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
 
       // Header image
       const headerImg = document.createElement('img');
@@ -649,8 +649,13 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       document.body.appendChild(container);
 
-      // Wait for images to load
-      await new Promise(r => setTimeout(r, 300));
+      // Wait for images inside the container to fully load
+      const imgs = container.querySelectorAll('img');
+      await Promise.all(Array.from(imgs).map(img =>
+        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+      ));
+      // Extra tick for layout
+      await new Promise(r => setTimeout(r, 100));
 
       // Render to canvas
       const canvas = await html2canvas(container, {
