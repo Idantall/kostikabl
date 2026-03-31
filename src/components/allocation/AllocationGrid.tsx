@@ -597,9 +597,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       // Helper to draw a cell
       const drawCell = (x: number, yPos: number, w: number, h: number, text: string, opts?: {
         bg?: string; bold?: boolean; fontSize?: number; align?: 'center' | 'right' | 'left';
-        borderRight?: boolean; borderBottom?: boolean;
+        borderRight?: boolean; borderBottom?: boolean; skipRtl?: boolean;
       }) => {
-        const { bg, bold = false, fontSize = 8, align = 'center', borderRight = true, borderBottom = true } = opts || {};
+        const { bg, bold = false, fontSize = 8, align = 'center', borderRight = true, borderBottom = true, skipRtl = false } = opts || {};
         
         if (bg) {
           const rgb = bg === '#dce6f1' ? [220, 230, 241] : bg === '#eef2f7' ? [238, 242, 247] : bg === '#f5f5f5' ? [245, 245, 245] : bg === '#c5d9f1' ? [197, 217, 241] : [255, 255, 255];
@@ -619,9 +619,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         doc.setFontSize(fontSize);
         doc.setTextColor(0);
         
-        // Auto-reverse if text contains Hebrew characters
+        // Auto-reverse if text contains Hebrew characters (skip for apt row cells)
         const hasHebrew = /[\u0590-\u05FF]/.test(text);
-        const displayText = hasHebrew ? rtl(String(text)) : String(text);
+        const displayText = (!skipRtl && hasHebrew) ? rtl(String(text)) : String(text);
         
         // Auto-shrink font if text overflows cell width
         let actualFontSize = fontSize;
@@ -666,7 +666,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       y += hdrH;
       x = tableStartX + colWidths.dimensions + colWidths.itemCode;
       for (const col of columnHeaders) {
-        drawCell(x, y, colWidths.apt, hdrH, col.label, { bg: '#eef2f7', fontSize: 7 });
+        drawCell(x, y, colWidths.apt, hdrH, col.label, { bg: '#eef2f7', fontSize: 7, skipRtl: true });
         x += colWidths.apt;
       }
       
