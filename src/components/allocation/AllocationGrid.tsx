@@ -518,14 +518,36 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const tableWidth = colWidths.dimensions + colWidths.itemCode + aptCount * colWidths.apt + colWidths.total;
       const margin = 6;
       const pageWidth = Math.max(420, tableWidth + margin * 2);
-      
-      const headerImgH = 22;
+
+      // Helper: load image and get native dimensions
+      const getImgDims = (b64: string, mime: string): Promise<{ w: number; h: number }> =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+          img.onerror = () => resolve({ w: 800, h: 100 }); // fallback
+          img.src = `data:${mime};base64,${b64}`;
+        });
+
+      const [headerDims, footerDims] = await Promise.all([
+        getImgDims(headerB64, 'image/jpeg'),
+        getImgDims(footerB64, 'image/jpeg'),
+      ]);
+
+      // Fit image to maxWidth while preserving aspect ratio
+      const fitImg = (dims: { w: number; h: number }, maxW: number) => {
+        const scale = maxW / dims.w;
+        return { w: maxW, h: dims.h * scale };
+      };
+
+      const headerFit = fitImg(headerDims, tableWidth);
+      const footerFit = fitImg(footerDims, tableWidth);
+
       const addressH = 32;
       const tableHeaderH = 14;
       const rowH = 6;
       const dataH = filteredRows.length * rowH + rowH;
-      const footerH = 40;
-      const pageHeight = Math.max(297, margin + headerImgH + addressH + tableHeaderH + dataH + footerH + margin);
+      const signatureH = 34; // two lines + spacing
+      const pageHeight = Math.max(297, margin + headerFit.h + 4 + addressH + tableHeaderH + dataH + 8 + signatureH + footerFit.h + margin);
 
       const doc = new jsPDF({
         orientation: 'landscape',
