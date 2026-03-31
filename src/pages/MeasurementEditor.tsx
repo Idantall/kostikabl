@@ -242,30 +242,43 @@ const MeasurementEditor = () => {
 
   const applyBatchRename = useCallback(() => {
     if (!renameConfirm) return;
-    const { field, oldValue, newValue } = renameConfirm;
+    const { field, oldValue } = renameConfirm;
+    const finalValue = renameConfirm.selectedExisting || renameConfirm.newValue;
     setRows(prev => {
       const updated = prev.map(r =>
-        r[field] === oldValue ? { ...r, [field]: newValue } : r
+        r[field] === oldValue ? { ...r, [field]: finalValue } : r
       );
       recalcFilters(updated);
       return updated;
     });
-    // Queue DB updates for all matching rows
     rows.forEach(r => {
       if (r[field] === oldValue) {
-        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: newValue });
+        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: finalValue });
       }
     });
-    // Update selected filter if it was the renamed value
     if (field === 'floor_label' && selectedFloor === oldValue) {
-      setSelectedFloor(newValue || 'all');
+      setSelectedFloor(finalValue || 'all');
     }
     if (field === 'apartment_label' && selectedApartment === oldValue) {
-      setSelectedApartment(newValue || 'all');
+      setSelectedApartment(finalValue || 'all');
     }
     setRenameConfirm(null);
     toast.success(`שונה בכל השורות`);
   }, [renameConfirm, rows, debouncedQueueUpdate, recalcFilters, selectedFloor, selectedApartment]);
+
+  const applySingleRowRename = useCallback(() => {
+    if (!renameConfirm) return;
+    const { rowId, field, selectedExisting, newValue } = renameConfirm;
+    const finalValue = selectedExisting || newValue;
+    setRows(prev => {
+      const updated = prev.map(r => r.id === rowId ? { ...r, [field]: finalValue } : r);
+      recalcFilters(updated);
+      return updated;
+    });
+    debouncedQueueUpdate(rowId, 'measurement_rows', { [field]: finalValue });
+    setRenameConfirm(null);
+    toast.success('שורה עודכנה');
+  }, [renameConfirm, debouncedQueueUpdate, recalcFilters]);
 
   const skipBatchRename = useCallback(() => {
     // Just recalc filters for the single-row change already applied
