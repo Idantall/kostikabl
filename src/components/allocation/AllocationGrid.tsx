@@ -674,12 +674,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       // Signature
       y += 8;
-      doc.setFont('helvetica', 'bold');
+      doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(12);
       const centerX = margin + tableWidth / 2;
-      doc.text('עוציבל ךרושיאל', centerX, y, { align: 'center' });
+      doc.text('לאישורך לביצוע', centerX, y, { align: 'center' });
       y += 7;
-      doc.text('הקיטסוק ביריי', centerX, y, { align: 'center' });
+      doc.text('יריב קוסטיקה', centerX, y, { align: 'center' });
       y += 8;
 
       // Footer image
