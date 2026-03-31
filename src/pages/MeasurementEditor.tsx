@@ -227,15 +227,18 @@ const MeasurementEditor = () => {
 
   const handleLabelChange = useCallback((rowId: string, field: 'floor_label' | 'apartment_label', oldValue: string | null, newValue: string | null) => {
     if (oldValue === newValue) return;
-    // Count how many other rows share the old label value
     const matchingCount = rows.filter(r => r[field] === oldValue && r.id !== rowId).length;
+    const existingLabels = field === 'floor_label' ? floors : apartments;
+    const isNewLabel = !!newValue && !existingLabels.includes(newValue);
     if (matchingCount > 0) {
-      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount });
+      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount, isNewLabel, selectedExisting: '' });
+    } else if (isNewLabel) {
+      // Single row but new label - show warning dialog
+      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount: 0, isNewLabel, selectedExisting: '' });
     } else {
-      // Only one row had this value, just recalc filters
       recalcFilters(rows);
     }
-  }, [rows, recalcFilters]);
+  }, [rows, recalcFilters, floors, apartments]);
 
   const applyBatchRename = useCallback(() => {
     if (!renameConfirm) return;
