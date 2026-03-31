@@ -666,7 +666,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       y += hdrH;
       x = tableStartX + colWidths.dimensions + colWidths.itemCode;
       for (const col of columnHeaders) {
-        drawCell(x, y, colWidths.apt, hdrH, col.label, { bg: '#eef2f7', fontSize: 7, skipRtl: true });
+        drawCell(x, y, colWidths.apt, hdrH, col.label, { bg: '#eef2f7', fontSize: 7 });
         x += colWidths.apt;
       }
       
