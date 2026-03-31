@@ -547,12 +547,16 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // Pure Hebrew: simple character reversal (for labels like לכבוד, אתר, etc.)
+      // Pure Hebrew: simple character reversal (for labels, pure Hebrew text)
       const rtlHebrew = (s: string): string => !s ? s : [...s].reverse().join('');
       // Mixed content (Hebrew + numbers + Latin): bidi-style token reordering
+      // Hebrew tokens include surrounding quotes/geresh (like סה"כ)
       const rtl = (s: string): string => {
         if (!s) return s;
-        return (s.match(/[\u0590-\u05FF]+|\d+(?:[.+\-/]\d+)*|[A-Za-z]+|\s+|[(){}\[\]]|[^\s]/g) || [s])
+        // If text is pure Hebrew (with spaces/punctuation, no digits/latin), use simple reversal
+        if (!/[0-9A-Za-z]/.test(s)) return rtlHebrew(s);
+        // Mixed: tokenize and reorder
+        return (s.match(/[\u0590-\u05FF"'״׳]+|\d+(?:[.+\-/]\d+)*|[A-Za-z]+|\s+|[(){}\[\]]|[^\s\u0590-\u05FF"'״׳]/g) || [s])
           .reverse()
           .map(t => t === '(' ? ')' : t === ')' ? '(' : t === '[' ? ']' : t === ']' ? '[' : t === '{' ? '}' : t === '}' ? '{' : t)
           .join('');
@@ -609,6 +613,17 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         // Auto-reverse if text contains Hebrew characters
         const hasHebrew = /[\u0590-\u05FF]/.test(text);
         const displayText = hasHebrew ? rtl(String(text)) : String(text);
+        
+        // Auto-shrink font if text overflows cell width
+        let actualFontSize = fontSize;
+        doc.setFontSize(actualFontSize);
+        let textW = doc.getTextWidth(displayText);
+        while (textW > w - 2 && actualFontSize > 4) {
+          actualFontSize -= 0.5;
+          doc.setFontSize(actualFontSize);
+          textW = doc.getTextWidth(displayText);
+        }
+        
         const textX = align === 'center' ? x + w / 2 : align === 'right' ? x + w - 1 : x + 1;
         doc.text(displayText, textX, yPos + h / 2 + 1, { align });
       };
