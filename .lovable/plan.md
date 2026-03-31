@@ -1,29 +1,29 @@
 
 
-# Enable Editing Floor & Apartment Labels in Measurement Editor
+# Enhanced Apartment/Floor Label Editing with Validation
 
-## What Changes
+## Current State
+Floor and apartment labels are already inline-editable with batch rename confirmation. But there's no validation when the new value doesn't match any existing apartment/floor.
 
-### 1. MeasurementRowCard — Make labels editable (line 74-76)
-Replace the static `קומה {row.floor_label} | דירה {row.apartment_label}` text with two small inline editable inputs (or clickable-to-edit fields). Each calls `onFieldChange(id, 'floor_label', value)` / `onFieldChange(id, 'apartment_label', value)` on blur/enter.
+## Changes
 
-### 2. MeasurementEditor — Handle ripple effects on label change
-When a floor_label or apartment_label changes on a single row:
-- **Batch update option**: Add a confirmation prompt — "Update all rows with floor X to new label Y?" — so renaming a floor/apartment applies to all rows sharing that label, not just one row.
-- **Refresh filter lists**: After the update, recalculate the `floors` and `apartments` state arrays from the updated `rows` array so the filter dropdowns reflect the new labels immediately.
+### 1. Enhanced rename dialog with 3 options (`src/pages/MeasurementEditor.tsx`)
+When a user changes an apartment_label (or floor_label) on a row that shares the old label with other rows, show an enhanced dialog with:
+- **"Update all X rows"** — batch rename all rows with old label → new label (existing behavior)
+- **"Only this row"** — change just this one row (existing behavior)
 
-### 3. Batch rename logic
-Wrap the `updateRow` handler with a special check: if the field is `floor_label` or `apartment_label` and the old value differs from the new value, show a small confirmation toast/dialog asking whether to rename all rows with the old label. If yes, loop through all matching rows and queue updates for each. If no, update only the single row.
+### 2. Validate new apartment label against existing apartments (`src/pages/MeasurementEditor.tsx`)
+After the user types a new apartment label on blur:
+- If the new value doesn't match any existing apartment in the `apartments` list AND the row's old value had matching siblings, show a warning in the confirmation dialog: "דירה '{newValue}' לא קיימת. האם ליצור דירה חדשה או לבחור מרשימה?"
+- Add a Select dropdown in the dialog listing existing apartments so the user can pick one instead of typing a new name
+- Same logic for floor_label against `floors` list
 
-## Technical Details
+### 3. Update rename confirmation state and dialog UI
+Extend the `renameConfirm` state to include an `isNewLabel: boolean` flag and an optional `selectedExisting: string` override. The dialog will conditionally show:
+- A warning badge when the label is new/unknown
+- A Select with existing apartments/floors to pick from
+- The existing "update all" / "only this row" buttons
 
-**Files modified:**
-- `src/components/measurement/MeasurementRowCard.tsx` — Replace static label line with two small Input fields for floor_label and apartment_label, debounced on blur
-- `src/pages/MeasurementEditor.tsx` — Add `renameFloor(oldLabel, newLabel)` and `renameApartment(floor, oldLabel, newLabel)` functions that batch-update all matching rows in state + queue DB updates. Add a rename confirmation dialog. Recalculate floor/apartment filter arrays after any label change.
-
-**Ripple effects handled:**
-- Filter dropdown lists (`floors`, `apartments`) are recalculated from rows after rename
-- Selected filter values are updated if the currently-selected floor/apartment was renamed
-- All rows sharing the old label are updated in one batch (with user confirmation)
-- DB updates are queued via the existing `debouncedQueueUpdate` for each affected row
+### Files Modified
+- `src/pages/MeasurementEditor.tsx` — Extend `handleLabelChange` validation, enhance `renameConfirm` state, update AlertDialog UI with existing-label picker and warning
 
