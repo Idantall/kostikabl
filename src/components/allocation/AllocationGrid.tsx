@@ -619,9 +619,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         doc.setFontSize(fontSize);
         doc.setTextColor(0);
         
-        // Auto-reverse if text contains Hebrew characters
+        // Auto-reverse if text contains Hebrew characters (skip for apt row cells)
         const hasHebrew = /[\u0590-\u05FF]/.test(text);
-        const displayText = hasHebrew ? rtl(String(text)) : String(text);
+        const displayText = (!skipRtl && hasHebrew) ? rtl(String(text)) : String(text);
         
         // Auto-shrink font if text overflows cell width
         let actualFontSize = fontSize;
