@@ -547,7 +547,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // jsPDF renders LTR only – use bidi-style token reordering
+      // Pure Hebrew: simple character reversal (for labels like לכבוד, אתר, etc.)
+      const rtlHebrew = (s: string): string => !s ? s : [...s].reverse().join('');
+      // Mixed content (Hebrew + numbers + Latin): bidi-style token reordering
       const rtl = (s: string): string => {
         if (!s) return s;
         return (s.match(/[\u0590-\u05FF]+|\d+(?:[.+\-/]\d+)*|[A-Za-z]+|\s+|[(){}\[\]]|[^\s]/g) || [s])
