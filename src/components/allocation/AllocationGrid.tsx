@@ -700,12 +700,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       // Signature
       y += 8;
       doc.setFont('NotoSansHebrew', 'normal');
-      doc.setFontSize(12);
+      doc.setFontSize(24);
       const centerX = margin + tableWidth / 2;
       doc.text(rtl('לאישורך לביצוע'), centerX, y, { align: 'center' });
-      y += 7;
+      y += 12;
       doc.text(rtl('יריב קוסטיקה'), centerX, y, { align: 'center' });
-      y += 8;
+      y += 14;
 
       // Footer image
       try {
