@@ -25,37 +25,37 @@ import { RequireAuth } from "./components/RequireAuth";
 import { PageLoadingSkeleton } from "@/components/ui/loading-skeleton";
 
 // Lazy load all pages for code splitting
-const Login = lazy(() => import("./pages/Login"));
-const Logout = lazy(() => import("./pages/Logout"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Projects = lazy(() => import("./pages/Projects"));
-const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
-const ProjectItemsSummary = lazy(() => import("./pages/ProjectItemsSummary"));
-const Import = lazy(() => import("./pages/Import"));
+const Login = lazyWithRetry(() => import("./pages/Login"));
+const Logout = lazyWithRetry(() => import("./pages/Logout"));
+const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
+const Projects = lazyWithRetry(() => import("./pages/Projects"));
+const ProjectDetail = lazyWithRetry(() => import("./pages/ProjectDetail"));
+const ProjectItemsSummary = lazyWithRetry(() => import("./pages/ProjectItemsSummary"));
+const Import = lazyWithRetry(() => import("./pages/Import"));
 // ImportMeasurement removed — merged into unified Import page
-const MeasurementEditor = lazy(() => import("./pages/MeasurementEditor"));
-const Labels = lazy(() => import("./pages/Labels"));
-const PublicScan = lazy(() => import("./pages/PublicScan"));
-const ProjectScanMode = lazy(() => import("./pages/ProjectScanMode"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const UploadFont = lazy(() => import("./pages/UploadFont"));
-const Cutlist = lazy(() => import("./pages/Cutlist"));
-const CutlistDetail = lazy(() => import("./pages/CutlistDetail"));
-const ProjectWizard = lazy(() => import("./pages/ProjectWizard"));
+const MeasurementEditor = lazyWithRetry(() => import("./pages/MeasurementEditor"));
+const Labels = lazyWithRetry(() => import("./pages/Labels"));
+const PublicScan = lazyWithRetry(() => import("./pages/PublicScan"));
+const ProjectScanMode = lazyWithRetry(() => import("./pages/ProjectScanMode"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const UploadFont = lazyWithRetry(() => import("./pages/UploadFont"));
+const Cutlist = lazyWithRetry(() => import("./pages/Cutlist"));
+const CutlistDetail = lazyWithRetry(() => import("./pages/CutlistDetail"));
+const ProjectWizard = lazyWithRetry(() => import("./pages/ProjectWizard"));
 
 // Worker Portal Pages
-const WorkerPortal = lazy(() => import("./pages/worker/WorkerPortal"));
-const WorkerCutlistList = lazy(() => import("./pages/worker/WorkerCutlistList"));
-const WorkerCutlistDetail = lazy(() => import("./pages/worker/WorkerCutlistDetail"));
-const OptimizationList = lazy(() => import("./pages/worker/OptimizationList"));
-const OptimizationDetail = lazy(() => import("./pages/worker/OptimizationDetail"));
-const OptimizationAnnotation = lazy(() => import("./pages/worker/OptimizationAnnotation"));
-const PdfAnnotationTest = lazy(() => import("./pages/PdfAnnotationTest"));
-const AptStickerTest = lazy(() => import("./pages/AptStickerTest"));
-const ParentProjectDashboard = lazy(() => import("./pages/ParentProjectDashboard"));
-const FatherProjects = lazy(() => import("./pages/FatherProjects"));
-const FatherProjectDashboard = lazy(() => import("./pages/FatherProjectDashboard"));
-const BuildingDashboard = lazy(() => import("./pages/BuildingDashboard"));
+const WorkerPortal = lazyWithRetry(() => import("./pages/worker/WorkerPortal"));
+const WorkerCutlistList = lazyWithRetry(() => import("./pages/worker/WorkerCutlistList"));
+const WorkerCutlistDetail = lazyWithRetry(() => import("./pages/worker/WorkerCutlistDetail"));
+const OptimizationList = lazyWithRetry(() => import("./pages/worker/OptimizationList"));
+const OptimizationDetail = lazyWithRetry(() => import("./pages/worker/OptimizationDetail"));
+const OptimizationAnnotation = lazyWithRetry(() => import("./pages/worker/OptimizationAnnotation"));
+const PdfAnnotationTest = lazyWithRetry(() => import("./pages/PdfAnnotationTest"));
+const AptStickerTest = lazyWithRetry(() => import("./pages/AptStickerTest"));
+const ParentProjectDashboard = lazyWithRetry(() => import("./pages/ParentProjectDashboard"));
+const FatherProjects = lazyWithRetry(() => import("./pages/FatherProjects"));
+const FatherProjectDashboard = lazyWithRetry(() => import("./pages/FatherProjectDashboard"));
+const BuildingDashboard = lazyWithRetry(() => import("./pages/BuildingDashboard"));
 
 // Configure QueryClient with optimized defaults
 const queryClient = new QueryClient({
