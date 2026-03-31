@@ -564,19 +564,24 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         return r;
       };
 
-      // Date and address fields (RTL - right aligned)
+      // Date and address fields (RTL)
       doc.setFont('NotoSansHebrew', 'normal');
-      doc.setFontSize(12);
+      doc.setFontSize(24);
       const now = new Date();
       const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
       const rightX = margin + tableWidth;
+      const leftX = margin;
       
-      const addressLines = [dateStr, rtl('לכבוד:'), rtl('אתר:'), rtl('לידי:')];
-      for (const line of addressLines) {
+      // Date on the LEFT side
+      doc.text(dateStr, leftX, y, { align: 'left' });
+      y += 10;
+      // Address fields on the RIGHT side
+      const addressLabels = [rtl('לכבוד:'), rtl('אתר:'), rtl('לידי:')];
+      for (const line of addressLabels) {
         doc.text(line, rightX, y, { align: 'right' });
-        y += 6;
+        y += 10;
       }
-      y += 2;
+      y += 4;
 
       // Table rendering
       const tableStartX = margin;
