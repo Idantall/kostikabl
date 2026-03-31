@@ -649,8 +649,13 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       document.body.appendChild(container);
 
-      // Wait for images to load
-      await new Promise(r => setTimeout(r, 300));
+      // Wait for images inside the container to fully load
+      const imgs = container.querySelectorAll('img');
+      await Promise.all(Array.from(imgs).map(img =>
+        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+      ));
+      // Extra tick for layout
+      await new Promise(r => setTimeout(r, 100));
 
       // Render to canvas
       const canvas = await html2canvas(container, {
