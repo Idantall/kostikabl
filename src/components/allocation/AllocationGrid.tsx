@@ -547,18 +547,21 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // jsPDF doesn't support RTL — reverse only Hebrew runs, keep numbers/Latin intact
+      // jsPDF renders LTR only. To display RTL correctly:
+      // 1. Reverse entire string (Hebrew reads correctly when chars are LTR-reversed)
+      // 2. Un-reverse digit/operator sequences (numbers must stay LTR within RTL)
+      // 3. Un-reverse Latin letter sequences
+      // 4. Swap ( and ) since full reversal flips them
       const rtl = (s: string): string => {
-        // Split into tokens: Hebrew runs vs non-Hebrew runs
-        const tokens = s.match(/[\u0590-\u05FF\s"'\-\u05B0-\u05EA]+|[^\u0590-\u05FF]+/g);
-        if (!tokens) return s;
-        // Reverse order of tokens (RTL visual reorder) and reverse chars within Hebrew tokens
-        return tokens
-          .reverse()
-          .map(t => /[\u0590-\u05FF]/.test(t) ? [...t].reverse().join('') : t.trim())
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+        if (!s) return s;
+        let r = [...s].reverse().join('');
+        // Un-reverse number sequences (digits with operators like +, -, /, .)
+        r = r.replace(/[\d][\d+\-.*\/]*/g, m => [...m].reverse().join(''));
+        // Un-reverse Latin letter sequences
+        r = r.replace(/[A-Za-z]+/g, m => [...m].reverse().join(''));
+        // Swap parentheses (full reversal flipped them)
+        r = r.replace(/[()]/g, c => c === '(' ? ')' : '(');
+        return r;
       };
 
       // Date and address fields (RTL - right aligned)
