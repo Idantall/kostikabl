@@ -252,13 +252,14 @@ const MeasurementEditor = () => {
       const updated = prev.map(r =>
         r[field] === oldValue ? { ...r, [field]: finalValue } : r
       );
+      // Queue DB updates for all affected rows
+      prev.forEach(r => {
+        if (r[field] === oldValue) {
+          debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: finalValue });
+        }
+      });
       recalcFilters(updated);
       return updated;
-    });
-    rows.forEach(r => {
-      if (r[field] === oldValue) {
-        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: finalValue });
-      }
     });
     if (field === 'floor_label' && selectedFloor === oldValue) {
       setSelectedFloor(finalValue || 'all');
