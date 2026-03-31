@@ -593,8 +593,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         doc.setFontSize(fontSize);
         doc.setTextColor(0);
         
+        // Auto-reverse if text contains Hebrew characters
+        const hasHebrew = /[\u0590-\u05FF]/.test(text);
+        const displayText = hasHebrew ? rtl(String(text)) : String(text);
         const textX = align === 'center' ? x + w / 2 : align === 'right' ? x + w - 1 : x + 1;
-        doc.text(String(text), textX, yPos + h / 2 + 1, { align });
+        doc.text(displayText, textX, yPos + h / 2 + 1, { align });
       };
 
       // Draw floor header row
