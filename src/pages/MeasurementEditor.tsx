@@ -46,6 +46,8 @@ const MeasurementEditor = () => {
     oldValue: string | null;
     newValue: string | null;
     matchingCount: number;
+    isNewLabel: boolean;
+    selectedExisting: string;
   } | null>(null);
   
   // Project metadata (types + bank)
@@ -225,42 +227,58 @@ const MeasurementEditor = () => {
 
   const handleLabelChange = useCallback((rowId: string, field: 'floor_label' | 'apartment_label', oldValue: string | null, newValue: string | null) => {
     if (oldValue === newValue) return;
-    // Count how many other rows share the old label value
     const matchingCount = rows.filter(r => r[field] === oldValue && r.id !== rowId).length;
+    const existingLabels = field === 'floor_label' ? floors : apartments;
+    const isNewLabel = !!newValue && !existingLabels.includes(newValue);
     if (matchingCount > 0) {
-      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount });
+      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount, isNewLabel, selectedExisting: '' });
+    } else if (isNewLabel) {
+      // Single row but new label - show warning dialog
+      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount: 0, isNewLabel, selectedExisting: '' });
     } else {
-      // Only one row had this value, just recalc filters
       recalcFilters(rows);
     }
-  }, [rows, recalcFilters]);
+  }, [rows, recalcFilters, floors, apartments]);
 
   const applyBatchRename = useCallback(() => {
     if (!renameConfirm) return;
-    const { field, oldValue, newValue } = renameConfirm;
+    const { field, oldValue } = renameConfirm;
+    const finalValue = renameConfirm.selectedExisting || renameConfirm.newValue;
     setRows(prev => {
       const updated = prev.map(r =>
-        r[field] === oldValue ? { ...r, [field]: newValue } : r
+        r[field] === oldValue ? { ...r, [field]: finalValue } : r
       );
       recalcFilters(updated);
       return updated;
     });
-    // Queue DB updates for all matching rows
     rows.forEach(r => {
       if (r[field] === oldValue) {
-        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: newValue });
+        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: finalValue });
       }
     });
-    // Update selected filter if it was the renamed value
     if (field === 'floor_label' && selectedFloor === oldValue) {
-      setSelectedFloor(newValue || 'all');
+      setSelectedFloor(finalValue || 'all');
     }
     if (field === 'apartment_label' && selectedApartment === oldValue) {
-      setSelectedApartment(newValue || 'all');
+      setSelectedApartment(finalValue || 'all');
     }
     setRenameConfirm(null);
     toast.success(`שונה בכל השורות`);
   }, [renameConfirm, rows, debouncedQueueUpdate, recalcFilters, selectedFloor, selectedApartment]);
+
+  const applySingleRowRename = useCallback(() => {
+    if (!renameConfirm) return;
+    const { rowId, field, selectedExisting, newValue } = renameConfirm;
+    const finalValue = selectedExisting || newValue;
+    setRows(prev => {
+      const updated = prev.map(r => r.id === rowId ? { ...r, [field]: finalValue } : r);
+      recalcFilters(updated);
+      return updated;
+    });
+    debouncedQueueUpdate(rowId, 'measurement_rows', { [field]: finalValue });
+    setRenameConfirm(null);
+    toast.success('שורה עודכנה');
+  }, [renameConfirm, debouncedQueueUpdate, recalcFilters]);
 
   const skipBatchRename = useCallback(() => {
     // Just recalc filters for the single-row change already applied
@@ -662,14 +680,46 @@ const MeasurementEditor = () => {
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
             <AlertDialogTitle>שינוי {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {renameConfirm?.matchingCount} שורות נוספות עם {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm?.oldValue}&quot;.
-              האם לעדכן את כולן ל-&quot;{renameConfirm?.newValue}&quot;?
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                {renameConfirm?.isNewLabel && (
+                  <div className="flex items-center gap-2 rounded-md bg-destructive/10 border border-destructive/30 p-2 text-sm text-destructive">
+                    ⚠️ {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm?.newValue}&quot; לא קיימת.
+                  </div>
+                )}
+                {renameConfirm && renameConfirm.matchingCount > 0 && (
+                  <p>{renameConfirm.matchingCount} שורות נוספות עם {renameConfirm.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm.oldValue}&quot;.</p>
+                )}
+                {renameConfirm?.isNewLabel && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">או בחר מרשימה קיימת:</Label>
+                    <Select
+                      value={renameConfirm.selectedExisting}
+                      onValueChange={(v) => setRenameConfirm(prev => prev ? { ...prev, selectedExisting: v } : null)}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder={`בחר ${renameConfirm.field === 'floor_label' ? 'קומה' : 'דירה'} קיימת`} />
+                      </SelectTrigger>
+                      <SelectContent dir="rtl">
+                        {(renameConfirm.field === 'floor_label' ? floors : apartments).map(label => (
+                          <SelectItem key={label} value={label}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={skipBatchRename}>רק שורה זו</AlertDialogCancel>
-            <AlertDialogAction onClick={applyBatchRename}>עדכן הכל</AlertDialogAction>
+            <AlertDialogCancel onClick={skipBatchRename}>ביטול</AlertDialogCancel>
+            <Button variant="outline" onClick={applySingleRowRename}>רק שורה זו</Button>
+            {renameConfirm && renameConfirm.matchingCount > 0 && (
+              <AlertDialogAction onClick={applyBatchRename}>עדכן הכל ({renameConfirm.matchingCount + 1})</AlertDialogAction>
+            )}
+            {renameConfirm && renameConfirm.matchingCount === 0 && (
+              <AlertDialogAction onClick={applySingleRowRename}>אישור</AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
