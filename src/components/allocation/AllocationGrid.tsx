@@ -505,9 +505,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const headerDataUrl = toDataUrl(headerBuf);
       const footerDataUrl = toDataUrl(footerBuf);
 
-      // Build an off-screen HTML table — let it size naturally so nothing is cut off
+      // Build an off-screen HTML table — visible to html2canvas but clipped from user view
       const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;left:0;top:0;z-index:-9999;opacity:0;pointer-events:none;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
+      container.style.cssText = 'position:fixed;left:0;top:0;z-index:9999;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;clip:rect(0,0,0,0);overflow:hidden;';
 
       // Header image
       const headerImg = document.createElement('img');
