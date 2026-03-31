@@ -603,7 +603,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       x += colWidths.dimensions;
       
       // "מספר פרט" header (2-row span)  
-      drawCell(x, y, colWidths.itemCode, hdrH * 2, 'טרפ רפסמ', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.itemCode, hdrH * 2, 'מספר פרט', { bg: '#dce6f1', bold: true, fontSize: 9 });
       x += colWidths.itemCode;
       
       // Floor group headers
