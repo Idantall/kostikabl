@@ -520,7 +520,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const now2 = new Date();
       const dateStr = `${String(now2.getDate()).padStart(2, '0')}/${String(now2.getMonth() + 1).padStart(2, '0')}/${now2.getFullYear()}`;
       const fieldsDiv = document.createElement('div');
-      fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:14px;font-weight:bold;margin:8px 4px;line-height:1.8;';
+      fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:18px;font-weight:bold;margin:8px 4px;line-height:1.8;';
       fieldsDiv.innerHTML = `${dateStr}<br/>לכבוד:<br/>אתר:<br/>לידי:`;
       container.appendChild(fieldsDiv);
 
