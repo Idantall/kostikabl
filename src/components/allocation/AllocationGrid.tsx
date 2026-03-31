@@ -507,7 +507,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       // Build an off-screen HTML table — let it size naturally so nothing is cut off
       const container = document.createElement('div');
-      container.style.cssText = 'position:absolute;left:-9999px;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
+      container.style.cssText = 'position:fixed;left:0;top:0;z-index:-9999;opacity:0;pointer-events:none;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
 
       // Header image
       const headerImg = document.createElement('img');
