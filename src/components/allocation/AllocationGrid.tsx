@@ -547,18 +547,36 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // jsPDF doesn't support RTL — reverse only Hebrew runs, keep numbers/Latin intact
+      // jsPDF renders LTR only. For RTL mixed content we must:
+      // 1. Split the string into atomic segments (Hebrew words, numbers, punctuation, parens)
+      // 2. Reverse the segment order (visual RTL reorder)
+      // 3. Reverse characters only within Hebrew-only segments
+      // 4. Swap parentheses direction
       const rtl = (s: string): string => {
-        // Split into tokens: Hebrew runs vs non-Hebrew runs
-        const tokens = s.match(/[\u0590-\u05FF\s"'\-\u05B0-\u05EA]+|[^\u0590-\u05FF]+/g);
-        if (!tokens) return s;
-        // Reverse order of tokens (RTL visual reorder) and reverse chars within Hebrew tokens
-        return tokens
-          .reverse()
-          .map(t => /[\u0590-\u05FF]/.test(t) ? [...t].reverse().join('') : t.trim())
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+        if (!s) return s;
+        // Split into: Hebrew word runs | numbers (with +- operators) | parenthesized groups | other tokens
+        const segments = s.match(/[\u0590-\u05FF\u05B0-\u05EA"״]+|[\d+\-.*\/]+|\([^)]*\)|[():]|\s+|[A-Za-z]+/g);
+        if (!segments) return s;
+        
+        const reversed = segments.reverse().map(seg => {
+          // Reverse chars within Hebrew-only segments
+          if (/[\u0590-\u05FF]/.test(seg) && !/[A-Za-z0-9]/.test(seg)) {
+            return [...seg].reverse().join('');
+          }
+          // Swap parens direction for RTL
+          if (seg === '(') return ')';
+          if (seg === ')') return '(';
+          // For parenthesized groups, swap outer parens and reverse Hebrew inside
+          if (seg.startsWith('(') && seg.endsWith(')')) {
+            const inner = seg.slice(1, -1);
+            // Reverse Hebrew parts inside parens
+            const innerProcessed = inner.replace(/[\u0590-\u05FF\u05B0-\u05EA"״]+/g, m => [...m].reverse().join(''));
+            return '(' + innerProcessed + ')';
+          }
+          return seg;
+        });
+        
+        return reversed.join('').replace(/\s{2,}/g, ' ').trim();
       };
 
       // Date and address fields (RTL - right aligned)
