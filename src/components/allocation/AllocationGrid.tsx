@@ -488,10 +488,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     try {
       const { default: jsPDF } = await import('jspdf');
 
-      // Load branding images as base64
-      const [headerRes, footerRes] = await Promise.all([
+      // Load branding images and Hebrew font in parallel
+      const [headerRes, footerRes, fontRes] = await Promise.all([
         fetch('/branding/allocation-header.jpg'),
         fetch('/branding/allocation-footer.jpg'),
+        fetch('/fonts/NotoSansHebrew-Regular.ttf'),
       ]);
       const toBase64 = async (res: Response) => {
         const buf = await res.arrayBuffer();
@@ -500,8 +501,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
         return btoa(binary);
       };
-      const headerB64 = await toBase64(headerRes);
-      const footerB64 = await toBase64(footerRes);
+      const [headerB64, footerB64, fontB64] = await Promise.all([
+        toBase64(headerRes),
+        toBase64(footerRes),
+        toBase64(fontRes),
+      ]);
 
       // Calculate dimensions
       const aptCount = columnHeaders.length;
@@ -513,14 +517,13 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       };
       const tableWidth = colWidths.dimensions + colWidths.itemCode + aptCount * colWidths.apt + colWidths.total;
       const margin = 6;
-      const pageWidth = Math.max(420, tableWidth + margin * 2); // A3 landscape min
+      const pageWidth = Math.max(420, tableWidth + margin * 2);
       
-      // Estimate page height
       const headerImgH = 22;
       const addressH = 32;
       const tableHeaderH = 14;
       const rowH = 6;
-      const dataH = filteredRows.length * rowH + rowH; // +1 for totals
+      const dataH = filteredRows.length * rowH + rowH;
       const footerH = 40;
       const pageHeight = Math.max(297, margin + headerImgH + addressH + tableHeaderH + dataH + footerH + margin);
 
@@ -529,6 +532,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         unit: 'mm',
         format: [pageWidth, pageHeight],
       });
+
+      // Register Hebrew font
+      doc.addFileToVFS('NotoSansHebrew-Regular.ttf', fontB64);
+      doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'normal');
+      doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'bold');
 
       // Add header image
       try {
@@ -540,13 +548,13 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       let y = margin + headerImgH + 4;
 
       // Date and address fields (RTL - right aligned)
-      doc.setFont('helvetica', 'bold');
+      doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(12);
       const now = new Date();
       const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
       const rightX = margin + tableWidth;
       
-      const addressLines = [dateStr, ':לכבוד', ':אתר', ':לידי'];
+      const addressLines = [dateStr, 'לכבוד:', 'אתר:', 'לידי:'];
       for (const line of addressLines) {
         doc.text(line, rightX, y, { align: 'right' });
         y += 6;
@@ -578,7 +586,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
           // thick right border for floor separators handled separately
         }
         
-        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFont('NotoSansHebrew', 'normal');
         doc.setFontSize(fontSize);
         doc.setTextColor(0);
         
@@ -591,11 +599,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const hdrH = 7;
       
       // "מידות" header (2-row span)
-      drawCell(x, y, colWidths.dimensions, hdrH * 2, 'תודימ', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.dimensions, hdrH * 2, 'מידות', { bg: '#dce6f1', bold: true, fontSize: 9 });
       x += colWidths.dimensions;
       
       // "מספר פרט" header (2-row span)  
-      drawCell(x, y, colWidths.itemCode, hdrH * 2, 'טרפ רפסמ', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.itemCode, hdrH * 2, 'מספר פרט', { bg: '#dce6f1', bold: true, fontSize: 9 });
       x += colWidths.itemCode;
       
       // Floor group headers
@@ -604,12 +612,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         const spanW = span.colspan * colWidths.apt;
         floorBounds.push(x);
         // Reverse Hebrew text for basic RTL (jsPDF doesn't support RTL natively)
-        drawCell(x, y, spanW, hdrH, span.label.split('').reverse().join(''), { bg: '#dce6f1', bold: true, fontSize: 8 });
+        drawCell(x, y, spanW, hdrH, span.label, { bg: '#dce6f1', bold: true, fontSize: 8 });
         x += spanW;
       }
       
       // "סה״כ" header (2-row span)
-      drawCell(x, y, colWidths.total, hdrH * 2, 'כ״הס', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.total, hdrH * 2, 'סה״כ', { bg: '#dce6f1', bold: true, fontSize: 9 });
       
       // Apartment sub-headers (row 2)
       y += hdrH;
@@ -648,7 +656,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       x = tableStartX;
       drawCell(x, y, colWidths.dimensions, rowH, '', { bg: '#dce6f1', bold: true });
       x += colWidths.dimensions;
-      drawCell(x, y, colWidths.itemCode, rowH, 'כ״הס', { bg: '#dce6f1', bold: true, fontSize: 9 });
+      drawCell(x, y, colWidths.itemCode, rowH, 'סה״כ', { bg: '#dce6f1', bold: true, fontSize: 9 });
       x += colWidths.itemCode;
       for (const col of columnHeaders) {
         drawCell(x, y, colWidths.apt, rowH, String(columnTotals.get(col.aptId) || 0), { bg: '#dce6f1', bold: true, fontSize: 7 });
@@ -666,12 +674,12 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       // Signature
       y += 8;
-      doc.setFont('helvetica', 'bold');
+      doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(12);
       const centerX = margin + tableWidth / 2;
-      doc.text('עוציבל ךרושיאל', centerX, y, { align: 'center' });
+      doc.text('לאישורך לביצוע', centerX, y, { align: 'center' });
       y += 7;
-      doc.text('הקיטסוק ביריי', centerX, y, { align: 'center' });
+      doc.text('יריב קוסטיקה', centerX, y, { align: 'center' });
       y += 8;
 
       // Footer image
