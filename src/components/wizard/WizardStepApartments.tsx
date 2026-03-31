@@ -311,8 +311,8 @@ export function WizardStepApartments() {
               <div className="max-h-[70vh] overflow-auto border rounded-lg" ref={tableRef} onKeyDown={onTableKeyDown}>
                 <table dir="rtl" className="w-full table-fixed caption-bottom text-sm">
                     <thead className="sticky top-0 z-10 bg-background [&_tr]:border-b shadow-[0_1px_0_0_hsl(var(--border))]">
-                    <tr>
-                         <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground w-14">פתח</th>
+                    <TableRow>
+                         <TableHead className="text-right w-14">פתח</TableHead>
                         <TableHead className="text-right w-36">מיקום</TableHead>
                         {isPreContract ? (
                           <TableHead className="text-right w-32">פרט חוזה</TableHead>
@@ -337,7 +337,7 @@ export function WizardStepApartments() {
                         <TableHead className="text-right w-28">הערות</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
-                    </TableHeader>
+                    </thead>
                     <TableBody>
                       {currentApartment.rows.map((row, rowIdx) => (
                         <TableRow key={row.id}>
@@ -509,10 +509,8 @@ export function WizardStepApartments() {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                  </table>
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
 
               <div className="flex items-center gap-2">
                 <Button variant="outline" onClick={() => handleAddRow(1)} className="gap-2" disabled={currentApartment.rows.length >= 35}>
