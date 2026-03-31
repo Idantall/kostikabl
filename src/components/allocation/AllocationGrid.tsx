@@ -612,7 +612,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         const spanW = span.colspan * colWidths.apt;
         floorBounds.push(x);
         // Reverse Hebrew text for basic RTL (jsPDF doesn't support RTL natively)
-        drawCell(x, y, spanW, hdrH, span.label.split('').reverse().join(''), { bg: '#dce6f1', bold: true, fontSize: 8 });
+        drawCell(x, y, spanW, hdrH, span.label, { bg: '#dce6f1', bold: true, fontSize: 8 });
         x += spanW;
       }
       
