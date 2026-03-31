@@ -560,28 +560,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'normal');
       doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'bold');
 
-      // Helper: load image and get native dimensions
-      const getImgDims = (b64: string, mime: string): Promise<{ w: number; h: number }> =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
-          img.onerror = () => resolve({ w: 800, h: 100 }); // fallback
-          img.src = `data:${mime};base64,${b64}`;
-        });
-
-      const [headerDims, footerDims] = await Promise.all([
-        getImgDims(headerB64, 'image/jpeg'),
-        getImgDims(footerB64, 'image/jpeg'),
-      ]);
-
-      // Fit image to maxWidth while preserving aspect ratio
-      const fitImg = (dims: { w: number; h: number }, maxW: number) => {
-        const scale = maxW / dims.w;
-        return { w: maxW, h: dims.h * scale };
-      };
-
       // Add header image (preserve aspect ratio)
-      const headerFit = fitImg(headerDims, tableWidth);
       try {
         doc.addImage(`data:image/jpeg;base64,${headerB64}`, 'JPEG', margin, margin, headerFit.w, headerFit.h);
       } catch (e) {
