@@ -566,7 +566,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         console.warn('Header image failed', e);
       }
 
-      let y = margin + headerImgH + 4;
+      let y = margin + headerFit.h + 4;
 
       // jsPDF renders LTR only. Strategy: reverse entire string, then
       // un-reverse digits/operators and Latin sequences so they read LTR.
