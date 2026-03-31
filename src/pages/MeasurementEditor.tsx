@@ -680,14 +680,46 @@ const MeasurementEditor = () => {
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
             <AlertDialogTitle>שינוי {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {renameConfirm?.matchingCount} שורות נוספות עם {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm?.oldValue}&quot;.
-              האם לעדכן את כולן ל-&quot;{renameConfirm?.newValue}&quot;?
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                {renameConfirm?.isNewLabel && (
+                  <div className="flex items-center gap-2 rounded-md bg-destructive/10 border border-destructive/30 p-2 text-sm text-destructive">
+                    ⚠️ {renameConfirm?.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm?.newValue}&quot; לא קיימת.
+                  </div>
+                )}
+                {renameConfirm && renameConfirm.matchingCount > 0 && (
+                  <p>{renameConfirm.matchingCount} שורות נוספות עם {renameConfirm.field === 'floor_label' ? 'קומה' : 'דירה'} &quot;{renameConfirm.oldValue}&quot;.</p>
+                )}
+                {renameConfirm?.isNewLabel && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">או בחר מרשימה קיימת:</Label>
+                    <Select
+                      value={renameConfirm.selectedExisting}
+                      onValueChange={(v) => setRenameConfirm(prev => prev ? { ...prev, selectedExisting: v } : null)}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder={`בחר ${renameConfirm.field === 'floor_label' ? 'קומה' : 'דירה'} קיימת`} />
+                      </SelectTrigger>
+                      <SelectContent dir="rtl">
+                        {(renameConfirm.field === 'floor_label' ? floors : apartments).map(label => (
+                          <SelectItem key={label} value={label}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={skipBatchRename}>רק שורה זו</AlertDialogCancel>
-            <AlertDialogAction onClick={applyBatchRename}>עדכן הכל</AlertDialogAction>
+            <AlertDialogCancel onClick={skipBatchRename}>ביטול</AlertDialogCancel>
+            <Button variant="outline" onClick={applySingleRowRename}>רק שורה זו</Button>
+            {renameConfirm && renameConfirm.matchingCount > 0 && (
+              <AlertDialogAction onClick={applyBatchRename}>עדכן הכל ({renameConfirm.matchingCount + 1})</AlertDialogAction>
+            )}
+            {renameConfirm && renameConfirm.matchingCount === 0 && (
+              <AlertDialogAction onClick={applySingleRowRename}>אישור</AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
