@@ -547,29 +547,28 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // Pure Hebrew: simple character reversal (for labels, pure Hebrew text)
-      const rtlHebrew = (s: string): string => !s ? s : [...s].reverse().join('');
-      // Mixed content (Hebrew + numbers + Latin): bidi-style token reordering
-      // Each Hebrew token must also be char-reversed since jsPDF renders LTR
+      // jsPDF renders LTR only. Strategy: reverse entire string, then
+      // un-reverse digits/operators and Latin sequences so they read LTR.
+      // Swap brackets since full reversal flips them.
       const rtl = (s: string): string => {
         if (!s) return s;
-        // If text is pure Hebrew (with spaces/punctuation, no digits/latin), use simple reversal
-        if (!/[0-9A-Za-z]/.test(s)) return rtlHebrew(s);
-        // Mixed: tokenize, reverse order, and reverse chars within Hebrew tokens
-        return (s.match(/[\u0590-\u05FF"'״׳]+|\d+(?:[.+\-/]\d+)*|[A-Za-z]+|\s+|[(){}\[\]]|[^\s\u0590-\u05FF"'״׳]/g) || [s])
-          .reverse()
-          .map(t => {
-            if (t === '(') return ')';
-            if (t === ')') return '(';
-            if (t === '[') return ']';
-            if (t === ']') return '[';
-            if (t === '{') return '}';
-            if (t === '}') return '{';
-            // Reverse characters within Hebrew tokens so they render correctly in LTR
-            if (/[\u0590-\u05FF]/.test(t)) return [...t].reverse().join('');
-            return t;
-          })
-          .join('');
+        // Full character reversal
+        let r = [...s].reverse().join('');
+        // Un-reverse contiguous digit+operator sequences (e.g. 33+92+72-02)
+        r = r.replace(/[\d][0-9+\-.*\/]*/g, m => [...m].reverse().join(''));
+        // Un-reverse Latin letter sequences (e.g. K, H1, PH)
+        r = r.replace(/[A-Za-z]+\d*/g, m => [...m].reverse().join(''));
+        // Swap parentheses/brackets (full reversal flipped them)
+        r = r.replace(/[(){}\[\]]/g, c => {
+          if (c === '(') return ')';
+          if (c === ')') return '(';
+          if (c === '[') return ']';
+          if (c === ']') return '[';
+          if (c === '{') return '}';
+          if (c === '}') return '{';
+          return c;
+        });
+        return r;
       };
 
       // Date and address fields (RTL)
@@ -584,7 +583,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.text(dateStr, leftX, y, { align: 'left' });
       y += 10;
       // Address fields on the RIGHT side
-      const addressLabels = [rtlHebrew('לכבוד:'), rtlHebrew('אתר:'), rtlHebrew('לידי:')];
+      const addressLabels = [rtl('לכבוד:'), rtl('אתר:'), rtl('לידי:')];
       for (const line of addressLabels) {
         doc.text(line, rightX, y, { align: 'right' });
         y += 10;
@@ -721,9 +720,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(24);
       const centerX = margin + tableWidth / 2;
-      doc.text(rtlHebrew('לאישורך לביצוע'), centerX, y, { align: 'center' });
+      doc.text(rtl('לאישורך לביצוע'), centerX, y, { align: 'center' });
       y += 12;
-      doc.text(rtlHebrew('יריב קוסטיקה'), centerX, y, { align: 'center' });
+      doc.text(rtl('יריב קוסטיקה'), centerX, y, { align: 'center' });
       y += 14;
 
       // Footer image
