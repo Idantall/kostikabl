@@ -505,12 +505,160 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const headerDataUrl = toDataUrl(headerBuf);
       const footerDataUrl = toDataUrl(footerBuf);
 
-      // Build off-screen container — use position:fixed behind everything
-      // so it's fully painted (html2canvas needs painted pixels) but invisible to user
+      // Build off-screen container — position:fixed behind everything with z-index:-1
+      // This keeps it painted (html2canvas needs painted pixels) but invisible to user
       const container = document.createElement('div');
       container.style.cssText = 'position:fixed;left:0;top:0;z-index:-1;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;overflow:auto;';
 
+      // Header image
+      const headerImg = document.createElement('img');
+      headerImg.src = headerDataUrl;
+      headerImg.style.cssText = 'width:100%;height:auto;display:block;margin-bottom:6px;';
+      container.appendChild(headerImg);
+
+      // Date + Addressee fields
+      const now2 = new Date();
+      const dateStr = `${String(now2.getDate()).padStart(2, '0')}/${String(now2.getMonth() + 1).padStart(2, '0')}/${now2.getFullYear()}`;
+      const fieldsDiv = document.createElement('div');
+      fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:18px;font-weight:bold;margin:8px 4px;line-height:1.8;';
+      fieldsDiv.innerHTML = `${dateStr}<br/>לכבוד:<br/>אתר:<br/>לידי:`;
+      container.appendChild(fieldsDiv);
+
+      // Build the table
+      const table = document.createElement('table');
+      table.style.cssText = 'border-collapse:collapse;font-size:14px;direction:rtl;text-align:center;';
+
+      const thead = document.createElement('thead');
+      const tr1 = document.createElement('tr');
+      const cellStyle = 'border:1px solid #000;padding:3px 4px;font-weight:bold;text-align:center;';
+      const headerBg = 'background:#dce6f1;';
+
+      const thDim = document.createElement('th');
+      thDim.rowSpan = 2;
+      thDim.style.cssText = cellStyle + headerBg + 'min-width:60px;';
+      thDim.textContent = 'מידות';
+      tr1.appendChild(thDim);
+
+      const thCode = document.createElement('th');
+      thCode.rowSpan = 2;
+      thCode.style.cssText = cellStyle + headerBg + 'min-width:60px;';
+      thCode.textContent = 'מספר פרט';
+      tr1.appendChild(thCode);
+
+      for (const span of floorSpans) {
+        const th = document.createElement('th');
+        th.colSpan = span.colspan;
+        th.style.cssText = cellStyle + headerBg;
+        th.textContent = span.label;
+        tr1.appendChild(th);
+      }
+
+      const thTotal = document.createElement('th');
+      thTotal.rowSpan = 2;
+      thTotal.style.cssText = cellStyle + headerBg + 'min-width:40px;';
+      thTotal.textContent = 'סה״כ';
+      tr1.appendChild(thTotal);
+      thead.appendChild(tr1);
+
+      const tr2 = document.createElement('tr');
+      for (const col of columnHeaders) {
+        const th = document.createElement('th');
+        th.style.cssText = cellStyle + 'background:#eef2f7;font-size:13px;min-width:28px;';
+        th.textContent = `דירה ${col.label}`;
+        tr2.appendChild(th);
+      }
+      thead.appendChild(tr2);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      filteredRows.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        const rowBg = idx % 2 === 0 ? '' : 'background:#f5f5f5;';
+
+        const tdDim = document.createElement('td');
+        tdDim.style.cssText = cellStyle + rowBg + 'font-family:monospace;font-size:13px;';
+        tdDim.textContent = row.dimensions;
+        tr.appendChild(tdDim);
+
+        const tdCode = document.createElement('td');
+        tdCode.style.cssText = cellStyle + rowBg;
+        tdCode.textContent = row.itemCode;
+        tr.appendChild(tdCode);
+
+        for (const col of columnHeaders) {
+          const td = document.createElement('td');
+          td.style.cssText = cellStyle + rowBg + 'min-width:28px;';
+          const v = getCellValue(row.itemCode, col.aptId);
+          td.textContent = v > 0 ? String(v) : '';
+          tr.appendChild(td);
+        }
+
+        const tdRowTotal = document.createElement('td');
+        tdRowTotal.style.cssText = cellStyle + rowBg + 'font-weight:bold;background:#eef2f7;';
+        tdRowTotal.textContent = String(getRowTotal(row.itemCode));
+        tr.appendChild(tdRowTotal);
+
+        tbody.appendChild(tr);
+      });
+
+      const trTotals = document.createElement('tr');
+      const tdEmpty = document.createElement('td');
+      tdEmpty.style.cssText = cellStyle + headerBg;
+      trTotals.appendChild(tdEmpty);
+
+      const tdTotalLabel = document.createElement('td');
+      tdTotalLabel.style.cssText = cellStyle + headerBg;
+      tdTotalLabel.textContent = 'סה״כ';
+      trTotals.appendChild(tdTotalLabel);
+
+      for (const col of columnHeaders) {
+        const td = document.createElement('td');
+        td.style.cssText = cellStyle + headerBg;
+        td.textContent = String(columnTotals.get(col.aptId) || 0);
+        trTotals.appendChild(td);
+      }
+
+      const tdGrand = document.createElement('td');
+      tdGrand.style.cssText = cellStyle + 'background:#c5d9f1;font-weight:bold;';
+      tdGrand.textContent = String(grandTotal);
+      trTotals.appendChild(tdGrand);
+      tbody.appendChild(trTotals);
+      table.appendChild(tbody);
+      container.appendChild(table);
+
+      const sigDiv = document.createElement('div');
+      sigDiv.style.cssText = 'text-align:center;margin-top:12px;font-size:16px;font-weight:bold;direction:rtl;';
+      sigDiv.innerHTML = 'לאישורך לביצוע<br/>יריב קוסטיקה';
+      container.appendChild(sigDiv);
+
+      const footerImg = document.createElement('img');
+      footerImg.src = footerDataUrl;
+      footerImg.style.cssText = 'width:100%;height:auto;display:block;margin-top:12px;';
+      container.appendChild(footerImg);
+
+      // Append to DOM so html2canvas can paint it
       document.body.appendChild(container);
+
+      // Wait for all images to decode fully
+      await Promise.all(
+        [...container.querySelectorAll('img')].map(img =>
+          img.decode?.().catch(() => {}) ?? Promise.resolve()
+        )
+      );
+      // Double rAF ensures layout is complete before capture
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      // Lock explicit width so img width:100% resolves properly
+      const naturalWidth = container.scrollWidth;
+      container.style.width = naturalWidth + 'px';
+      await new Promise(r => requestAnimationFrame(r));
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
 
       document.body.removeChild(container);
 
