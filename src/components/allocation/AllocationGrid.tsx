@@ -547,8 +547,19 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // jsPDF doesn't support RTL — reverse Hebrew strings so they display correctly
-      const rtl = (s: string) => [...s].reverse().join('');
+      // jsPDF doesn't support RTL — reverse only Hebrew runs, keep numbers/Latin intact
+      const rtl = (s: string): string => {
+        // Split into tokens: Hebrew runs vs non-Hebrew runs
+        const tokens = s.match(/[\u0590-\u05FF\s"'\-\u05B0-\u05EA]+|[^\u0590-\u05FF]+/g);
+        if (!tokens) return s;
+        // Reverse order of tokens (RTL visual reorder) and reverse chars within Hebrew tokens
+        return tokens
+          .reverse()
+          .map(t => /[\u0590-\u05FF]/.test(t) ? [...t].reverse().join('') : t.trim())
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
 
       // Date and address fields (RTL - right aligned)
       doc.setFont('NotoSansHebrew', 'normal');
