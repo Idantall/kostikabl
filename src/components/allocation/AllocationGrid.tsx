@@ -538,14 +538,35 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'normal');
       doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'bold');
 
-      // Add header image
+      // Helper: load image and get native dimensions
+      const getImgDims = (b64: string, mime: string): Promise<{ w: number; h: number }> =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+          img.onerror = () => resolve({ w: 800, h: 100 }); // fallback
+          img.src = `data:${mime};base64,${b64}`;
+        });
+
+      const [headerDims, footerDims] = await Promise.all([
+        getImgDims(headerB64, 'image/jpeg'),
+        getImgDims(footerB64, 'image/jpeg'),
+      ]);
+
+      // Fit image to maxWidth while preserving aspect ratio
+      const fitImg = (dims: { w: number; h: number }, maxW: number) => {
+        const scale = maxW / dims.w;
+        return { w: maxW, h: dims.h * scale };
+      };
+
+      // Add header image (preserve aspect ratio)
+      const headerFit = fitImg(headerDims, tableWidth);
       try {
-        doc.addImage(`data:image/jpeg;base64,${headerB64}`, 'JPEG', margin, margin, tableWidth, headerImgH);
+        doc.addImage(`data:image/jpeg;base64,${headerB64}`, 'JPEG', margin, margin, headerFit.w, headerFit.h);
       } catch (e) {
         console.warn('Header image failed', e);
       }
 
-      let y = margin + headerImgH + 4;
+      let y = margin + headerFit.h + 4;
 
       // jsPDF renders LTR only. Strategy: reverse entire string, then
       // un-reverse digits/operators and Latin sequences so they read LTR.
@@ -666,7 +687,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       y += hdrH;
       x = tableStartX + colWidths.dimensions + colWidths.itemCode;
       for (const col of columnHeaders) {
-        drawCell(x, y, colWidths.apt, hdrH, col.label, { bg: '#eef2f7', fontSize: 7, skipRtl: true });
+        drawCell(x, y, colWidths.apt, hdrH, col.label, { bg: '#eef2f7', fontSize: 7 });
         x += colWidths.apt;
       }
       
@@ -725,9 +746,10 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.text(rtl('יריב קוסטיקה'), centerX, y, { align: 'center' });
       y += 14;
 
-      // Footer image
+      // Footer image (preserve aspect ratio)
+      const footerFit = fitImg(footerDims, tableWidth);
       try {
-        doc.addImage(`data:image/jpeg;base64,${footerB64}`, 'JPEG', margin, y, tableWidth, 15);
+        doc.addImage(`data:image/jpeg;base64,${footerB64}`, 'JPEG', margin, y, footerFit.w, footerFit.h);
       } catch (e) {
         console.warn('Footer image failed', e);
       }
