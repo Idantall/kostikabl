@@ -308,12 +308,11 @@ export function WizardStepApartments() {
           {/* Apartment table */}
           {currentApartment ? (
             <>
-              <ScrollArea className="w-full" dir="rtl">
-                <div className="border rounded-lg min-w-[1500px] max-h-[70vh] overflow-y-auto" ref={tableRef} onKeyDown={onTableKeyDown}>
-                  <Table dir="rtl" className="table-fixed">
-                    <TableHeader className="sticky top-0 z-10 bg-background">
-                    <TableRow>
-                         <TableHead className="text-right w-14">פתח</TableHead>
+              <div className="max-h-[70vh] overflow-auto border rounded-lg" ref={tableRef} onKeyDown={onTableKeyDown}>
+                <table dir="rtl" className="w-full table-fixed caption-bottom text-sm">
+                    <thead className="sticky top-0 z-10 bg-background [&_tr]:border-b shadow-[0_1px_0_0_hsl(var(--border))]">
+                    <tr>
+                         <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground w-14">פתח</th>
                         <TableHead className="text-right w-36">מיקום</TableHead>
                         {isPreContract ? (
                           <TableHead className="text-right w-32">פרט חוזה</TableHead>
