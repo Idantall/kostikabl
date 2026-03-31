@@ -505,10 +505,10 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const headerDataUrl = toDataUrl(headerBuf);
       const footerDataUrl = toDataUrl(footerBuf);
 
-      // Build off-screen container — must be fully visible for html2canvas to render
-      // We position it off-screen by scrolling, not by opacity/clip which break rendering
+      // Build off-screen container — position:fixed behind everything with z-index:-1
+      // This keeps it painted (html2canvas needs painted pixels) but invisible to user
       const container = document.createElement('div');
-      container.style.cssText = 'position:absolute;left:0;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
+      container.style.cssText = 'position:fixed;left:0;top:0;z-index:-1;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;overflow:auto;';
 
       // Header image
       const headerImg = document.createElement('img');
@@ -528,27 +528,23 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const table = document.createElement('table');
       table.style.cssText = 'border-collapse:collapse;font-size:14px;direction:rtl;text-align:center;';
 
-      // Floor group header row
       const thead = document.createElement('thead');
       const tr1 = document.createElement('tr');
       const cellStyle = 'border:1px solid #000;padding:3px 4px;font-weight:bold;text-align:center;';
       const headerBg = 'background:#dce6f1;';
 
-      // מידות (rowspan 2)
       const thDim = document.createElement('th');
       thDim.rowSpan = 2;
       thDim.style.cssText = cellStyle + headerBg + 'min-width:60px;';
       thDim.textContent = 'מידות';
       tr1.appendChild(thDim);
 
-      // מספר פרט (rowspan 2)
       const thCode = document.createElement('th');
       thCode.rowSpan = 2;
       thCode.style.cssText = cellStyle + headerBg + 'min-width:60px;';
       thCode.textContent = 'מספר פרט';
       tr1.appendChild(thCode);
 
-      // Floor spans
       for (const span of floorSpans) {
         const th = document.createElement('th');
         th.colSpan = span.colspan;
@@ -557,7 +553,6 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         tr1.appendChild(th);
       }
 
-      // סה״כ (rowspan 2)
       const thTotal = document.createElement('th');
       thTotal.rowSpan = 2;
       thTotal.style.cssText = cellStyle + headerBg + 'min-width:40px;';
@@ -565,7 +560,6 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       tr1.appendChild(thTotal);
       thead.appendChild(tr1);
 
-      // Apartment numbers row
       const tr2 = document.createElement('tr');
       for (const col of columnHeaders) {
         const th = document.createElement('th');
@@ -576,7 +570,6 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       thead.appendChild(tr2);
       table.appendChild(thead);
 
-      // Data rows
       const tbody = document.createElement('tbody');
       filteredRows.forEach((row, idx) => {
         const tr = document.createElement('tr');
@@ -608,11 +601,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         tbody.appendChild(tr);
       });
 
-      // Totals row
       const trTotals = document.createElement('tr');
       const tdEmpty = document.createElement('td');
       tdEmpty.style.cssText = cellStyle + headerBg;
-      tdEmpty.textContent = '';
       trTotals.appendChild(tdEmpty);
 
       const tdTotalLabel = document.createElement('td');
@@ -631,48 +622,42 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       tdGrand.style.cssText = cellStyle + 'background:#c5d9f1;font-weight:bold;';
       tdGrand.textContent = String(grandTotal);
       trTotals.appendChild(tdGrand);
-
       tbody.appendChild(trTotals);
       table.appendChild(tbody);
       container.appendChild(table);
 
-      // Signature text
       const sigDiv = document.createElement('div');
       sigDiv.style.cssText = 'text-align:center;margin-top:12px;font-size:16px;font-weight:bold;direction:rtl;';
       sigDiv.innerHTML = 'לאישורך לביצוע<br/>יריב קוסטיקה';
       container.appendChild(sigDiv);
 
-      // Footer image
       const footerImg = document.createElement('img');
       footerImg.src = footerDataUrl;
       footerImg.style.cssText = 'width:100%;height:auto;display:block;margin-top:12px;';
       container.appendChild(footerImg);
 
+      // Append to DOM so html2canvas can paint it
       document.body.appendChild(container);
 
-      // Let the browser lay out the table to get its natural width
+      // Wait for all images to decode fully
+      await Promise.all(
+        [...container.querySelectorAll('img')].map(img =>
+          img.decode?.().catch(() => {}) ?? Promise.resolve()
+        )
+      );
+      // Double rAF ensures layout is complete before capture
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      // Lock explicit width so img width:100% resolves properly
       const naturalWidth = container.scrollWidth;
-      // Set explicit width so img width:100% resolves properly
       container.style.width = naturalWidth + 'px';
+      await new Promise(r => requestAnimationFrame(r));
 
-      // Wait for images inside the container to fully load
-      const imgs = container.querySelectorAll('img');
-      await Promise.all(Array.from(imgs).map(img =>
-        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
-      ));
-      // Extra tick for layout
-      await new Promise(r => setTimeout(r, 200));
-
-      // Render to canvas — use scrollX/scrollY to capture from element position
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: -window.scrollY,
-        windowWidth: naturalWidth + 50,
       });
 
       document.body.removeChild(container);
