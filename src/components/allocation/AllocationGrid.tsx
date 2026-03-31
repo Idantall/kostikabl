@@ -650,20 +650,29 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       document.body.appendChild(container);
 
+      // Let the browser lay out the table to get its natural width
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const naturalWidth = container.scrollWidth;
+      // Set explicit width so img width:100% resolves properly
+      container.style.width = naturalWidth + 'px';
+
       // Wait for images inside the container to fully load
       const imgs = container.querySelectorAll('img');
       await Promise.all(Array.from(imgs).map(img =>
         img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
       ));
       // Extra tick for layout
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 200));
 
-      // Render to canvas
+      // Render to canvas — use scrollX/scrollY to capture from element position
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: naturalWidth + 50,
       });
 
       document.body.removeChild(container);
