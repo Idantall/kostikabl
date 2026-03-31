@@ -46,6 +46,8 @@ const MeasurementEditor = () => {
     oldValue: string | null;
     newValue: string | null;
     matchingCount: number;
+    isNewLabel: boolean;
+    selectedExisting: string;
   } | null>(null);
   
   // Project metadata (types + bank)
