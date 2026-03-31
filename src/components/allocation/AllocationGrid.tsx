@@ -583,7 +583,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         const rowBg = idx % 2 === 0 ? '' : 'background:#f5f5f5;';
 
         const tdDim = document.createElement('td');
-        tdDim.style.cssText = cellStyle + rowBg + 'font-family:monospace;font-size:10px;';
+        tdDim.style.cssText = cellStyle + rowBg + 'font-family:monospace;font-size:13px;';
         tdDim.textContent = row.dimensions;
         tr.appendChild(tdDim);
 
