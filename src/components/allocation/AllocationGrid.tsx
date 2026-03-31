@@ -569,7 +569,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const tr2 = document.createElement('tr');
       for (const col of columnHeaders) {
         const th = document.createElement('th');
-        th.style.cssText = cellStyle + 'background:#eef2f7;font-size:10px;min-width:28px;';
+        th.style.cssText = cellStyle + 'background:#eef2f7;font-size:13px;min-width:28px;';
         th.textContent = `דירה ${col.label}`;
         tr2.appendChild(th);
       }
