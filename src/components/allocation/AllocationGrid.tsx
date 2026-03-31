@@ -547,29 +547,28 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       let y = margin + headerImgH + 4;
 
-      // Pure Hebrew: simple character reversal (for labels, pure Hebrew text)
-      const rtlHebrew = (s: string): string => !s ? s : [...s].reverse().join('');
-      // Mixed content (Hebrew + numbers + Latin): bidi-style token reordering
-      // Each Hebrew token must also be char-reversed since jsPDF renders LTR
+      // jsPDF renders LTR only. Strategy: reverse entire string, then
+      // un-reverse digits/operators and Latin sequences so they read LTR.
+      // Swap brackets since full reversal flips them.
       const rtl = (s: string): string => {
         if (!s) return s;
-        // If text is pure Hebrew (with spaces/punctuation, no digits/latin), use simple reversal
-        if (!/[0-9A-Za-z]/.test(s)) return rtlHebrew(s);
-        // Mixed: tokenize, reverse order, and reverse chars within Hebrew tokens
-        return (s.match(/[\u0590-\u05FF"'״׳]+|\d+(?:[.+\-/]\d+)*|[A-Za-z]+|\s+|[(){}\[\]]|[^\s\u0590-\u05FF"'״׳]/g) || [s])
-          .reverse()
-          .map(t => {
-            if (t === '(') return ')';
-            if (t === ')') return '(';
-            if (t === '[') return ']';
-            if (t === ']') return '[';
-            if (t === '{') return '}';
-            if (t === '}') return '{';
-            // Reverse characters within Hebrew tokens so they render correctly in LTR
-            if (/[\u0590-\u05FF]/.test(t)) return [...t].reverse().join('');
-            return t;
-          })
-          .join('');
+        // Full character reversal
+        let r = [...s].reverse().join('');
+        // Un-reverse contiguous digit+operator sequences (e.g. 33+92+72-02)
+        r = r.replace(/[\d][0-9+\-.*\/]*/g, m => [...m].reverse().join(''));
+        // Un-reverse Latin letter sequences (e.g. K, H1, PH)
+        r = r.replace(/[A-Za-z]+\d*/g, m => [...m].reverse().join(''));
+        // Swap parentheses/brackets (full reversal flipped them)
+        r = r.replace(/[(){}\[\]]/g, c => {
+          if (c === '(') return ')';
+          if (c === ')') return '(';
+          if (c === '[') return ']';
+          if (c === ']') return '[';
+          if (c === '{') return '}';
+          if (c === '}') return '{';
+          return c;
+        });
+        return r;
       };
 
       // Date and address fields (RTL)
