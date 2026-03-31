@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -63,12 +63,31 @@ export const MeasurementRowCard = memo(function MeasurementRowCard({
   onDelete,
   onLabelChange,
 }: MeasurementRowCardProps) {
+  // Local state for floor/apt labels - don't propagate until blur
+  const [localFloor, setLocalFloor] = useState(row.floor_label || "");
+  const [localApt, setLocalApt] = useState(row.apartment_label || "");
+
+  // Sync local state when row changes from outside (e.g. batch rename)
+  useEffect(() => { setLocalFloor(row.floor_label || ""); }, [row.floor_label]);
+  useEffect(() => { setLocalApt(row.apartment_label || ""); }, [row.apartment_label]);
+
   const updateField = useCallback(
     (field: keyof MeasurementRowData, value: string | boolean | null) => {
       onFieldChange(row.id, field, value);
     },
     [onFieldChange, row.id]
   );
+
+  const handleLabelBlur = useCallback((field: 'floor_label' | 'apartment_label', localVal: string) => {
+    const newVal = localVal || null;
+    const oldVal = row[field];
+    if (newVal === oldVal) return;
+    if (onLabelChange) {
+      onLabelChange(row.id, field, oldVal, newVal);
+    } else {
+      onFieldChange(row.id, field, newVal);
+    }
+  }, [row, onLabelChange, onFieldChange]);
 
   return (
     <Card className="overflow-hidden">
@@ -78,14 +97,9 @@ export const MeasurementRowCard = memo(function MeasurementRowCard({
             קומה
             <input
               className="w-12 text-center border-b border-dashed border-muted-foreground/40 bg-transparent focus:outline-none focus:border-primary text-xs font-medium text-foreground"
-              value={row.floor_label || ""}
-              onChange={(e) => updateField("floor_label", e.target.value || null)}
-              onBlur={(e) => {
-                const newVal = e.target.value || null;
-                if (newVal !== row.floor_label && onLabelChange) {
-                  onLabelChange(row.id, 'floor_label', row.floor_label, newVal);
-                }
-              }}
+              value={localFloor}
+              onChange={(e) => setLocalFloor(e.target.value)}
+              onBlur={() => handleLabelBlur('floor_label', localFloor)}
               dir="rtl"
             />
           </span>
@@ -94,14 +108,9 @@ export const MeasurementRowCard = memo(function MeasurementRowCard({
             דירה
             <input
               className="w-12 text-center border-b border-dashed border-muted-foreground/40 bg-transparent focus:outline-none focus:border-primary text-xs font-medium text-foreground"
-              value={row.apartment_label || ""}
-              onChange={(e) => updateField("apartment_label", e.target.value || null)}
-              onBlur={(e) => {
-                const newVal = e.target.value || null;
-                if (newVal !== row.apartment_label && onLabelChange) {
-                  onLabelChange(row.id, 'apartment_label', row.apartment_label, newVal);
-                }
-              }}
+              value={localApt}
+              onChange={(e) => setLocalApt(e.target.value)}
+              onBlur={() => handleLabelBlur('apartment_label', localApt)}
               dir="rtl"
             />
           </span>

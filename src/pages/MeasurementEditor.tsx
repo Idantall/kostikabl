@@ -230,15 +230,19 @@ const MeasurementEditor = () => {
     const matchingCount = rows.filter(r => r[field] === oldValue && r.id !== rowId).length;
     const existingLabels = field === 'floor_label' ? floors : apartments;
     const isNewLabel = !!newValue && !existingLabels.includes(newValue);
-    if (matchingCount > 0) {
+    // Always show dialog when there are sibling rows OR new label
+    if (matchingCount > 0 || isNewLabel) {
       setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount, isNewLabel, selectedExisting: '' });
-    } else if (isNewLabel) {
-      // Single row but new label - show warning dialog
-      setRenameConfirm({ rowId, field, oldValue, newValue, matchingCount: 0, isNewLabel, selectedExisting: '' });
     } else {
-      recalcFilters(rows);
+      // No siblings, existing label — just apply directly
+      setRows(prev => {
+        const updated = prev.map(r => r.id === rowId ? { ...r, [field]: newValue } : r);
+        recalcFilters(updated);
+        return updated;
+      });
+      debouncedQueueUpdate(rowId, 'measurement_rows', { [field]: newValue });
     }
-  }, [rows, recalcFilters, floors, apartments]);
+  }, [rows, recalcFilters, floors, apartments, debouncedQueueUpdate]);
 
   const applyBatchRename = useCallback(() => {
     if (!renameConfirm) return;
@@ -248,13 +252,14 @@ const MeasurementEditor = () => {
       const updated = prev.map(r =>
         r[field] === oldValue ? { ...r, [field]: finalValue } : r
       );
+      // Queue DB updates for all affected rows
+      prev.forEach(r => {
+        if (r[field] === oldValue) {
+          debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: finalValue });
+        }
+      });
       recalcFilters(updated);
       return updated;
-    });
-    rows.forEach(r => {
-      if (r[field] === oldValue) {
-        debouncedQueueUpdate(r.id, 'measurement_rows', { [field]: finalValue });
-      }
     });
     if (field === 'floor_label' && selectedFloor === oldValue) {
       setSelectedFloor(finalValue || 'all');
@@ -281,10 +286,9 @@ const MeasurementEditor = () => {
   }, [renameConfirm, debouncedQueueUpdate, recalcFilters]);
 
   const skipBatchRename = useCallback(() => {
-    // Just recalc filters for the single-row change already applied
-    recalcFilters(rows);
+    // Cancel — no changes were applied yet (local state in card will revert via useEffect)
     setRenameConfirm(null);
-  }, [rows, recalcFilters]);
+  }, []);
 
   const addRow = async () => {
     if (!projectId) return;
