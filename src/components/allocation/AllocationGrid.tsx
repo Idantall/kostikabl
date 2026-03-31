@@ -683,9 +683,9 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       doc.setFont('NotoSansHebrew', 'normal');
       doc.setFontSize(12);
       const centerX = margin + tableWidth / 2;
-      doc.text('לאישורך לביצוע', centerX, y, { align: 'center' });
+      doc.text(rtl('לאישורך לביצוע'), centerX, y, { align: 'center' });
       y += 7;
-      doc.text('יריב קוסטיקה', centerX, y, { align: 'center' });
+      doc.text(rtl('יריב קוסטיקה'), centerX, y, { align: 'center' });
       y += 8;
 
       // Footer image
