@@ -505,9 +505,10 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const headerDataUrl = toDataUrl(headerBuf);
       const footerDataUrl = toDataUrl(footerBuf);
 
-      // Build an off-screen HTML table — let it size naturally so nothing is cut off
+      // Build off-screen container — must be fully visible for html2canvas to render
+      // We position it off-screen by scrolling, not by opacity/clip which break rendering
       const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;left:0;top:0;z-index:-9999;opacity:0;pointer-events:none;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
+      container.style.cssText = 'position:absolute;left:0;top:0;direction:rtl;font-family:Arial,sans-serif;background:#fff;padding:12px;white-space:nowrap;';
 
       // Header image
       const headerImg = document.createElement('img');
@@ -519,13 +520,13 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const now2 = new Date();
       const dateStr = `${String(now2.getDate()).padStart(2, '0')}/${String(now2.getMonth() + 1).padStart(2, '0')}/${now2.getFullYear()}`;
       const fieldsDiv = document.createElement('div');
-      fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:14px;font-weight:bold;margin:8px 4px;line-height:1.8;';
+      fieldsDiv.style.cssText = 'direction:rtl;text-align:right;font-size:18px;font-weight:bold;margin:8px 4px;line-height:1.8;';
       fieldsDiv.innerHTML = `${dateStr}<br/>לכבוד:<br/>אתר:<br/>לידי:`;
       container.appendChild(fieldsDiv);
 
       // Build the table
       const table = document.createElement('table');
-      table.style.cssText = 'border-collapse:collapse;font-size:11px;direction:rtl;text-align:center;';
+      table.style.cssText = 'border-collapse:collapse;font-size:14px;direction:rtl;text-align:center;';
 
       // Floor group header row
       const thead = document.createElement('thead');
@@ -568,7 +569,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       const tr2 = document.createElement('tr');
       for (const col of columnHeaders) {
         const th = document.createElement('th');
-        th.style.cssText = cellStyle + 'background:#eef2f7;font-size:10px;min-width:28px;';
+        th.style.cssText = cellStyle + 'background:#eef2f7;font-size:13px;min-width:28px;';
         th.textContent = `דירה ${col.label}`;
         tr2.appendChild(th);
       }
@@ -582,7 +583,7 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         const rowBg = idx % 2 === 0 ? '' : 'background:#f5f5f5;';
 
         const tdDim = document.createElement('td');
-        tdDim.style.cssText = cellStyle + rowBg + 'font-family:monospace;font-size:10px;';
+        tdDim.style.cssText = cellStyle + rowBg + 'font-family:monospace;font-size:13px;';
         tdDim.textContent = row.dimensions;
         tr.appendChild(tdDim);
 
@@ -649,20 +650,29 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
 
       document.body.appendChild(container);
 
+      // Let the browser lay out the table to get its natural width
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const naturalWidth = container.scrollWidth;
+      // Set explicit width so img width:100% resolves properly
+      container.style.width = naturalWidth + 'px';
+
       // Wait for images inside the container to fully load
       const imgs = container.querySelectorAll('img');
       await Promise.all(Array.from(imgs).map(img =>
         img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
       ));
       // Extra tick for layout
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 200));
 
-      // Render to canvas
+      // Render to canvas — use scrollX/scrollY to capture from element position
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: naturalWidth + 50,
       });
 
       document.body.removeChild(container);
