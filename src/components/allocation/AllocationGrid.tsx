@@ -613,6 +613,17 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         // Auto-reverse if text contains Hebrew characters
         const hasHebrew = /[\u0590-\u05FF]/.test(text);
         const displayText = hasHebrew ? rtl(String(text)) : String(text);
+        
+        // Auto-shrink font if text overflows cell width
+        let actualFontSize = fontSize;
+        doc.setFontSize(actualFontSize);
+        let textW = doc.getTextWidth(displayText);
+        while (textW > w - 2 && actualFontSize > 4) {
+          actualFontSize -= 0.5;
+          doc.setFontSize(actualFontSize);
+          textW = doc.getTextWidth(displayText);
+        }
+        
         const textX = align === 'center' ? x + w / 2 : align === 'right' ? x + w - 1 : x + 1;
         doc.text(displayText, textX, yPos + h / 2 + 1, { align });
       };
