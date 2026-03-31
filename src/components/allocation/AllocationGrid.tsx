@@ -488,10 +488,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
     try {
       const { default: jsPDF } = await import('jspdf');
 
-      // Load branding images as base64
-      const [headerRes, footerRes] = await Promise.all([
+      // Load branding images and Hebrew font in parallel
+      const [headerRes, footerRes, fontRes] = await Promise.all([
         fetch('/branding/allocation-header.jpg'),
         fetch('/branding/allocation-footer.jpg'),
+        fetch('/fonts/NotoSansHebrew-Regular.ttf'),
       ]);
       const toBase64 = async (res: Response) => {
         const buf = await res.arrayBuffer();
@@ -500,8 +501,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
         return btoa(binary);
       };
-      const headerB64 = await toBase64(headerRes);
-      const footerB64 = await toBase64(footerRes);
+      const [headerB64, footerB64, fontB64] = await Promise.all([
+        toBase64(headerRes),
+        toBase64(footerRes),
+        toBase64(fontRes),
+      ]);
 
       // Calculate dimensions
       const aptCount = columnHeaders.length;
@@ -513,14 +517,13 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
       };
       const tableWidth = colWidths.dimensions + colWidths.itemCode + aptCount * colWidths.apt + colWidths.total;
       const margin = 6;
-      const pageWidth = Math.max(420, tableWidth + margin * 2); // A3 landscape min
+      const pageWidth = Math.max(420, tableWidth + margin * 2);
       
-      // Estimate page height
       const headerImgH = 22;
       const addressH = 32;
       const tableHeaderH = 14;
       const rowH = 6;
-      const dataH = filteredRows.length * rowH + rowH; // +1 for totals
+      const dataH = filteredRows.length * rowH + rowH;
       const footerH = 40;
       const pageHeight = Math.max(297, margin + headerImgH + addressH + tableHeaderH + dataH + footerH + margin);
 
@@ -529,6 +532,11 @@ export function AllocationGrid({ items, floors, apartments, projectName }: Alloc
         unit: 'mm',
         format: [pageWidth, pageHeight],
       });
+
+      // Register Hebrew font
+      doc.addFileToVFS('NotoSansHebrew-Regular.ttf', fontB64);
+      doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'normal');
+      doc.addFont('NotoSansHebrew-Regular.ttf', 'NotoSansHebrew', 'bold');
 
       // Add header image
       try {
